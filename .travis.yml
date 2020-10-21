@@ -1,0 +1,16 @@
+language: java
+jdk:
+  - openjdk11
+
+git:
+  depth: false
+
+addons:
+  sonarcloud:
+    organization: "kiwiproject"
+    token:
+      secure: "f838RppEKLfXi3gOAt/q6xcbrIXmzBBnalVlJo9LaHoGyjtnrU/DDVg1N58qMyfAygg3kLLNlA0/dt9hDzavdmpvkQF+ozbARCy45F23gS7oPpKRrhs4DLb9xMhEuNOpOeaI9ajrLbg6fXcrBLjYbbCF9sxD/A4XXlWUn6xn8TeTTDADqHPOR7L4iB/LAjLzKJqsaxDiWURMZtI6hVSftzyluV48DitnlF19u+zsMPrvmr7OoOs06OKXwbOTKxEdPM9uEFOhNdb9gv1xNFVuQzXQQVdFP8QQTKRelKpjQAksb7Ubm8wPdX6N9BDH4BRgPYbcKyyw8XRnPVG5CIAaaYZbfa7+JyTobxpLECfaV3HDSTdTWx5n2wgUHeU4POsC70wC79co35ExStIzWll8Q55CSPyRQWLhDDtOFaL+oHbKhasELlrSyHuYEomgeO7ycGczy+t27VZfmBYf+rM03G6t9k0L8bZTPOg5SfHACZxOAuBN32U8r/zyWNru/2mrq6PxNKVYKu2eZj1TGWecjFF4N2Cdgk2qlkfaBLxxPoH7n4QNjsej2J4cOHP+XOLKse4v0cElYLeV7OyycIWTaBU49jIsZCMyx/k72zsLp4Hp16kecdArZf76UHorHPfWQ1RB8sJqzhgak2MHn21v8/YPCJRHoUGhNkimCx+NrdE="
+
+script:
+  - mvn -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml clean org.jacoco:jacoco-maven-plugin:prepare-agent
+    package org.jacoco:jacoco-maven-plugin:report sonar:sonar -Dsonar.projectKey=kiwiproject_dropwizard-application-errors
