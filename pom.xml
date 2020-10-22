@@ -28,6 +28,16 @@
     </scm>
 
     <properties>
+
+        <!-- Versions for required dependencies -->
+        <kiwi.version>0.12.0</kiwi.version>
+
+        <!-- Versions for optional dependencies -->
+        <jsr305.version>3.0.2</jsr305.version>
+
+        <!-- Versions for test dependencies -->
+        <kiwi.test.version>0.7.0</kiwi.test.version>
+
     </properties>
 
     <dependencies>
@@ -40,11 +50,31 @@
 
         <!-- required dependencies -->
 
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>kiwi</artifactId>
+            <version>${kiwi.version}</version>
+        </dependency>
+
         <!-- provided dependencies -->
 
         <!-- optional dependencies -->
 
-        <!-- test dependendcies -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${jsr305.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- test dependencies -->
+
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>kiwi-test</artifactId>
+            <version>${kiwi.test.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
