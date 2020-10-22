@@ -118,8 +118,10 @@ class ApplicationErrorTest {
         @Test
         void shouldReturnNull_WhenTimestampFields_AreNull(SoftAssertions softly) {
             error = ApplicationError.builder().build();
+            softly.assertThat(error.getCreatedAt()).isNull();
             softly.assertThat(error.getCreatedAtMillis()).isNull();
-            softly.assertThat(error.getCreatedAtMillis()).isNull();
+            softly.assertThat(error.getUpdatedAt()).isNull();
+            softly.assertThat(error.getUpdatedAtMillis()).isNull();
         }
 
         @Test
