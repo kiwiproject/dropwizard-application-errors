@@ -40,6 +40,19 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplicationError {
 
+    /**
+     * Indicates whether an ApplicationError is resolved.
+     */
+    public enum Resolved {
+        YES(true), NO(false);
+
+        private final boolean value;
+
+        Resolved(boolean value) {
+            this.value = value;
+        }
+    }
+
     @With
     Long id;
 
@@ -159,7 +172,7 @@ public class ApplicationError {
      */
     public static ApplicationError newUnresolvedError(String description, @Nullable Throwable throwable) {
         checkPersistentHostState();
-        return newError(description, false, throwable);
+        return newError(description, Resolved.NO, throwable);
     }
 
     /**
@@ -177,7 +190,7 @@ public class ApplicationError {
                                                       String ipAddress,
                                                       int port,
                                                       @Nullable Throwable throwable) {
-        return newError(description, false, hostName, ipAddress, port, throwable);
+        return newError(description, Resolved.NO, hostName, ipAddress, port, throwable);
     }
 
     /**
@@ -188,7 +201,7 @@ public class ApplicationError {
      * @param throwable   a Throwable that is the cause of this application error
      * @return a new instance
      */
-    public static ApplicationError newError(String description, boolean resolved, @Nullable Throwable throwable) {
+    public static ApplicationError newError(String description, Resolved resolved, @Nullable Throwable throwable) {
         checkPersistentHostState();
         return newError(description,
                 resolved,
@@ -211,13 +224,14 @@ public class ApplicationError {
      * @return a new instance
      */
     public static ApplicationError newError(String description,
-                                            boolean resolved,
+                                            Resolved resolved,
                                             String hostName,
                                             String ipAddress,
                                             int port,
                                             @Nullable Throwable throwable) {
 
         checkArgumentNotBlank(description, "description must not be blank");
+        checkArgumentNotNull(resolved, "resolved must not be null");
         checkArgumentNotBlank(hostName, "hostName must not be blank");
         checkArgumentNotBlank(ipAddress, "ipAddress must not be blank");
         checkArgument(PersistentHostInformation.isValidPort(port), "port must be a valid port");
@@ -237,7 +251,7 @@ public class ApplicationError {
                 .exceptionCauseType(causeThrowableInfo.type)
                 .exceptionCauseMessage(causeThrowableInfo.getMessage().orElse(null))
                 .stackTrace(throwableInfo.stackTrace)
-                .resolved(resolved)
+                .resolved(resolved.value)
                 .hostName(hostName)
                 .ipAddress(ipAddress)
                 .port(port)

@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.kiwiproject.dropwizard.error.model.ApplicationError.Resolved;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -208,9 +212,34 @@ class ApplicationErrorTest {
     @Nested
     class NewError {
 
+        @ParameterizedTest
+        @CsvSource({
+                " , NO, host-1, 192.168.1.42, 9042, 'description must not be blank' ",
+                " '', NO, host-1, 192.168.1.42, 9042, 'description must not be blank'",
+                " Oops, , host-1, 192.168.1.50, 9050, 'resolved must not be null' ",
+                " Oops, NO, , 192.168.1.60, 9060, 'hostName must not be blank' ",
+                " Oops, NO, '', 192.168.1.60, 9060, 'hostName must not be blank' ",
+                " Oops, NO, host-1, , 9070, 'ipAddress must not be blank' ",
+                " Oops, NO, host-1, '', 9070, 'ipAddress must not be blank' ",
+                " Oops, NO, host-1, 192.168.1.80, -1, 'port must be a valid port' ",
+                " Oops, NO, host-1, 192.168.1.80, 65536, 'port must be a valid port' ",
+        })
+        void shouldValidateArguments(String description,
+                                     Resolved resolved,
+                                     String hostName,
+                                     String ipAddress,
+                                     int port,
+                                     String expectedErrorMessage) {
+            
+            assertThatThrownBy(() ->
+                    ApplicationError.newError(description, resolved, hostName, ipAddress, port, null))
+                    .isExactlyInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(expectedErrorMessage);
+        }
+
         @Test
         void shouldCreate_WithPresetHostInformation(SoftAssertions softly) {
-            error = ApplicationError.newError(description, true, throwable);
+            error = ApplicationError.newError(description, Resolved.YES, throwable);
 
             softly.assertThat(error.isResolved()).isTrue();
             assertCommonProperties(softly);
@@ -219,7 +248,7 @@ class ApplicationErrorTest {
 
         @Test
         void shouldCreateResolvedError_AndCustomPersistentHostInformation(SoftAssertions softly) {
-            error = ApplicationError.newError(description, true, hostName, ipAddress, port, throwable);
+            error = ApplicationError.newError(description, Resolved.YES, hostName, ipAddress, port, throwable);
 
             softly.assertThat(error.isResolved()).isTrue();
             assertCommonProperties(softly);
@@ -228,7 +257,7 @@ class ApplicationErrorTest {
 
         @Test
         void shouldPermitNullThrowable(SoftAssertions softly) {
-            error = ApplicationError.newError(description, false, null);
+            error = ApplicationError.newError(description, Resolved.NO, null);
 
             softly.assertThat(error.isResolved()).isFalse();
             assertCommonProperties(softly);
