@@ -141,6 +141,7 @@ public class ApplicationError {
     /**
      * Return the currently set persistent host information.
      *
+     * @return the persistent host information
      * @implNote This is <em>intentionally not synchronized</em>, as it is assumed these values are set once (when an
      * application starts on a specific host and port) and is then never changed during the lifetime of the
      * application. If you change this information, you violate this contract and assume personal responsibility, and
