@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-// TODO Review code & javadocs...
+// TODO Review code & javadocs...some javadocs have weird characters from the scan
 
 /**
  * Implementation of {@link ApplicationErrorDao} that uses JDBI 3.
