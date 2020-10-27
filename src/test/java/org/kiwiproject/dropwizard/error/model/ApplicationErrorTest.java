@@ -61,6 +61,21 @@ class ApplicationErrorTest {
     }
 
     @Nested
+    class ResolvedEnum {
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, YES",
+                "false, NO"
+        })
+        void shouldCreateInstanceFromBoolean(boolean value, Resolved expected) {
+            assertThat(Resolved.of(value))
+                    .describedAs("Expected %s for value %b", expected, value)
+                    .isEqualTo(expected);
+        }
+    }
+
+    @Nested
     class HostInformation {
 
         @Test

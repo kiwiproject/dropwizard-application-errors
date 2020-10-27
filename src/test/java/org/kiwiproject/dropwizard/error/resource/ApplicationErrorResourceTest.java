@@ -94,7 +94,10 @@ class ApplicationErrorResourceTest {
             int pageSize = 15;
             long totalCount = 42L;
             var errors = IntStream.rangeClosed(1, pageSize)
-                    .mapToObj(value -> newApplicationError("error " + value, Resolved.of(ThreadLocalRandom.current().nextBoolean())))
+                    .mapToObj(value -> {
+                        var randomBoolean = ThreadLocalRandom.current().nextBoolean();
+                        return newApplicationError("error " + value, Resolved.of(randomBoolean));
+                    })
                     .collect(toList());
 
             when(ERROR_DAO.getErrors(ApplicationErrorStatus.ALL, pageNumber, pageSize)).thenReturn(errors);
@@ -240,7 +243,7 @@ class ApplicationErrorResourceTest {
     private ApplicationError newApplicationError(String description, Resolved resolved) {
         return ApplicationError.builder()
                 .description(description)
-                .resolved(resolved == Resolved.YES)
+                .resolved(resolved.toBoolean())
                 .build();
     }
 }

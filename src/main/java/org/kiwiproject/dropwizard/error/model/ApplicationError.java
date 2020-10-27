@@ -52,9 +52,12 @@ public class ApplicationError {
             this.value = value;
         }
 
-        // TODO Write a silly little test for this...because yes I am anal...
         public static Resolved of(boolean value) {
             return value ? YES : NO;
+        }
+
+        public boolean toBoolean() {
+            return value;
         }
     }
 
