@@ -41,6 +41,8 @@
         <kiwi.version>0.13.0</kiwi.version>
 
         <!-- Versions for provided dependencies -->
+        <h2.version>>1.4.200</h2.version>
+        <liquibase.version>3.8.9</liquibase.version>
 
         <!-- Versions for optional dependencies -->
         <jsr305.version>3.0.2</jsr305.version>
@@ -48,7 +50,6 @@
         <!-- Versions for test dependencies -->
         <embedded-postgres.version>1.2.6</embedded-postgres.version>
         <kiwi.test.version>0.8.0</kiwi.test.version>
-        <liquibase.version>3.8.9</liquibase.version>
 
     </properties>
 
@@ -166,11 +167,36 @@
 
         <!-- provided dependencies -->
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- This is needed to support having the test utilities as part of the library JAR -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- optional dependencies -->
@@ -206,23 +232,6 @@
             <artifactId>kiwi-test</artifactId>
             <version>${kiwi.test.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-            <version>${liquibase.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
     </dependencies>
