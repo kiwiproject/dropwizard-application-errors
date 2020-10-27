@@ -1,24 +1,36 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
+import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.kiwiproject.test.junit.jupiter.H2FileBasedDatabaseExtension;
+import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
-// TODO First implement ApplicationErrorJdbc helper class, then change to run migrations, then enable this test...
-
-@Disabled
 public class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
-    @RegisterExtension
-    static final H2FileBasedDatabaseExtension DATABASE_EXTENSION = new H2FileBasedDatabaseExtension();
+    private static JdbcDataSource DATA_SOURCE;
 
-    @RegisterExtension
-    final Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> jdbi3DaoExtension =
+    @BeforeAll
+    static void beforeAll() {
+        var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+
+        DATA_SOURCE = new JdbcDataSource();
+        DATA_SOURCE.setUrl(dataSourceFactory.getUrl());
+        DATA_SOURCE.setUser(dataSourceFactory.getUser());
+        DATA_SOURCE.setPassword(dataSourceFactory.getPassword());
+    }
+
+    @AfterAll
+    static void afterAll() {
+        DATA_SOURCE = null;
+    }
+
+    @RegisterExtension final Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> jdbi3DaoExtension =
             Jdbi3DaoExtension.<Jdbi3ApplicationErrorDao>builder()
                     .daoType(Jdbi3ApplicationErrorDao.class)
-                    .dataSource(DATABASE_EXTENSION.getDataSource())
+                    .dataSource(DATA_SOURCE)
                     .plugin(new H2DatabasePlugin())
                     .build();
 
