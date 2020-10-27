@@ -21,8 +21,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-// TODO Review code & javadocs...some javadocs have weird characters from the scan
-
 /**
  * Implementation of {@link ApplicationErrorDao} that uses JDBI 3.
  */
@@ -103,7 +101,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
 
     /**
      * @implNote The LIMIT and OFFSET fields must be in this order to work with H2 (as of version 1.4.200). This is
-     * because they apparently adjusted their grammar parsing engine to expect limit before offset. Other engines (i.e.
+     * because they apparently adjusted their grammar parsing engine to expect LIMIT before OFFSET. Other engines (i.e.
      * Postgres) do not care about the order, but the LIMIT keyword is apparently just a non-standard keyword.
      * <p>
      * The SQL 2008 standard way to do this would be: OFFSET {@code offset} ROWS FETCH FIRST {@code limit} ROWS ONLY
@@ -113,8 +111,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     List<ApplicationError> getAllErrorsInternal(@Bind("pageSize") int pageSize, @Bind("offset") int offset);
 
     /**
-     * @implNote The LIMIT and OFFSET fields must be in this order. For
-     * further information, read the implementation
+     * @implNote The LIMIT and OFFSET fields must be in this order. For further information, read the implementation
      * note on {@link #getAllErrorsInternal(int, int)}.
      * @see #getAllErrorsInternal(int, int)
      */
@@ -154,14 +151,16 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     }
 
     /**
-     * Inserts a new {@link ApplicationError}.
+     * Inserts a <strong>new</strong> {@link ApplicationError}.
      * <p>
      * Notes:
      * <ul>
-     * <li>Non-null values in {@code createdAt} and {@code updatedAt} will be
-     * overridden with the current timestamp.</li>
-     * <li>Resolved will always be set to false regardless of what the value
-     * in 1@code newError} is.</li>
+     * <li>
+     *     Non-null values in {@code createdAt} and {@code updatedAt} will be overridden with the current timestamp.
+     * </li>
+     * <li>
+     *     Resolved will always be set to false regardless of what the value in {@code newError} is.
+     * </li>
      * </ul>
      *
      * @param newError the new ApplicationError
