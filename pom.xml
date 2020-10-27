@@ -120,7 +120,7 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jdbi3</artifactId>
             <version>${dropwizard.version}</version>
-            <!-- TODO Should this be provided, e.g. eventually we want to add a Mongo implementation? -->
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.ben-manes.caffeine</groupId>

@@ -23,8 +23,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-// TODO Javadocs...
-
 /**
  * JAX-RS resource class for retrieving application errors, as well as marking them resolved.
  */
@@ -38,6 +36,12 @@ public class ApplicationErrorResource {
         this.errorDao = errorDao;
     }
 
+    /**
+     * GET endpoint to retrieve an application error by ID.
+     *
+     * @param id the ID as a path parameter
+     * @return the Response
+     */
     @GET
     @Path("/{id}")
     @Timed
@@ -47,6 +51,15 @@ public class ApplicationErrorResource {
         return KiwiStandardResponses.standardGetResponse("id", id, errorOptional, ApplicationError.class);
     }
 
+    /**
+     * GET endpoint to paginate application errors.
+     *
+     * @param statusParam status query parameter indicating which application errors to include
+     * @param pageNumber  the page number query parameter, starting from one
+     * @param pageSize    the page size query parameter
+     * @return the Response
+     * @see ApplicationErrorStatus
+     */
     @GET
     @Timed
     @ExceptionMetered
@@ -70,15 +83,26 @@ public class ApplicationErrorResource {
         return Response.ok(appErrors).build();
     }
 
+    /**
+     * Resolve an application error by ID.
+     *
+     * @param id the ID path parameter
+     * @return the Response
+     */
     @PUT
     @Path("/resolve/{id}")
     @Timed
     @ExceptionMetered
     public Response resolve(@PathParam("id") OptionalLong id) {
-        var resolved = errorDao.resolve(id.orElseThrow());
-        return KiwiStandardResponses.standardPutResponse(resolved);
+        var resolvedError = errorDao.resolve(id.orElseThrow());
+        return KiwiStandardResponses.standardPutResponse(resolvedError);
     }
 
+    /**
+     * Resolve <em>all</em> unresolved application errors.
+     *
+     * @return the Response
+     */
     @PUT
     @Path("/resolve")
     @Timed
