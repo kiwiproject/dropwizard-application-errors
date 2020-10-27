@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Migrations file for Dropwizard Application Errors.
+
+We currently do not have an automated process for running this migration when not using the in-memory H2 database
+so you will need to copy the migration directly into your own application's migrations.xml file and run the migrations.
+The default Dropwizard migrations does support specifying separate files, but our current deployment process does not.
+
+As alluded to above, this file is used when the in-memory H2 database option is used.
+-->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="0001-add-application-errors-table" author="dropwizard-application-errors">
+        <createTable tableName="application_errors" remarks="Stores application errors">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp without time zone" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp without time zone" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="num_times_occurred" type="integer" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_type" type="text"/>
+            <column name="exception_message" type="text"/>
+            <column name="exception_cause_type" type="text"/>
+            <column name="exception_cause_message" type="text"/>
+            <column name="stack_trace" type="text"/>
+            <column name="resolved" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="host_name" type="text"/>
+            <column name="ip_address" type="text"/>
+            <column name="port" type="integer"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
