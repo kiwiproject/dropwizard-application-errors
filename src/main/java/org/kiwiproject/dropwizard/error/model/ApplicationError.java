@@ -51,6 +51,11 @@ public class ApplicationError {
         Resolved(boolean value) {
             this.value = value;
         }
+
+        // TODO Write a silly little test for this...because yes I am anal...
+        public static Resolved of(boolean value) {
+            return value ? YES : NO;
+        }
     }
 
     @With
