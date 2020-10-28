@@ -40,6 +40,7 @@
         <javassist.version>3.27.0-GA</javassist.version>
         <joda-time.version>2.10.7</joda-time.version>
         <kiwi.version>0.13.0</kiwi.version>
+        <metrics-healthchecks-severity.version>0.10.1</metrics-healthchecks-severity.version>
 
         <!-- Versions for provided dependencies -->
         <h2.version>>1.4.200</h2.version>
@@ -68,12 +69,6 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>${caffeine.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.kiwiproject</groupId>
-            <artifactId>kiwi</artifactId>
-            <version>${kiwi.version}</version>
         </dependency>
 
         <dependency>
@@ -211,6 +206,18 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>kiwi</artifactId>
+            <version>${kiwi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>metrics-healthchecks-severity</artifactId>
+            <version>${metrics-healthchecks-severity.version}</version>
         </dependency>
 
         <!-- provided dependencies -->
