@@ -341,7 +341,7 @@ abstract class AbstractJdbi3ApplicationErrorDaoTest {
         return ApplicationError.builder()
                 .createdAt(dateTime)
                 .updatedAt(dateTime)
-                .resolved(resolved == Resolved.YES)
+                .resolved(resolved.toBoolean())
                 .description("test error at " + dateTime)
                 .hostName(hostName)
                 .ipAddress(ipAddress)

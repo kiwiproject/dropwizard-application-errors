@@ -4,10 +4,12 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
+@DisplayName("Jdbi3ApplicationErrorDao (H2)")
 public class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
     private static JdbcDataSource DATA_SOURCE;

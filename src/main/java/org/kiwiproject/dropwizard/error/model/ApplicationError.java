@@ -51,6 +51,14 @@ public class ApplicationError {
         Resolved(boolean value) {
             this.value = value;
         }
+
+        public static Resolved of(boolean value) {
+            return value ? YES : NO;
+        }
+
+        public boolean toBoolean() {
+            return value;
+        }
     }
 
     @With
