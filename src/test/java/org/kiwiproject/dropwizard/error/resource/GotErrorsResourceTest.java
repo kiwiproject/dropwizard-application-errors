@@ -19,6 +19,7 @@ class GotErrorsResourceTest {
     private static final DataStoreType DATA_STORE_TYPE = DataStoreType.NOT_SHARED;
 
     private static final ResourceExtension RESOURCES = ResourceExtension.builder()
+            .bootstrapLogging(false)
             .addResource(new GotErrorsResource(DATA_STORE_TYPE))
             .build();
 
