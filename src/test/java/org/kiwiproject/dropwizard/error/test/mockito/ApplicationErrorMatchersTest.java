@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error.test.mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.kiwiproject.dropwizard.error.test.mockito.ApplicationErrorMatchers.matchesApplicationError;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -22,8 +23,6 @@ import org.opentest4j.AssertionFailedError;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-
-// TODO cleanup/reformat long lines...
 
 @DisplayName("ApplicationErrorMatchers")
 @ExtendWith(ApplicationErrorExtension.class)
@@ -52,14 +51,19 @@ class ApplicationErrorMatchersTest {
             void shouldSucceed_WhenErrorMatches() {
                 var error = ApplicationError.newUnresolvedError("my error");
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error")));
+
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesApplicationError("my error"))))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
                 var error = ApplicationError.newUnresolvedError("my error");
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("foo bar"))))
+
+                assertThatThrownBy(
+                        () -> verify(service).create(argThat(matchesApplicationError("foo bar"))))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -71,14 +75,21 @@ class ApplicationErrorMatchersTest {
             void shouldSucceed_WhenErrorMatches() {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException());
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class)));
+
+                var matchesError = matchesApplicationError("my error", IOException.class);
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException());
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("foo bar", MalformedURLException.class))))
+
+                var matchesError = matchesApplicationError("foo bar", MalformedURLException.class);
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -90,14 +101,21 @@ class ApplicationErrorMatchersTest {
             void shouldSucceed_WhenErrorMatches() {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException("foo"));
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo")));
+
+                var matchesError = matchesApplicationError("my error", IOException.class, "foo");
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException("foo"));
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "BAR"))))
+
+                var matchesError = matchesApplicationError("my error", IOException.class, "BAR");
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -107,18 +125,28 @@ class ApplicationErrorMatchersTest {
 
             @Test
             void shouldSucceed_WhenErrorMatches() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo", FileNotFoundException.class)));
+
+                var matchesError = matchesApplicationError(
+                        "my error", IOException.class, "foo", FileNotFoundException.class);
+
+                assertThatCode(() -> verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo", MalformedURLException.class))))
+
+                var matchesError = matchesApplicationError(
+                        "my error", IOException.class, "foo", MalformedURLException.class);
+
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -128,19 +156,29 @@ class ApplicationErrorMatchersTest {
 
             @Test
             void shouldSucceed_WhenErrorMatches() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
 
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo", FileNotFoundException.class, "foo not found")));
+                var matchesError = matchesApplicationError(
+                        "my error", IOException.class, "foo", FileNotFoundException.class, "foo not found");
+
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo", FileNotFoundException.class, "BOO"))))
+
+                var matchesError = matchesApplicationError(
+                        "my error", IOException.class, "foo", FileNotFoundException.class, "BOO");
+
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -152,15 +190,21 @@ class ApplicationErrorMatchersTest {
             void shouldSucceed_WhenErrorMatches() {
                 var error = ApplicationError.newUnresolvedError("my error");
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", hostName, ipAddress, port)));
+
+                var matchesError = matchesApplicationError("my error", hostName, ipAddress, port);
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
                 var error = ApplicationError.newUnresolvedError("my error");
-
                 service.create(error);
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("my error", hostName, "0.0.0.0", port))))
+
+                var matchesError = matchesApplicationError("my error", hostName, "0.0.0.0", port);
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -172,7 +216,12 @@ class ApplicationErrorMatchersTest {
             void shouldSucceed_WhenErrorMatches() {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException());
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class, hostName, ipAddress, port)));
+
+                var matchesError = matchesApplicationError("my error", IOException.class, hostName, ipAddress, port);
+
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
@@ -180,7 +229,10 @@ class ApplicationErrorMatchersTest {
                 var error = ApplicationError.newUnresolvedError("my error", new IOException());
                 service.create(error);
 
-                assertThatThrownBy(() -> verify(service).create(argThat(matchesApplicationError("my error", IOException.class, hostName, "0.0.0.0", port))))
+                var matchesError = matchesApplicationError("my error", IOException.class, hostName, "0.0.0.0", port);
+
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -190,20 +242,35 @@ class ApplicationErrorMatchersTest {
 
             @Test
             void shouldSucceed_WhenErrorMatches() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
-                verify(service).create(argThat(matchesApplicationError("my error", IOException.class, "foo", FileNotFoundException.class, "foo not found", hostName, ipAddress, port)));
+
+                var matchesError = matchesApplicationError(
+                        "my error",
+                        IOException.class, "foo",
+                        FileNotFoundException.class, "foo not found",
+                        hostName, ipAddress, port);
+
+                assertThatCode(() ->
+                        verify(service).create(argThat(matchesError)))
+                        .doesNotThrowAnyException();
             }
 
             @Test
             void shouldFail_WhenErrorDoesNotMatch() {
-                var error = ApplicationError.newUnresolvedError("my error",
-                        new IOException("foo", new FileNotFoundException("foo not found")));
+                var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                var error = ApplicationError.newUnresolvedError("my error", throwable);
                 service.create(error);
 
-                assertThatThrownBy(() -> verify(service).create(argThat(
-                        matchesApplicationError("my error", IOException.class, "foo", FileNotFoundException.class, "BAR not found", hostName, ipAddress, port))))
+                var matchesError = matchesApplicationError(
+                        "my error",
+                        IOException.class, "foo",
+                        FileNotFoundException.class, "BAR not found",
+                        hostName, ipAddress, port);
+
+                assertThatThrownBy(() ->
+                        verify(service).create(argThat(matchesError)))
                         .isInstanceOf(AssertionFailedError.class);
             }
         }
@@ -216,24 +283,47 @@ class ApplicationErrorMatchersTest {
 
                 @Test
                 void shouldSucceed_WhenErrorMatches() {
-                    var error = ApplicationError.newUnresolvedError("my error",
-                            new IOException("foo", new FileNotFoundException("foo not found")));
+                    var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                    var error = ApplicationError.newUnresolvedError("my error", throwable);
                     service.create(error);
+
                     var softly = new SoftAssertions();
-                    verify(service).create(argThat(matchesApplicationError(softly, "my error", IOException.class, "foo", FileNotFoundException.class, "foo not found", hostName, ipAddress, port)));
+                    var softlyMatchesError = matchesApplicationError(softly,
+                            "my error",
+                            IOException.class, "foo",
+                            FileNotFoundException.class, "foo not found",
+                            hostName, ipAddress, port);
+
+                    assertThatCode(() ->
+                            verify(service).create(argThat(softlyMatchesError)))
+                            .doesNotThrowAnyException();
+
                     var errorsCollected = softly.errorsCollected();
                     assertThat(errorsCollected).isEmpty();
                 }
 
                 @Test
                 void shouldFail_WhenErrorDoesNotMatch() {
-                    var error = ApplicationError.newUnresolvedError("my error",
-                            new IOException("foo", new FileNotFoundException("foo not found")));
+                    var throwable = new IOException("foo", new FileNotFoundException("foo not found"));
+                    var error = ApplicationError.newUnresolvedError("my error", throwable);
                     service.create(error);
+
                     var softly = new SoftAssertions();
-                    verify(service).create(argThat(matchesApplicationError(softly, "YOUR error", IOException.class, "BAR", MalformedURLException.class, "foo not found", "OTHER-HOST", ipAddress, 65000)));
+                    var softlyMatchesError = matchesApplicationError(softly,
+                            "YOUR error", IOException.class,
+                            "BAR", MalformedURLException.class,
+                            "foo not found",
+                            "OTHER-HOST", ipAddress, 65000);
+
+                    assertThatCode(() ->
+                            verify(service).create(argThat(softlyMatchesError)))
+                            .describedAs("When using soft assertions, no exception should ever be thrown!")
+                            .doesNotThrowAnyException();
+
                     var errorsCollected = softly.errorsCollected();
-                    assertThat(errorsCollected).isNotEmpty();
+                    assertThat(errorsCollected)
+                            .describedAs("The SoftAssertions instance should have collected errors")
+                            .isNotEmpty();
                 }
             }
         }
