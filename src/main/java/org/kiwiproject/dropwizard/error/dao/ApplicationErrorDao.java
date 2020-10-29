@@ -131,6 +131,9 @@ public interface ApplicationErrorDao {
      *
      * @param error the ApplicationError to insert or update
      * @return the ID of the new or existing application error
+     * @implNote Do not assume that {@code error} is updated when this method is called. Changes to the object are
+     * implementation-dependent. If you need an updated version, pass the returned long into {@link #getById(long)}.
+     * @see #insertError(ApplicationError)
      * @see #incrementCount(long)
      */
     long insertOrIncrementCount(ApplicationError error);
