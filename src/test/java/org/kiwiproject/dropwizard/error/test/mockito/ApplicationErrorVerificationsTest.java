@@ -42,6 +42,7 @@ class ApplicationErrorVerificationsTest {
                 case "foo": // one error with exception
                     var fooError = ApplicationError.newUnresolvedError("Processing failed for input: foo");
                     errorDao.insertOrIncrementCount(fooError);
+                    logProcessingComplete(Level.WARN, input);
                     break;
 
                 case "bar": // one error with exception
@@ -49,16 +50,30 @@ class ApplicationErrorVerificationsTest {
                     var ex = new UncheckedIOException(cause);
                     var barError = ApplicationError.newUnresolvedError("Processing threw error with cause for input: bar", ex);
                     errorDao.insertOrIncrementCount(barError);
+                    logProcessingComplete(Level.WARN, input);
                     break;
 
                 case "baz": // one error plus a second call on errorDao
                     var bazError = ApplicationError.newUnresolvedError("Processing failed for input: baz");
                     errorDao.insertOrIncrementCount(bazError);
                     errorDao.countAllErrors();
+                    logProcessingComplete(Level.WARN, input);
+                    break;
+
+                default:
+                    logProcessingComplete(Level.INFO, input);
                     break;
             }
+        }
 
-            LOG.info("Processing complete for input: {}", input);
+        private enum Level {INFO, WARN}
+
+        static void logProcessingComplete(Level level, String input) {
+            if (level == Level.WARN) {
+                LOG.warn("Processing completed with errors for input: {}", input);
+            } else if (level == Level.INFO) {
+                LOG.info("Processing completed successfully for input: {}", input);
+            }
         }
     }
 
