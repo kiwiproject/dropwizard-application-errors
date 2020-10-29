@@ -42,6 +42,7 @@ class ApplicationErrorResourceTest {
     private static final ApplicationErrorResource ERROR_RESOURCE = new ApplicationErrorResource(ERROR_DAO);
 
     private static final ResourceExtension RESOURCES = ResourceExtension.builder()
+            .bootstrapLogging(false)
             .addResource(ERROR_RESOURCE)
             .build();
 
