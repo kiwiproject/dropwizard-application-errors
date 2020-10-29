@@ -222,6 +222,14 @@
 
         <!-- provided dependencies -->
 
+        <!-- This is needed to support having the test utilities as part of the library JAR -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -252,6 +260,14 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- This is needed to support having the test utilities as part of the library JAR -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- optional dependencies -->
