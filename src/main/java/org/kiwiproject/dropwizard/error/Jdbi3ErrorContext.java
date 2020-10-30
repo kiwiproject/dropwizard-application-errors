@@ -1,7 +1,6 @@
 package org.kiwiproject.dropwizard.error;
 
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
-import static org.kiwiproject.base.KiwiPreconditions.requireNotNull;
 import static org.kiwiproject.base.KiwiStrings.f;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.checkCommonArguments;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRecentErrorsHealthCheckOrNull;
@@ -48,11 +47,11 @@ class Jdbi3ErrorContext implements ErrorContext {
                       long timeWindowValue,
                       TemporalUnit timeWindowUnit) {
 
-        checkCommonArguments(environment, serviceDetails, timeWindowValue, timeWindowUnit);
+        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
         checkArgumentNotNull(jdbi, "Jdbi (version 3) instance cannot be null");
         setPersistentHostInformationFrom(serviceDetails);
 
-        this.dataStoreType = requireNotNull(dataStoreType, "dataStoreType cannot be null");
+        this.dataStoreType = dataStoreType;
         this.errorDao = getOnDemandErrorDao(jdbi);
         this.healthCheck = registerRecentErrorsHealthCheckOrNull(
                 addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);

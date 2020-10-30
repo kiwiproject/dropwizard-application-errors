@@ -100,11 +100,12 @@ public class ApplicationErrorJdbc {
      *
      * @implNote Currently this uses ONLY the driver class to make this determination and always assumes H2 databases
      * are NOT shared. This simplistic implementation could change in the future.
+     * @see #isH2DataStore(DataSourceFactory)
      */
     public static DataStoreType dataStoreTypeOf(DataSourceFactory dataSourceFactory) {
         checkArgumentNotNull(dataSourceFactory);
 
-        if (dataSourceFactory.getDriverClass().equals(H2_DRIVER)) {
+        if (isH2DataStore(dataSourceFactory)) {
             return DataStoreType.NOT_SHARED;
         }
 
@@ -116,6 +117,8 @@ public class ApplicationErrorJdbc {
      *
      * @param dataSourceFactory the DataSourceFactory to check
      * @return true if the driver class is the H2 driver, false otherwise (including null argument)
+     * @implNote Currently this uses ONLY the driver class to make this determination and always assumes H2 databases
+     * are NOT shared. This simplistic implementation could change in the future.
      */
     public static boolean isH2DataStore(DataSourceFactory dataSourceFactory) {
         if (isNull(dataSourceFactory)) {

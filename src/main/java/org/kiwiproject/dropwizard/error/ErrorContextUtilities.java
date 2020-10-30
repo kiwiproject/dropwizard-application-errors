@@ -25,11 +25,13 @@ class ErrorContextUtilities {
 
     static void checkCommonArguments(Environment environment,
                                      ServiceDetails serviceDetails,
+                                     DataStoreType dataStoreType,
                                      long timeWindowValue,
                                      TemporalUnit timeWindowUnit) {
 
         checkArgumentNotNull(environment, "Dropwizard Environment cannot be null");
-        checkArgumentNotNull(serviceDetails, "ServiceDetails cannot be null");
+        checkArgumentNotNull(serviceDetails, "serviceDetails cannot be null");
+        checkArgumentNotNull(dataStoreType, "dataStoreType cannot ne null");
         checkArgument(timeWindowValue > 0, "timeWindowValue must be positive");
         checkArgumentNotNull(timeWindowUnit, "timeWindowUnit cannot be null");
     }
