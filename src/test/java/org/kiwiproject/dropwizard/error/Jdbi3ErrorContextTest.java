@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
@@ -110,6 +112,21 @@ class Jdbi3ErrorContextTest {
 
                 var healthChecks = environment.healthChecks();
                 verifyNoInteractions(healthChecks);
+            }
+        }
+
+        @Nested
+        class WhenJdbiDoesNotHaveSqlObjectPlugin {
+
+            @Test
+            void shouldThrowIllegalStateException(@H2Database H2FileBasedDatabase database) {
+                // Need to create new Jdbi without SqlObjectPlugin
+                jdbi = Jdbi.create(database.getDataSource());
+
+                assertThatIllegalStateException()
+                        .isThrownBy(() -> newContextWithHealthCheck(false))
+                        .withMessageStartingWith("Error creating on-demand " + Jdbi3ApplicationErrorDao.class.getName())
+                        .withMessageEndingWith(" Hint: the SqlObjectPlugin must be registered on the Jdbi instance");
             }
         }
 
