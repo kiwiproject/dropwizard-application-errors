@@ -54,7 +54,7 @@ class ErrorContextUtilitiesTest {
         @Test
         void shouldNotThrowException_GivenValidArguments() {
             assertThatCode(() ->
-                    ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, 10, ChronoUnit.MINUTES))
+                    ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 10, ChronoUnit.MINUTES))
                     .doesNotThrowAnyException();
         }
 
@@ -62,14 +62,21 @@ class ErrorContextUtilitiesTest {
         void shouldThrowIllegalArgumentException_GivenNullEnvironment() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(null, serviceDetails, 15, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(null, serviceDetails, DataStoreType.SHARED, 15, ChronoUnit.MINUTES));
         }
 
         @Test
         void shouldThrowIllegalArgumentException_GivenNullServiceDetails() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, null, 15, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(environment, null, DataStoreType.NOT_SHARED, 15, ChronoUnit.MINUTES));
+        }
+
+        @Test
+        void shouldThrowIllegalArgumentException_GivenNullDataStoreType() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() ->
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, null, 15, ChronoUnit.MINUTES));
         }
 
         @ParameterizedTest
@@ -77,14 +84,14 @@ class ErrorContextUtilitiesTest {
         void shouldThrowIllegalArgumentException_GivenZeroOrNegativeTimeWindowValue(long value) {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, value, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, value, ChronoUnit.MINUTES));
         }
 
         @Test
         void shouldThrowIllegalArgumentException_GivenNullTimeWindowUnit() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, 15, null));
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 15, null));
         }
     }
 
