@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.kiwiproject.base.KiwiStrings;
-import org.kiwiproject.dropwizard.error.ServiceDetails;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 
 import java.time.Duration;
 import java.time.ZoneOffset;

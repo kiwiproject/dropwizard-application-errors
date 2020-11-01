@@ -15,6 +15,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
+import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 
 import java.time.temporal.TemporalUnit;
 import java.util.Optional;

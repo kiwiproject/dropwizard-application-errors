@@ -142,17 +142,17 @@ class ApplicationErrorExtensionUnitTest {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     void sampleMethodWithSoftAssertionsParameter(SoftAssertions softly) {
         // no-op
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     void sampleMethodWithHostInfo(@HostInfo PersistentHostInformation hostInfo) {
         // nop-op
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     void sampleMethodWithIncorrectHostInfoParameterType(@HostInfo String hostInfo) {
         // no-op
     }

@@ -12,6 +12,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
+import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 import org.kiwiproject.dropwizard.jdbi3.Jdbi3Builders;
 
 import java.time.temporal.ChronoUnit;

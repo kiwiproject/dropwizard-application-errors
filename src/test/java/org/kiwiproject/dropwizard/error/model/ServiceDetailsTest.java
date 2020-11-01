@@ -1,4 +1,4 @@
-package org.kiwiproject.dropwizard.error;
+package org.kiwiproject.dropwizard.error.model;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
