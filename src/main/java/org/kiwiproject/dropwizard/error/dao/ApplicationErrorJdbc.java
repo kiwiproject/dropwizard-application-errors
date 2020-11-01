@@ -98,6 +98,8 @@ public class ApplicationErrorJdbc {
     /**
      * Returns the {@link DataStoreType} for the given {@link DataSourceFactory}.
      *
+     * @param dataSourceFactory the DataSourceFactory to check
+     * @return the resolved DataStoreType
      * @implNote Currently this uses ONLY the driver class to make this determination and always assumes H2 databases
      * are NOT shared. This simplistic implementation could change in the future.
      * @see #isH2DataStore(DataSourceFactory)

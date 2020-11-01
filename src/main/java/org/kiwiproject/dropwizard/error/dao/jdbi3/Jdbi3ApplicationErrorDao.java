@@ -100,6 +100,9 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     }
 
     /**
+     * @param pageSize the number of errors on a page
+     * @param offset   the starting offset (zero-based)
+     * @return a list of ApplicationError
      * @implNote The LIMIT and OFFSET fields must be in this order to work with H2 (as of version 1.4.200). This is
      * because they apparently adjusted their grammar parsing engine to expect LIMIT before OFFSET. Other engines (i.e.
      * Postgres) do not care about the order, but the LIMIT keyword is apparently just a non-standard keyword.
@@ -111,6 +114,10 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     List<ApplicationError> getAllErrorsInternal(@Bind("pageSize") int pageSize, @Bind("offset") int offset);
 
     /**
+     * @param resolved whether to find resolved or unresolved application errors
+     * @param pageSize the number of errors on a page
+     * @param offset   the starting offset (zero-based)
+     * @return a list of ApplicationError
      * @implNote The LIMIT and OFFSET fields must be in this order. For further information, read the implementation
      * note on {@link #getAllErrorsInternal(int, int)}.
      * @see #getAllErrorsInternal(int, int)

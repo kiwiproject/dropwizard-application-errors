@@ -64,14 +64,15 @@ import java.time.temporal.TemporalUnit;
  * store type you want.
  * Defaults:
  * <ul>
- * <li>{@link #buildInMemoryH2()} -> {@link DataStoreType#NOT_SHARED} (<b>NOTE:</b> this cannot be overridden)</li>
+ * <li>{@link #buildInMemoryH2()}: {@link DataStoreType#NOT_SHARED} (<b>NOTE:</b> this cannot be overridden)</li>
  * <li>{@link #buildWithDataStoreFactory(DataSourceFactory)}
  * <ul>
- * <li>If the database defined by the {@link DataSourceFactory} is an H2 instance -> {@link DataStoreType#NOT_SHARED}</li>
+ * <li>If the database defined by the {@link DataSourceFactory} is an H2 instance , then {@link DataStoreType#NOT_SHARED}</li>
  * <li>Otherwise, {@link DataStoreType#SHARED}</li>
  * </ul>
  * </li>
- * <li>{@link #buildWithJdbi3(Jdbi)} -> {@link DataStoreType#SHARED}</li>
+ * <li>{@link #buildWithJdbi3(Jdbi)}: {@link DataStoreType#SHARED}</li>
+ * </ul>
  */
 @Slf4j
 public class ErrorContextBuilder {
@@ -232,6 +233,7 @@ public class ErrorContextBuilder {
     /**
      * Build an {@link ErrorContext} using given the {@code dataSourceFactory} that uses JDBI version 3.
      *
+     * @param dataSourceFactory the Dropwizard {@link DataSourceFactory}
      * @return a new {@link ErrorContext} instance
      * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
      * will attempt to determine which {@link DataStoreType} it should use by calling
@@ -261,6 +263,7 @@ public class ErrorContextBuilder {
     /**
      * Build an {@link ErrorContext} that uses JDBI version 3.
      *
+     * @param jdbi the {@link Jdbi} instance to use; it must be configured with {@code SqlObjectPlugin}
      * @return a new {@link ErrorContext} instance
      * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
      * will default to using a value of {@link DataStoreType#SHARED}. Otherwise we would need to open a database

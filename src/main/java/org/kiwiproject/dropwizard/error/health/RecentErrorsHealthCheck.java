@@ -77,7 +77,7 @@ public class RecentErrorsHealthCheck extends HealthCheck {
      * @param serviceDetails the service/application information
      * @param timeWindow     the time window (a Dropwizard {@link io.dropwizard.util.Duration})
      * @implNote Currently converts the given Dropwizard Duration object into milliseconds, such that the
-     * {@link #getTimeWindowUnit()} will return {@link ChronoUnit#MILLIS}.
+     * {@code getTimeWindowUnit()} will return {@link ChronoUnit#MILLIS}.
      */
     public RecentErrorsHealthCheck(ApplicationErrorDao errorDao,
                                    ServiceDetails serviceDetails,
