@@ -42,7 +42,7 @@
         <metrics-healthchecks-severity.version>0.10.1</metrics-healthchecks-severity.version>
 
         <!-- Versions for provided dependencies -->
-        <h2.version>&gt;1.4.200</h2.version>
+        <h2.version>1.4.200</h2.version>
         <liquibase.version>3.8.9</liquibase.version>
 
         <!-- Versions for optional dependencies -->
