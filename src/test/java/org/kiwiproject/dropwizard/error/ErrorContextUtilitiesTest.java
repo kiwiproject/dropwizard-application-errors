@@ -24,6 +24,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
+import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 import org.kiwiproject.dropwizard.error.resource.ApplicationErrorResource;
 import org.kiwiproject.dropwizard.error.resource.GotErrorsResource;
 import org.kiwiproject.test.dropwizard.mockito.DropwizardMockitoMocks;

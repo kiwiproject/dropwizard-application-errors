@@ -1,19 +1,20 @@
-package org.kiwiproject.dropwizard.error;
+package org.kiwiproject.dropwizard.error.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
-import org.kiwiproject.dropwizard.error.model.PersistentHostInformation;
 
 /**
  * Encapsulates service information to use when setting {@code PersistentHostInformation}.
  * <p>
- * You can construct using the {@code builder()} or using the {@code from} factory method.
+ * You can construct using the constructor, {@code builder()} or using the {@code from} factory method.
  *
  * @see org.kiwiproject.dropwizard.error.model.PersistentHostInformation
  * @see org.kiwiproject.dropwizard.error.model.ApplicationError#setPersistentHostInformation(PersistentHostInformation)
  */
 @Value
 @Builder
+@AllArgsConstructor
 public class ServiceDetails {
 
     String hostName;
