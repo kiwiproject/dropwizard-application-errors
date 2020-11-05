@@ -40,6 +40,7 @@
         <joda-time.version>2.10.7</joda-time.version>
         <kiwi.version>0.13.0</kiwi.version>
         <metrics-healthchecks-severity.version>0.10.1</metrics-healthchecks-severity.version>
+        <metrics-jetty9.version>4.1.14</metrics-jetty9.version>
 
         <!-- Versions for provided dependencies -->
         <h2.version>1.4.200</h2.version>
@@ -217,6 +218,18 @@
             <groupId>org.kiwiproject</groupId>
             <artifactId>metrics-healthchecks-severity</artifactId>
             <version>${metrics-healthchecks-severity.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jetty9</artifactId>
+            <version>${metrics-jetty9.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- provided dependencies -->
