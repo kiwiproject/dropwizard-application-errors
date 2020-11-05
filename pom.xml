@@ -30,7 +30,7 @@
 
         <!-- Versions for required dependencies -->
         <caffeine.version>2.8.6</caffeine.version>
-        <dropwizard.version>2.0.14</dropwizard.version>
+        <dropwizard.version>2.0.15</dropwizard.version>
         <hibernate-validator.version>6.1.6.Final</hibernate-validator.version>
         <jackson.version>2.10.5</jackson.version>
         <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
@@ -40,6 +40,7 @@
         <joda-time.version>2.10.7</joda-time.version>
         <kiwi.version>0.13.0</kiwi.version>
         <metrics-healthchecks-severity.version>0.10.1</metrics-healthchecks-severity.version>
+        <metrics-jetty9.version>4.1.14</metrics-jetty9.version>
 
         <!-- Versions for provided dependencies -->
         <h2.version>1.4.200</h2.version>
@@ -217,6 +218,18 @@
             <groupId>org.kiwiproject</groupId>
             <artifactId>metrics-healthchecks-severity</artifactId>
             <version>${metrics-healthchecks-severity.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jetty9</artifactId>
+            <version>${metrics-jetty9.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- provided dependencies -->
