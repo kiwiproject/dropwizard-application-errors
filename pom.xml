@@ -38,9 +38,9 @@
         <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
         <javassist.version>3.27.0-GA</javassist.version>
         <joda-time.version>2.10.7</joda-time.version>
-        <kiwi.version>0.16.0</kiwi.version>
-        <metrics-healthchecks-severity.version>0.13.0</metrics-healthchecks-severity.version>
-        <metrics-jetty9.version>4.1.14</metrics-jetty9.version>
+        <kiwi.version>0.17.0</kiwi.version>
+        <metrics-healthchecks-severity.version>0.14.0</metrics-healthchecks-severity.version>
+        <metrics-jetty9.version>4.1.16</metrics-jetty9.version>
 
         <!-- Versions for provided dependencies -->
         <h2.version>1.4.200</h2.version>
@@ -51,7 +51,7 @@
 
         <!-- Versions for test dependencies -->
         <embedded-postgres.version>1.2.6</embedded-postgres.version>
-        <kiwi-test.version>0.11.0</kiwi-test.version>
+        <kiwi-test.version>0.12.0</kiwi-test.version>
 
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
