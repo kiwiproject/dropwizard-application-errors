@@ -9,6 +9,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.OptionalLong;
 
 /**
@@ -73,7 +74,7 @@ public class ApplicationErrors {
      *
      * @param errorDao        an ApplicationErrorDao that can store application errors
      * @param logger          the SLF4J logger to use when logging
-     * @param throwable       the underlying cause of the application error
+     * @param throwable       the underlying cause of the application error (can be null)
      * @param messageTemplate a template for the description of the problem that occurred, formatted
      *                        using {@link KiwiStrings#format(String, Object...)}
      * @param args            the arguments to supply to the message template
@@ -81,7 +82,7 @@ public class ApplicationErrors {
      */
     public static OptionalLong logAndSaveApplicationError(ApplicationErrorDao errorDao,
                                                           Logger logger,
-                                                          Throwable throwable,
+                                                          @Nullable Throwable throwable,
                                                           String messageTemplate,
                                                           Object... args) {
         var errorMessage = KiwiStrings.format(messageTemplate, args);
@@ -94,13 +95,13 @@ public class ApplicationErrors {
      *
      * @param errorDao  an ApplicationErrorDao that can store application errors
      * @param logger    the SLF4J logger to use when logging
-     * @param throwable the underlying cause of the application error
+     * @param throwable the underlying cause of the application error (can be null)
      * @param message   a description of the problem that occurred
      * @return an OptionalLong containing the ID of the saved ApplicationError, or empty if a problem occurred saving
      */
     public static OptionalLong logAndSaveApplicationError(ApplicationErrorDao errorDao,
                                                           Logger logger,
-                                                          Throwable throwable,
+                                                          @Nullable Throwable throwable,
                                                           String message) {
         try {
             logger.error(message, throwable);
@@ -115,11 +116,11 @@ public class ApplicationErrors {
     /**
      * @param saveException     the exception that was thrown when we tried to save the ApplicationError
      * @param appErrorMessage   the message from the ApplicationError that we tried (and failed) to save
-     * @param appErrorThrowable the Throwable from the ApplicationError that we tried (and failed) to save
+     * @param appErrorThrowable the Throwable from the ApplicationError that we tried (and failed) to save (can be null)
      */
     private static void logErrorSavingApplicationError(Exception saveException,
                                                        String appErrorMessage,
-                                                       Throwable appErrorThrowable) {
+                                                       @Nullable Throwable appErrorThrowable) {
         if (nonNull(appErrorThrowable)) {
             LOG.error("Error saving ApplicationError with description [{}] and {} exception having message: {}.",
                     appErrorMessage,

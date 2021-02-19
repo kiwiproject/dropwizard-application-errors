@@ -142,6 +142,22 @@ class ApplicationErrorThrowerTest {
         class WithThrowableAndMessage {
 
             @Test
+            void shouldPermitNullThrowable(SoftAssertions softly) {
+                var id = 142L;
+                when(errorDao.insertOrIncrementCount(any())).thenReturn(id);
+
+                var optionalId = errorThrower.logAndSaveApplicationError(null, "A simple message");
+
+                softly.assertThat(optionalId).hasValue(id);
+                verify(errorDao).insertOrIncrementCount(argThat(error -> {
+                    softly.assertThat(error.getDescription()).isEqualTo("A simple message");
+                    softly.assertThat(error.getExceptionType()).isNull();
+                    softly.assertThat(error.getExceptionMessage()).isNull();
+                    return true;
+                }));
+            }
+
+            @Test
             void shouldSaveApplicationError(SoftAssertions softly) {
                 var id = 168L;
                 when(errorDao.insertOrIncrementCount(any())).thenReturn(id);
@@ -172,6 +188,22 @@ class ApplicationErrorThrowerTest {
 
         @Nested
         class WithThrowableAndParameterizedMessage {
+
+            @Test
+            void shouldPermitNullThrowable(SoftAssertions softly) {
+                var id = 442L;
+                when(errorDao.insertOrIncrementCount(any())).thenReturn(id);
+
+                var optionalId = errorThrower.logAndSaveApplicationError((Throwable) null, MESSAGE_TEMPLATE, 336, "anodyne");
+
+                softly.assertThat(optionalId).hasValue(id);
+                verify(errorDao).insertOrIncrementCount(argThat(error -> {
+                    softly.assertThat(error.getDescription()).isEqualTo("A parameterized message with answer 336 and random word anodyne");
+                    softly.assertThat(error.getExceptionType()).isNull();
+                    softly.assertThat(error.getExceptionMessage()).isNull();
+                    return true;
+                }));
+            }
 
             @Test
             void shouldSaveApplicationError(SoftAssertions softly) {
@@ -231,4 +263,13 @@ class ApplicationErrorThrowerTest {
     // adjective
     // (of a product) made or used as a substitute, typically an inferior one, for something else
     // - not real or genuine
+
+    // anodyne:
+    // adjective
+    // 1. serving to alleviate pain
+    // 2. not likely to offend or arouse tensions, innocuous
+    //
+    // noun
+    // 1. something that soothes, calms, or comforts
+    // 2. a drug that allays pain
 }
