@@ -8,6 +8,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.OptionalLong;
 
 /**
@@ -62,11 +63,11 @@ public class ApplicationErrorThrower {
     /**
      * Log and save an {@link ApplicationError} with the given {@link Throwable} and message.
      *
-     * @param throwable the underlying cause of the application error
+     * @param throwable the underlying cause of the application error (can be null)
      * @param message   a description of the problem that occurred
      * @return an OptionalLong containing the ID of the saved ApplicationError, or empty if a problem occurred saving
      */
-    public OptionalLong logAndSaveApplicationError(Throwable throwable, String message) {
+    public OptionalLong logAndSaveApplicationError(@Nullable Throwable throwable, String message) {
         return ApplicationErrors.logAndSaveApplicationError(errorDao, logger, throwable, message);
     }
 
@@ -74,13 +75,13 @@ public class ApplicationErrorThrower {
      * Log and save an {@link ApplicationError} with the given {@link Throwable} and parameterized message
      * using the supplied message arguments.
      *
-     * @param throwable       the underlying cause of the application error
+     * @param throwable       the underlying cause of the application error (can be null)
      * @param messageTemplate a template for the description of the problem that occurred, formatted
      *                        using {@link KiwiStrings#format(String, Object...)}
      * @param args            the arguments to supply to the message template
      * @return an OptionalLong containing the ID of the saved ApplicationError, or empty if a problem occurred saving
      */
-    public OptionalLong logAndSaveApplicationError(Throwable throwable, String messageTemplate, Object... args) {
+    public OptionalLong logAndSaveApplicationError(@Nullable Throwable throwable, String messageTemplate, Object... args) {
         return ApplicationErrors.logAndSaveApplicationError(errorDao, logger, throwable, messageTemplate, args);
     }
 }
