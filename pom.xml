@@ -120,7 +120,6 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jdbi3</artifactId>
             <version>${dropwizard.version}</version>
-            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.ben-manes.caffeine</groupId>
