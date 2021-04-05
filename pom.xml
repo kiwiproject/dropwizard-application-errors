@@ -52,7 +52,7 @@
 
         <!-- Versions for test dependencies -->
         <embedded-postgres.version>1.2.10</embedded-postgres.version>
-        <kiwi-test.version>0.15.0</kiwi-test.version>
+        <kiwi-test.version>0.16.0</kiwi-test.version>
 
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
