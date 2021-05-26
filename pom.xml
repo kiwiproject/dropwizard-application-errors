@@ -29,20 +29,21 @@
     <properties>
 
         <!-- Versions for required dependencies -->
-        <caffeine.version>2.9.0</caffeine.version>
+        <caffeine.version>2.9.1</caffeine.version>
         <commons-text.version>1.9</commons-text.version>
-        <dropwizard.version>2.0.21</dropwizard.version>
+        <dropwizard.version>2.0.22</dropwizard.version>
         <hibernate-validator.version>6.1.7.Final</hibernate-validator.version>
         <jackson.version>2.10.5.1</jackson.version>
         <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
         <jakarta.annotation-api.version>1.3.5</jakarta.annotation-api.version>
         <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
-        <javassist.version>3.27.0-GA</javassist.version>
+        <javassist.version>3.28.0-GA</javassist.version>
+        <jdbi3.version>3.20.0</jdbi3.version>
         <joda-time.version>2.10.10</joda-time.version>
-        <kiwi.version>0.22.0</kiwi.version>
-        <metrics-healthchecks-severity.version>0.19.0</metrics-healthchecks-severity.version>
-        <metrics-jersey2.version>4.1.19</metrics-jersey2.version>
-        <metrics-jetty9.version>4.1.19</metrics-jetty9.version>
+        <kiwi.version>0.23.0</kiwi.version>
+        <metrics-healthchecks-severity.version>0.20.0</metrics-healthchecks-severity.version>
+        <metrics-jersey2.version>4.1.22</metrics-jersey2.version>
+        <metrics-jetty9.version>4.1.22</metrics-jetty9.version>
 
         <!-- Versions for provided dependencies -->
         <h2.version>1.4.200</h2.version>
@@ -53,7 +54,7 @@
 
         <!-- Versions for test dependencies -->
         <embedded-postgres.version>1.2.10</embedded-postgres.version>
-        <kiwi-test.version>0.18.0</kiwi-test.version>
+        <kiwi-test.version>0.19.0</kiwi-test.version>
 
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
@@ -173,6 +174,27 @@
                 <exclusion>
                     <groupId>joda-time</groupId>
                     <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jdbi</groupId>
+                    <artifactId>jdbi3-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Declared explicitly to resolve dependency convergence error; excluded from dropwizard-jdbi3 for same reason -->
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <version>${jdbi3.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.ben-manes.caffeine</groupId>
+                    <artifactId>caffeine</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
