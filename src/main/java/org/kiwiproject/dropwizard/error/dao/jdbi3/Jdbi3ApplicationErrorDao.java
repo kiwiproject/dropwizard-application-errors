@@ -190,7 +190,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
 
     @Override
     default void incrementCount(long id) {
-        int count = incrementCountInternal(id);
+        var count = incrementCountInternal(id);
         checkState(count == 1, "Increment failed. No ApplicationError found with id %s", id);
     }
 
@@ -201,7 +201,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
 
     @Override
     default ApplicationError resolve(long id) {
-        int count = resolveInternal(id);
+        var count = resolveInternal(id);
 
         checkState(count == 1, "Unable to resolve. No ApplicationError found with id %s", id);
 
