@@ -40,7 +40,7 @@
         <javassist.version>3.28.0-GA</javassist.version>
         <jdbi3.version>3.20.0</jdbi3.version>
         <joda-time.version>2.10.10</joda-time.version>
-        <kiwi.version>0.23.0</kiwi.version>
+        <kiwi.version>0.24.0</kiwi.version>
         <metrics-healthchecks-severity.version>0.20.0</metrics-healthchecks-severity.version>
         <metrics-jersey2.version>4.1.22</metrics-jersey2.version>
         <metrics-jetty9.version>4.1.22</metrics-jetty9.version>
