@@ -169,4 +169,20 @@ public interface ApplicationErrorDao {
     static int checkPagingArgumentsAndCalculateZeroBasedOffset(int pageNumber, int pageSize) {
         return KiwiSearching.zeroBasedOffset(pageNumber, pageSize);
     }
+
+    /**
+     * Deletes all resolved application errors that were created before the expiration date.
+     *
+     * @param expirationDate The date (exclusive) used to determine what gets deleted.
+     * @return The number of rows deleted.
+     */
+    int deleteResolvedErrorsBefore(ZonedDateTime expirationDate);
+
+    /**
+     * Deletes all application errors that were created before the expiration date.
+     *
+     * @param expirationDate The date (exclusive) used to determine what gets deleted.
+     * @return The number of rows deleted.
+     */
+    int deleteAllErrorsBefore(ZonedDateTime expirationDate);
 }

@@ -1,0 +1,35 @@
+package org.kiwiproject.dropwizard.error.config;
+
+import io.dropwizard.util.Duration;
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * Configuration class used to setup the {@link org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob}
+ */
+@Getter
+@Setter
+public class CleanupConfig {
+
+    /**
+     * Strategies for what should be cleaned up.
+     * <p>
+     * <ul>
+     *     <li>ALL_ERRORS - Will remove resolved AND unresolved errors older than {@code applicationErrorExpiration}</li>
+     *     <li>RESOLVED_ONLY - Will remove resolved errors older than {@code applicationErrorExpiration}</li>
+     * </ul>
+     */
+    public enum CleanupStrategy {
+        ALL_ERRORS, RESOLVED_ONLY
+    }
+
+    /**
+     * The strategy to use for what to cleanup. Defaults to {@link CleanupStrategy#RESOLVED_ONLY}
+     */
+    private CleanupStrategy cleanupStrategy = CleanupStrategy.RESOLVED_ONLY;
+
+    /**
+     * The duration of time that an error will live before being deleted.
+     */
+    private Duration applicationErrorExpiration = Duration.days(30);
+}
