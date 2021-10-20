@@ -223,16 +223,16 @@ abstract class AbstractJdbi3ApplicationErrorDaoTest {
     }
 
     @Test
-    void shouldDeleteAllErrors() {
+    void shouldDeleteUnresolvedErrors() {
         insertApplicationError(randomResolvedApplicationError());
         insertApplicationError(randomUnresolvedApplicationError());
 
         var timeInBetween = ZonedDateTime.now();
         insertApplicationError(randomResolvedApplicationError());
 
-        var count = errorDao.deleteAllErrorsBefore(timeInBetween);
+        var count = errorDao.deleteUnresolvedErrorsBefore(timeInBetween);
 
-        assertThat(count).isEqualTo(2);
+        assertThat(count).isEqualTo(1);
     }
 
     @Test

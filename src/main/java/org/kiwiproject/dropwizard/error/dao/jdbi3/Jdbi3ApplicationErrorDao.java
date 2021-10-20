@@ -220,6 +220,6 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     int deleteResolvedErrorsBefore(@Bind("expirationDate") ZonedDateTime expirationDate);
 
     @Override
-    @SqlUpdate("delete from application_errors where created_at < :expirationDate")
-    int deleteAllErrorsBefore(@Bind("expirationDate") ZonedDateTime expirationDate);
+    @SqlUpdate("delete from application_errors where resolved = false and created_at < :expirationDate")
+    int deleteUnresolvedErrorsBefore(@Bind("expirationDate") ZonedDateTime expirationDate);
 }

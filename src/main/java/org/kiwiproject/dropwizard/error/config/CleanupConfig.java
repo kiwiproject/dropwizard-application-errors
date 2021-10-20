@@ -24,12 +24,17 @@ public class CleanupConfig {
     }
 
     /**
-     * The strategy to use for what to cleanup. Defaults to {@link CleanupStrategy#RESOLVED_ONLY}
+     * The strategy to use for what to cleanup. Defaults to {@link CleanupStrategy#ALL_ERRORS}
      */
-    private CleanupStrategy cleanupStrategy = CleanupStrategy.RESOLVED_ONLY;
+    private CleanupStrategy cleanupStrategy = CleanupStrategy.ALL_ERRORS;
 
     /**
-     * The duration of time that an error will live before being deleted.
+     * The duration of time that a resolved error will live before being deleted.
      */
-    private Duration applicationErrorExpiration = Duration.days(30);
+    private Duration resolvedErrorExpiration = Duration.days(14);
+
+    /**
+     * The duration of time that an unresolved error will live before being deleted.
+     */
+    private Duration unresolvedErrorException = Duration.days(60);
 }

@@ -13,7 +13,8 @@ class CleanupConfigTest {
     void shouldHaveDefaults() {
         var config = new CleanupConfig();
 
-        assertThat(config.getCleanupStrategy()).isEqualTo(CleanupConfig.CleanupStrategy.RESOLVED_ONLY);
-        assertThat(config.getApplicationErrorExpiration()).isEqualTo(Duration.days(30));
+        assertThat(config.getCleanupStrategy()).isEqualTo(CleanupConfig.CleanupStrategy.ALL_ERRORS);
+        assertThat(config.getResolvedErrorExpiration()).isEqualTo(Duration.days(14));
+        assertThat(config.getUnresolvedErrorException()).isEqualTo(Duration.days(60));
     }
 }

@@ -3,6 +3,7 @@ package org.kiwiproject.dropwizard.error;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.base.KiwiStrings.f;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.checkCommonArguments;
+import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerCleanupJobOrNull;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRecentErrorsHealthCheckOrNull;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerResources;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersistentHostInformationFrom;
@@ -11,6 +12,7 @@ import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
@@ -46,7 +48,9 @@ class Jdbi3ErrorContext implements ErrorContext {
                       DataStoreType dataStoreType,
                       boolean addHealthCheck,
                       long timeWindowValue,
-                      TemporalUnit timeWindowUnit) {
+                      TemporalUnit timeWindowUnit,
+                      boolean addCleanupJob,
+                      CleanupConfig cleanupConfig) {
 
         checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
         checkArgumentNotNull(jdbi, "Jdbi (version 3) instance cannot be null");
@@ -57,6 +61,7 @@ class Jdbi3ErrorContext implements ErrorContext {
         this.healthCheck = registerRecentErrorsHealthCheckOrNull(
                 addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
 
+        registerCleanupJobOrNull(addCleanupJob, environment, errorDao, cleanupConfig);
         registerResources(environment, errorDao, dataStoreType);
     }
 

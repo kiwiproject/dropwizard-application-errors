@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error.job;
 
 import lombok.extern.slf4j.Slf4j;
+import org.kiwiproject.base.CatchingRunnable;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 
@@ -12,7 +13,7 @@ import java.time.ZonedDateTime;
  * @see CleanupConfig for options on what will be deleted and when
  */
 @Slf4j
-public class CleanupApplicationErrorsJob implements Runnable {
+public class CleanupApplicationErrorsJob implements CatchingRunnable {
 
     private final CleanupConfig config;
     private final ApplicationErrorDao errorDao;
@@ -23,15 +24,15 @@ public class CleanupApplicationErrorsJob implements Runnable {
     }
 
     @Override
-    public void run() {
-        var expirationDate = ZonedDateTime.now().minusMinutes(config.getApplicationErrorExpiration().toMinutes());
+    public void runSafely() {
+        var resolvedErrorsExpiration = ZonedDateTime.now().minusMinutes(config.getResolvedErrorExpiration().toMinutes());
+        var resolvedDeletedCount = errorDao.deleteResolvedErrorsBefore(resolvedErrorsExpiration);
+        LOG.debug("Deleted {} expired resolved application errors", resolvedDeletedCount);
 
         if (config.getCleanupStrategy() == CleanupConfig.CleanupStrategy.ALL_ERRORS) {
-            var deletedCount = errorDao.deleteAllErrorsBefore(expirationDate);
-            LOG.debug("Deleted {} expired application errors", deletedCount);
-        } else {
-            var deletedCount = errorDao.deleteResolvedErrorsBefore(expirationDate);
-            LOG.debug("Deleted {} expired resolved application errors", deletedCount);
+            var unresolvedErrorsExpiration = ZonedDateTime.now().minusMinutes(config.getUnresolvedErrorException().toMinutes());
+            var unresolvedDeletedCount = errorDao.deleteUnresolvedErrorsBefore(unresolvedErrorsExpiration);
+            LOG.debug("Deleted {} expired application errors", unresolvedDeletedCount);
         }
     }
 
