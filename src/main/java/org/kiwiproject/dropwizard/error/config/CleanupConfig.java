@@ -24,7 +24,7 @@ public class CleanupConfig {
     }
 
     /**
-     * The strategy to use for what to cleanup. Defaults to {@link CleanupStrategy#ALL_ERRORS}
+     * The strategy to use for what to clean up. Defaults to {@link CleanupStrategy#ALL_ERRORS}.
      */
     private CleanupStrategy cleanupStrategy = CleanupStrategy.ALL_ERRORS;
 
