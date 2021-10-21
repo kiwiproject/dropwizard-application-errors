@@ -2,6 +2,8 @@ package org.kiwiproject.dropwizard.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
@@ -77,7 +79,7 @@ class ErrorContextBuilderTest {
         executor = mock(ScheduledExecutorService.class);
         var executorBuilder = mock(ScheduledExecutorServiceBuilder.class);
         when(executorBuilder.build()).thenReturn(executor);
-        when(environment.lifecycle().scheduledExecutorService(any(String.class), eq(true)))
+        when(environment.lifecycle().scheduledExecutorService(anyString(), anyBoolean()))
                 .thenReturn(executorBuilder);
     }
 
@@ -166,15 +168,18 @@ class ErrorContextBuilderTest {
             builder.buildWithDataStoreFactory(dataSourceFactory);
 
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
-             builder.buildWithJdbi3(jdbi);
+            builder.buildWithJdbi3(jdbi);
 
-             verify(executor, times(3))
-                     .scheduleWithFixedDelay(any(CleanupApplicationErrorsJob.class), eq(1L),
-                             eq(Duration.days(1).toMinutes()), eq(TimeUnit.MINUTES));
+            verify(environment.lifecycle()).scheduledExecutorService(cleanupConfig.getCleanupJobName(), true);
+            verify(executor, times(3))
+                    .scheduleWithFixedDelay(any(CleanupApplicationErrorsJob.class),
+                            eq(cleanupConfig.getInitialJobDelay().toMinutes()),
+                            eq(cleanupConfig.getJobInterval().toMinutes()),
+                            eq(TimeUnit.MINUTES));
         }
 
         @Test
-        void shouldAllowSkippingCleanupJobRegistration(SoftAssertions softly) {
+        void shouldAllowSkippingCleanupJobRegistration() {
             var builder = ErrorContextBuilder.newInstance()
                     .skipCleanupJob()
                     .environment(environment)

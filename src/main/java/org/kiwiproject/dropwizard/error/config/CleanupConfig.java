@@ -39,9 +39,10 @@ public class CleanupConfig {
     private Duration unresolvedErrorException = Duration.days(60);
 
     /**
-     * The name to give the scheduled job for cleaning up errors. Defaults to {@code Cleanup-Job-%d}
+     * The name to give the scheduled job for cleaning up errors. Defaults to {@code Application-Errors-Cleanup-Job-%d}
+     * which will result in thread names like {@code Application-Errors-Cleanup-Job-1}.
      */
-    private String cleanupJobName = "Cleanup-Job-%d";
+    private String cleanupJobName = "Application-Errors-Cleanup-Job-%d";
 
     /**
      * Initial delay before the cleanup job runs. Defaults to 1 minute.
