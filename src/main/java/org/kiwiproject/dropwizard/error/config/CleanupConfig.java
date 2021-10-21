@@ -34,7 +34,7 @@ public class CleanupConfig {
     private Duration resolvedErrorExpiration = Duration.days(14);
 
     /**
-     * The duration of time that an unresolved error will live before being deleted.
+     * The duration that an unresolved error will live before being deleted.
      */
     private Duration unresolvedErrorException = Duration.days(60);
 
