@@ -9,6 +9,7 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
@@ -84,9 +85,11 @@ public class ErrorContextBuilder {
     private DataStoreType dataStoreType;
     private boolean dataStoreTypeAlreadySet;
     private boolean addHealthCheck = true;
+    private boolean addCleanupJob = true;
     private long timeWindowValue = TimeWindow.DEFAULT_TIME_WINDOW_MINUTES;
     private TemporalUnit timeWindowUnit = ChronoUnit.MINUTES;
     private boolean healthCheckTimeWindowAlreadySet;
+    private CleanupConfig cleanupConfig = new CleanupConfig();
 
     public static ErrorContextBuilder newInstance() {
         return new ErrorContextBuilder();
@@ -140,6 +143,27 @@ public class ErrorContextBuilder {
      */
     public ErrorContextBuilder skipHealthCheck() {
         this.addHealthCheck = false;
+        return this;
+    }
+
+    /**
+     * Configures the resulting {@link ErrorContext} so that it does not create/register a cleanup job with Dropwizard.
+     *
+     * @return this builder
+     */
+    public ErrorContextBuilder skipCleanupJob() {
+        this.addCleanupJob = false;
+        return this;
+    }
+
+    /**
+     * Configures the {@link org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob} clean up job.
+     *
+     * @param config the {@link CleanupConfig}
+     * @return this builder
+     */
+    public ErrorContextBuilder cleanupConfig(CleanupConfig config) {
+        this.cleanupConfig = config;
         return this;
     }
 
@@ -288,6 +312,8 @@ public class ErrorContextBuilder {
                 dataStoreType,
                 addHealthCheck,
                 timeWindowValue,
-                timeWindowUnit);
+                timeWindowUnit,
+                addCleanupJob,
+                cleanupConfig);
     }
 }

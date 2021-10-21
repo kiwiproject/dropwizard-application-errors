@@ -1,14 +1,21 @@
 package org.kiwiproject.dropwizard.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
 import org.assertj.core.api.SoftAssertions;
@@ -23,10 +30,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
+import org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
@@ -39,6 +48,8 @@ import org.postgresql.Driver;
 
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The majority of the tests here use an in-memory H2 database, but there are several tests that use
@@ -56,6 +67,7 @@ class ErrorContextBuilderTest {
     private ServiceDetails serviceDetails;
     private long timeWindowAmount;
     private ChronoUnit timeWindowUnit;
+    private ScheduledExecutorService executor;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +75,12 @@ class ErrorContextBuilderTest {
         serviceDetails = new ServiceDetails("localhost", "127.0.0.1", 8080);
         timeWindowAmount = 20;
         timeWindowUnit = ChronoUnit.MINUTES;
+
+        executor = mock(ScheduledExecutorService.class);
+        var executorBuilder = mock(ScheduledExecutorServiceBuilder.class);
+        when(executorBuilder.build()).thenReturn(executor);
+        when(environment.lifecycle().scheduledExecutorService(anyString(), anyBoolean()))
+                .thenReturn(executorBuilder);
     }
 
     @AfterEach
@@ -127,6 +145,58 @@ class ErrorContextBuilderTest {
                     () -> builder.buildWithJdbi3(mock(Jdbi.class)))
                     .isExactlyInstanceOf(IllegalArgumentException.class)
                     .hasMessage(expectedMessage);
+        }
+    }
+
+    @Nested
+    class CleanupJob {
+
+        @Test
+        void shouldHaveCleanupApplicationErrorsJob() {
+            var cleanupConfig = new CleanupConfig();
+            cleanupConfig.setCleanupJobName("foo-%d");
+
+            var builder = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .cleanupConfig(cleanupConfig)
+                    .dataStoreType(DataStoreType.NOT_SHARED);
+
+            builder.buildInMemoryH2();
+
+            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+            builder.buildWithDataStoreFactory(dataSourceFactory);
+
+            var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
+            builder.buildWithJdbi3(jdbi);
+
+            // We are checking 3 times here because this test is creating 3 separate ErrorContext objects and we need
+            // to verify that each one sets up the cleanup job.
+            verify(environment.lifecycle(), times(3)).scheduledExecutorService(cleanupConfig.getCleanupJobName(), true);
+            verify(executor, times(3))
+                    .scheduleWithFixedDelay(any(CleanupApplicationErrorsJob.class),
+                            eq(cleanupConfig.getInitialJobDelay().toMinutes()),
+                            eq(cleanupConfig.getJobInterval().toMinutes()),
+                            eq(TimeUnit.MINUTES));
+        }
+
+        @Test
+        void shouldAllowSkippingCleanupJobRegistration() {
+            var builder = ErrorContextBuilder.newInstance()
+                    .skipCleanupJob()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED);
+
+            builder.buildInMemoryH2();
+
+            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+            builder.buildWithDataStoreFactory(dataSourceFactory);
+
+            var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
+            builder.buildWithJdbi3(jdbi);
+
+            verifyNoInteractions(executor);
         }
     }
 
