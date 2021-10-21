@@ -170,7 +170,9 @@ class ErrorContextBuilderTest {
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             builder.buildWithJdbi3(jdbi);
 
-            verify(environment.lifecycle()).scheduledExecutorService(cleanupConfig.getCleanupJobName(), true);
+            // We are checking 3 times here because this test is creating 3 separate ErrorContext objects and we need
+            // to verify that each one setup the cleanup job.
+            verify(environment.lifecycle(), times(3)).scheduledExecutorService(cleanupConfig.getCleanupJobName(), true);
             verify(executor, times(3))
                     .scheduleWithFixedDelay(any(CleanupApplicationErrorsJob.class),
                             eq(cleanupConfig.getInitialJobDelay().toMinutes()),
