@@ -29,7 +29,7 @@ public class CleanupConfig {
     private CleanupStrategy cleanupStrategy = CleanupStrategy.ALL_ERRORS;
 
     /**
-     * The duration of time that a resolved error will live before being deleted.
+     * The duration that a resolved error will live before being deleted.
      */
     private Duration resolvedErrorExpiration = Duration.days(14);
 
