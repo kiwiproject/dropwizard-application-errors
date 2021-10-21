@@ -84,10 +84,16 @@ class ErrorContextUtilities {
                                                                 ApplicationErrorDao errorDao,
                                                                 CleanupConfig cleanupConfig) {
         if (addCleanupJob) {
+            var executor = environment.lifecycle()
+                    .scheduledExecutorService(cleanupConfig.getCleanupJobName(), true)
+                    .build();
+
             var cleanupJob = new CleanupApplicationErrorsJob(cleanupConfig, errorDao);
-            // TODO: Add configs for job delay and name
-            var executor = environment.lifecycle().scheduledExecutorService("Cleanup-Job-%d", true).build();
-            executor.scheduleWithFixedDelay(cleanupJob, 1, 1, TimeUnit.MINUTES);
+
+            executor.scheduleWithFixedDelay(cleanupJob, cleanupConfig.getInitialJobDelay().toMinutes(),
+                    cleanupConfig.getJobInterval().toMinutes(), TimeUnit.MINUTES);
+
+            return cleanupJob;
         }
 
         return null;

@@ -37,4 +37,19 @@ public class CleanupConfig {
      * The duration of time that an unresolved error will live before being deleted.
      */
     private Duration unresolvedErrorException = Duration.days(60);
+
+    /**
+     * The name to give the scheduled job for cleaning up errors. Defaults to {@code Cleanup-Job-%d}
+     */
+    private String cleanupJobName = "Cleanup-Job-%d";
+
+    /**
+     * Initial delay before the cleanup job runs. Defaults to 1 minute.
+     */
+    private Duration initialJobDelay = Duration.minutes(1);
+
+    /**
+     * Interval that the cleanup job will run. Defaults to once a day.
+     */
+    private Duration jobInterval = Duration.days(1);
 }

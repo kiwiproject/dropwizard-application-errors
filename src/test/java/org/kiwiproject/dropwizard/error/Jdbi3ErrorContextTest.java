@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
@@ -138,7 +139,10 @@ class Jdbi3ErrorContextTest {
                     DataStoreType.NOT_SHARED,
                     addHealthCheck,
                     timeWindowAmount,
-                    timeWindowUnit);
+                    timeWindowUnit,
+                    false,
+                    new CleanupConfig()
+                    );
         }
     }
 }

@@ -3,15 +3,19 @@ package org.kiwiproject.dropwizard.error;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
+import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Environment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +24,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
+import org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
@@ -31,6 +37,8 @@ import org.kiwiproject.test.dropwizard.mockito.DropwizardMockitoMocks;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @DisplayName("ApplicationErrorUtilities")
 class ErrorContextUtilitiesTest {
@@ -174,6 +182,50 @@ class ErrorContextUtilitiesTest {
             assertThat(healthCheck).isNull();
 
             verifyNoInteractions(healthChecks);
+        }
+    }
+
+    @Nested
+    class RegisterCleanupJobOrNull {
+        private ApplicationErrorDao errorDao;
+        private CleanupConfig config;
+        private LifecycleEnvironment lifecycleEnvironment;
+
+        @BeforeEach
+        void setUp() {
+            errorDao = mock(ApplicationErrorDao.class);
+            config = new CleanupConfig();
+            lifecycleEnvironment = environment.lifecycle();
+        }
+
+        @Test
+        void shouldRegisterCleanupJob() {
+            var executor = mock(ScheduledExecutorService.class);
+            var executorBuilder = mock(ScheduledExecutorServiceBuilder.class);
+            when(executorBuilder.build()).thenReturn(executor);
+            when(lifecycleEnvironment.scheduledExecutorService(config.getCleanupJobName(), true))
+                    .thenReturn(executorBuilder);
+
+            var job = ErrorContextUtilities.registerCleanupJobOrNull(
+                    true, environment, errorDao, config);
+
+            assertThat(job).isNotNull();
+
+            verify(lifecycleEnvironment).scheduledExecutorService(config.getCleanupJobName(), true);
+            verify(executor).scheduleWithFixedDelay(any(CleanupApplicationErrorsJob.class),
+                    eq(config.getInitialJobDelay().toMinutes()), eq(config.getJobInterval().toMinutes()),
+                    eq(TimeUnit.MINUTES));
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        @Test
+        void shouldSkipRegisteringHealthCheck() {
+            var job = ErrorContextUtilities.registerCleanupJobOrNull(
+                    false, environment, errorDao, config);
+
+            assertThat(job).isNull();
+
+            verifyNoInteractions(lifecycleEnvironment);
         }
     }
 }
