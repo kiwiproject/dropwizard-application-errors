@@ -1,18 +1,24 @@
 package org.kiwiproject.dropwizard.error.job;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import io.dropwizard.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig.CleanupStrategy;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 
 import java.time.ZonedDateTime;
 
 @DisplayName("CleanupApplicationErrorsJob")
+@Slf4j
 class CleanupApplicationErrorsJobTest {
 
     private ApplicationErrorDao dao;
@@ -23,25 +29,56 @@ class CleanupApplicationErrorsJobTest {
     }
 
     @Test
+    void shouldRequireResolvedExpirationOfAtLeastOneMinute() {
+        var config = new CleanupConfig();
+        config.setResolvedErrorExpiration(Duration.seconds(59));
+
+        assertThatIllegalStateException()
+                .isThrownBy(() -> new CleanupApplicationErrorsJob(config, dao))
+                .withMessage("resolvedErrorExpiration must be at least one minute");
+    }
+
+    @Test
+    void shouldRequireUnresolvedExpirationOfAtLeastOneMinute() {
+        var config = new CleanupConfig();
+        config.setUnresolvedErrorException(Duration.seconds(59));
+
+        assertThatIllegalStateException()
+                .isThrownBy(() -> new CleanupApplicationErrorsJob(config, dao))
+                .withMessage("unresolvedErrorExpiration must be at least one minute");
+    }
+
+    @Test
     void shouldDeleteAllExpiredErrors_WhenStrategyIsAllErrors() {
         var config = new CleanupConfig();
-        config.setCleanupStrategy(CleanupConfig.CleanupStrategy.ALL_ERRORS);
+        config.setCleanupStrategy(CleanupStrategy.ALL_ERRORS);
 
         var job = new CleanupApplicationErrorsJob(config, dao);
         job.run();
 
-        verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(ZonedDateTime.now().minusDays(14))));
-        verify(dao).deleteUnresolvedErrorsBefore(argThat(time -> time.isBefore(ZonedDateTime.now().minusDays(60))));
+        var now = ZonedDateTime.now();
+
+        var expectedResolvedThreshold = now.minusMinutes(config.getResolvedErrorExpiration().toMinutes());
+        LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
+        verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(expectedResolvedThreshold)));
+
+        var expectedUnresolvedThreshold = now.minusMinutes(config.getUnresolvedErrorException().toMinutes());
+        LOG.debug("Expecting unresolved threshold: {}", expectedUnresolvedThreshold);
+        verify(dao).deleteUnresolvedErrorsBefore(argThat(time -> time.isBefore(expectedUnresolvedThreshold)));
     }
 
     @Test
     void shouldDeleteResolvedExpiredErrors_WhenStrategyIsResolvedErrors() {
         var config = new CleanupConfig();
-        config.setCleanupStrategy(CleanupConfig.CleanupStrategy.RESOLVED_ONLY);
+        config.setCleanupStrategy(CleanupStrategy.RESOLVED_ONLY);
 
         var job = new CleanupApplicationErrorsJob(config, dao);
         job.run();
 
-        verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(ZonedDateTime.now().minusDays(14))));
+        var expectedResolvedThreshold = ZonedDateTime.now().minusMinutes(Duration.days(14).toMinutes());
+        LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
+        verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(expectedResolvedThreshold)));
+
+        verifyNoMoreInteractions(dao);
     }
 }
