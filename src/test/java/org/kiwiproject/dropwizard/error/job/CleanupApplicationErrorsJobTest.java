@@ -41,7 +41,7 @@ class CleanupApplicationErrorsJobTest {
     @Test
     void shouldRequireUnresolvedExpirationOfAtLeastOneMinute() {
         var config = new CleanupConfig();
-        config.setUnresolvedErrorException(Duration.seconds(59));
+        config.setUnresolvedErrorExpiration(Duration.seconds(59));
 
         assertThatIllegalStateException()
                 .isThrownBy(() -> new CleanupApplicationErrorsJob(config, dao))
@@ -62,7 +62,7 @@ class CleanupApplicationErrorsJobTest {
         LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
         verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(expectedResolvedThreshold)));
 
-        var expectedUnresolvedThreshold = now.minusMinutes(config.getUnresolvedErrorException().toMinutes());
+        var expectedUnresolvedThreshold = now.minusMinutes(config.getUnresolvedErrorExpiration().toMinutes());
         LOG.debug("Expecting unresolved threshold: {}", expectedUnresolvedThreshold);
         verify(dao).deleteUnresolvedErrorsBefore(argThat(time -> time.isBefore(expectedUnresolvedThreshold)));
     }
@@ -75,7 +75,7 @@ class CleanupApplicationErrorsJobTest {
         var job = new CleanupApplicationErrorsJob(config, dao);
         job.run();
 
-        var expectedResolvedThreshold = ZonedDateTime.now().minusMinutes(Duration.days(14).toMinutes());
+        var expectedResolvedThreshold = ZonedDateTime.now().minusMinutes(config.getResolvedErrorExpiration().toMinutes());
         LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
         verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(expectedResolvedThreshold)));
 

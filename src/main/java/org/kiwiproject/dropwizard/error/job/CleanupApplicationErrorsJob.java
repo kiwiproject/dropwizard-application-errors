@@ -26,7 +26,7 @@ public class CleanupApplicationErrorsJob implements CatchingRunnable {
     public CleanupApplicationErrorsJob(CleanupConfig config, ApplicationErrorDao errorDao) {
         this.config = config;
         this.resolvedErrorExpirationMinutes = config.getResolvedErrorExpiration().toMinutes();
-        this.unresolvedErrorExpirationMinutes = config.getUnresolvedErrorException().toMinutes();
+        this.unresolvedErrorExpirationMinutes = config.getUnresolvedErrorExpiration().toMinutes();
         this.errorDao = errorDao;
 
         checkPositive(resolvedErrorExpirationMinutes, "resolvedErrorExpiration must be at least one minute");

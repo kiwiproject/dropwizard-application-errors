@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Configuration class used to setup the {@link org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob}
+ * Configuration class used to set up the {@link org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob}
  */
 @Getter
 @Setter
@@ -36,7 +36,7 @@ public class CleanupConfig {
     /**
      * The duration that an unresolved error will live before being deleted.
      */
-    private Duration unresolvedErrorException = Duration.days(60);
+    private Duration unresolvedErrorExpiration = Duration.days(60);
 
     /**
      * The name to give the scheduled job for cleaning up errors. Defaults to {@code Application-Errors-Cleanup-Job-%d}

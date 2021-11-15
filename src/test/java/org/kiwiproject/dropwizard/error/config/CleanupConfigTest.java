@@ -15,6 +15,6 @@ class CleanupConfigTest {
 
         assertThat(config.getCleanupStrategy()).isEqualTo(CleanupConfig.CleanupStrategy.ALL_ERRORS);
         assertThat(config.getResolvedErrorExpiration()).isEqualTo(Duration.days(14));
-        assertThat(config.getUnresolvedErrorException()).isEqualTo(Duration.days(60));
+        assertThat(config.getUnresolvedErrorExpiration()).isEqualTo(Duration.days(60));
     }
 }
