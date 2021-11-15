@@ -1,8 +1,11 @@
 package org.kiwiproject.dropwizard.error.job;
 
+import static org.kiwiproject.base.KiwiPreconditions.checkPositive;
+
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.CatchingRunnable;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig.CleanupStrategy;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 
 import java.time.ZonedDateTime;
@@ -16,23 +19,34 @@ import java.time.ZonedDateTime;
 public class CleanupApplicationErrorsJob implements CatchingRunnable {
 
     private final CleanupConfig config;
+    private final long resolvedErrorExpirationMinutes;
+    private final long unresolvedErrorExpirationMinutes;
     private final ApplicationErrorDao errorDao;
 
     public CleanupApplicationErrorsJob(CleanupConfig config, ApplicationErrorDao errorDao) {
         this.config = config;
+        this.resolvedErrorExpirationMinutes = config.getResolvedErrorExpiration().toMinutes();
+        this.unresolvedErrorExpirationMinutes = config.getUnresolvedErrorException().toMinutes();
         this.errorDao = errorDao;
+
+        checkPositive(resolvedErrorExpirationMinutes, "resolvedErrorExpiration must be at least one minute");
+        checkPositive(unresolvedErrorExpirationMinutes, "unresolvedErrorExpiration must be at least one minute");
     }
 
     @Override
     public void runSafely() {
-        var resolvedErrorsExpiration = ZonedDateTime.now().minusMinutes(config.getResolvedErrorExpiration().toMinutes());
-        var resolvedDeletedCount = errorDao.deleteResolvedErrorsBefore(resolvedErrorsExpiration);
-        LOG.debug("Deleted {} expired resolved application errors", resolvedDeletedCount);
+        var now = ZonedDateTime.now();
 
-        if (config.getCleanupStrategy() == CleanupConfig.CleanupStrategy.ALL_ERRORS) {
-            var unresolvedErrorsExpiration = ZonedDateTime.now().minusMinutes(config.getUnresolvedErrorException().toMinutes());
+        var resolvedErrorsExpiration = now.minusMinutes(resolvedErrorExpirationMinutes);
+        var resolvedDeletedCount = errorDao.deleteResolvedErrorsBefore(resolvedErrorsExpiration);
+        LOG.debug("Deleted {} expired resolved application errors before {}",
+                resolvedDeletedCount, resolvedErrorsExpiration);
+
+        if (config.getCleanupStrategy() == CleanupStrategy.ALL_ERRORS) {
+            var unresolvedErrorsExpiration = now.minusMinutes(unresolvedErrorExpirationMinutes);
             var unresolvedDeletedCount = errorDao.deleteUnresolvedErrorsBefore(unresolvedErrorsExpiration);
-            LOG.debug("Deleted {} expired application errors", unresolvedDeletedCount);
+            LOG.debug("Deleted {} expired but unresolved application errors before {}",
+                    unresolvedDeletedCount, unresolvedErrorsExpiration);
         }
     }
 
