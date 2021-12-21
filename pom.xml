@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kiwiproject</groupId>
         <artifactId>kiwi-parent</artifactId>
-        <version>1.5.0</version>
+        <version>1.6.0</version>
     </parent>
 
     <artifactId>dropwizard-application-errors</artifactId>
@@ -30,6 +30,7 @@
 
         <!-- Versions for required dependencies -->
         <kiwi.version>1.1.1-SNAPSHOT</kiwi.version>
+        <kiwi-bom.version>0.4.0-SNAPSHOT</kiwi-bom.version>
         <metrics-healthchecks-severity.version>1.0.2-SNAPSHOT</metrics-healthchecks-severity.version>
 
         <!-- Versions for test dependencies -->
@@ -46,7 +47,7 @@
             <dependency>
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>kiwi-bom</artifactId>
-                <version>0.1.0-SNAPSHOT</version>
+                <version>${kiwi-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
