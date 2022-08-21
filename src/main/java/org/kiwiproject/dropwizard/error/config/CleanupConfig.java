@@ -13,7 +13,6 @@ public class CleanupConfig {
 
     /**
      * Strategies for what should be cleaned up.
-     * <p>
      * <ul>
      *     <li>ALL_ERRORS - Will remove resolved AND unresolved errors older than {@code applicationErrorExpiration}</li>
      *     <li>RESOLVED_ONLY - Will remove resolved errors older than {@code applicationErrorExpiration}</li>
