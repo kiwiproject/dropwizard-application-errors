@@ -120,7 +120,7 @@ class ApplicationErrorJdbcTest {
 
             assertThatThrownBy(() -> ApplicationErrorJdbc.migrateDatabase(conn))
                     .isExactlyInstanceOf(ApplicationErrorJdbc.ApplicationErrorJdbcException.class)
-                    .hasMessage("Error migrating [Unknown Error] database for Rotten Tomato");
+                    .hasMessage("Error migrating [Unknown Error] database");
         }
     }
 

@@ -81,7 +81,7 @@ public class ApplicationErrorJdbc {
                 conn.setAutoCommit(originalAutoCommit);
             }
         } catch (Exception e) {
-            var message = format("Error migrating {} database for Rotten Tomato", getDatabaseProductNameOrUnknown(conn));
+            var message = format("Error migrating {} database", getDatabaseProductNameOrUnknown(conn));
             throw new ApplicationErrorJdbcException(message, e);
         }
     }
