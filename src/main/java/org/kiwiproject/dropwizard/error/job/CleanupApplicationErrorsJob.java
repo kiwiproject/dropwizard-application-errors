@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 /**
  * Job that can be configured to run on a regular interval that will delete expired application errors.
  *
- * @see CleanupConfig for options on what will be deleted and when
+ * @see CleanupConfig configuration options on what will be deleted and when
  */
 @Slf4j
 public class CleanupApplicationErrorsJob implements CatchingRunnable {
