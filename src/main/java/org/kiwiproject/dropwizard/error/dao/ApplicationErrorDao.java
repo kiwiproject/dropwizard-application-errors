@@ -26,7 +26,21 @@ public interface ApplicationErrorDao {
      * @param status the status to filter by
      * @return the number of errors having the given status
      */
-    long count(ApplicationErrorStatus status);
+    default long count(ApplicationErrorStatus status) {
+        switch (status) {
+            case ALL:
+                return countAllErrors();
+
+            case RESOLVED:
+                return countResolvedErrors();
+
+            case UNRESOLVED:
+                return countUnresolvedErrors();
+
+            default:
+                throw new IllegalArgumentException("Unknown error status value: " + status.name());
+        }
+    }
 
     /**
      * Count all resolved errors.
