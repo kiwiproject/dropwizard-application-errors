@@ -33,23 +33,6 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     Optional<ApplicationError> getById(@Bind("id") long id);
 
     @Override
-    default long count(ApplicationErrorStatus status) {
-        switch (status) {
-            case ALL:
-                return countAllErrors();
-
-            case RESOLVED:
-                return countResolvedErrors();
-
-            case UNRESOLVED:
-                return countUnresolvedErrors();
-
-            default:
-                throw new IllegalArgumentException("Unknown error status value: " + status.name());
-        }
-    }
-
-    @Override
     @SqlQuery("select count(id) from application_errors")
     long countAllErrors();
 
