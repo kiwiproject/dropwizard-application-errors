@@ -103,8 +103,9 @@ public class ApplicationError {
      * and {@code port} when created via the static factory methods.
      * <p>
      * Please note this is intended to be called only <em>once</em> at initialization (see the "{@code build*}" methods
-     * in {@link org.kiwiproject.dropwizard.error.ErrorContextBuilder ErrorContextBuilder}. Alas Java does not permit a "set only once" semantic to non-final variables.
-     * However, this does allow calling more than once for unit testing purposes.
+     * in {@link org.kiwiproject.dropwizard.error.ErrorContextBuilder ErrorContextBuilder}). Alas, Java does not permit
+     * a "set only once" semantic to non-final variables. However, this does allow calling more than once for unit
+     * testing purposes.
      *
      * @param hostName  the persistent host name
      * @param ipAddress the persistent IP address
@@ -226,7 +227,7 @@ public class ApplicationError {
      *
      * @param description a description of the error
      * @param resolved    is this error resolved?
-     * @param hostName    the host name on which the the error occurred
+     * @param hostName    the host name on which the error occurred
      * @param ipAddress   the IP address of the host on which the error occurred
      * @param port        the port on which the error occurred
      * @param throwable   a Throwable that is the cause of this application error

@@ -7,7 +7,7 @@ import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 @DisplayName("Jdbi3ApplicationErrorDao (Postgres)")
-public class PostgresJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
+class PostgresJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
     @RegisterExtension
     static final PostgresLiquibaseTestExtension POSTGRES =

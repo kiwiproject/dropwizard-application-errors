@@ -1,9 +1,8 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static io.dropwizard.logback.shaded.guava.base.Preconditions.checkNotNull;
-import static java.util.Objects.isNull;
+import static org.kiwiproject.base.KiwiPreconditions.checkArgumentIsNull;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao.checkPagingArgumentsAndCalculateZeroBasedOffset;
 
@@ -159,7 +158,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
      */
     @Override
     default long insertError(ApplicationError newError) {
-        checkArgument(isNull(newError.getId()), "Cannot insert an ApplicationError that has an id");
+        checkArgumentIsNull(newError.getId(), "Cannot insert an ApplicationError that has an id");
         return insertErrorInternal(newError);
     }
 
@@ -174,7 +173,7 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
     @Override
     default void incrementCount(long id) {
         var count = incrementCountInternal(id);
-        checkState(count == 1, "Increment failed. No ApplicationError found with id %s", id);
+        checkState(count == 1, "Unable to increment count. No ApplicationError found with id %s", id);
     }
 
     @SqlUpdate("update application_errors" +

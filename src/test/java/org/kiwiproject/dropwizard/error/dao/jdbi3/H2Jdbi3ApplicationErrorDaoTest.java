@@ -10,7 +10,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
 @DisplayName("Jdbi3ApplicationErrorDao (H2)")
-public class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
+class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
     private static JdbcDataSource DATA_SOURCE;
 
