@@ -8,7 +8,8 @@ import java.util.Optional;
 
 /**
  * This library provides an easy way to store application errors in your service's local (e.g. Postgres) database.
- * This interface defines the general contract, and instances are built using {@link ErrorContextBuilder}.
+ * This interface defines the general contract, and instances are usually built using {@link ErrorContextBuilder},
+ * though you can build everything programmatically if you want to.
  * <p>
  * This acts much like a Dropwizard bundle in that it creates an {@link ApplicationErrorDao} for use anywhere in
  * your application, and registers an
@@ -21,7 +22,9 @@ import java.util.Optional;
  * {@link ErrorContextBuilder#skipHealthCheck()} when constructing the instance.
  * <p>
  * We currently support storing errors to a relational database with JDBI 3. If your application does not currently
- * have a database or uses something else, then we also provide an option to use an in-memory H2 database.
+ * have a database or uses something else, we also provide several other options including an in-memory H2 database,
+ * an in-memory implementation that uses a {@link java.util.concurrent.ConcurrentMap} and a no-op implementation
+ * that does nothing.
  * <p>
  * <strong>JDBI Note:</strong>
  * To start creating application errors you will first need to create the database

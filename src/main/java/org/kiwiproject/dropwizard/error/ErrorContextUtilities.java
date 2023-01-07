@@ -35,7 +35,7 @@ class ErrorContextUtilities {
 
         checkArgumentNotNull(environment, "Dropwizard Environment cannot be null");
         checkArgumentNotNull(serviceDetails, "serviceDetails cannot be null");
-        checkArgumentNotNull(dataStoreType, "dataStoreType cannot ne null");
+        checkArgumentNotNull(dataStoreType, "dataStoreType cannot be null");
         checkArgument(timeWindowValue > 0, "timeWindowValue must be positive");
         checkArgumentNotNull(timeWindowUnit, "timeWindowUnit cannot be null");
     }

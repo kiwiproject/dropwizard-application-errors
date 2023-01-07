@@ -10,7 +10,10 @@ import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
+import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
+import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
@@ -31,6 +34,9 @@ import java.time.temporal.TemporalUnit;
  * <li>{@link #buildInMemoryH2()}</li>
  * <li>{@link #buildWithDataStoreFactory(DataSourceFactory)}</li>
  * <li>{@link #buildWithJdbi3(Jdbi)}</li>
+ * <li>{@link #buildWithNoOpDao()}</li>
+ * <li>{@link #buildWithConcurrentMapDao()}</li>
+ * <li>{@link #buildWithDao(ApplicationErrorDao)}</li>
  * </ul>
  * </ol>
  * <p>
@@ -58,7 +64,7 @@ import java.time.temporal.TemporalUnit;
  *     .buildWithJdbi3(jdbi);
  * </pre>
  * <p>
- * All of the terminal build methods use {@link DataStoreType} to determine if the {@link ErrorContext} instance is
+ * All the terminal build methods use {@link DataStoreType} to determine if the {@link ErrorContext} instance is
  * {@link DataStoreType#SHARED shared} (i.e. multiple instances of the same service read and write to the same database)
  * or {@link DataStoreType#NOT_SHARED not shared} (i.e. each service instance has its own segregated database). You can
  * change the defaults (listed below) by explicitly calling the {@link #dataStoreType(DataStoreType)} method with the
@@ -290,7 +296,7 @@ public class ErrorContextBuilder {
      * @param jdbi the {@link Jdbi} instance to use; it must be configured with {@code SqlObjectPlugin}
      * @return a new {@link ErrorContext} instance
      * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
-     * will default to using a value of {@link DataStoreType#SHARED}. Otherwise we would need to open a database
+     * will default to using a value of {@link DataStoreType#SHARED}. Otherwise, we would need to open a database
      * connection, inspect the database metadata, etc. to figure out the database, and we don't want to do all this.
      * If you are using an in-memory database, then be sure to configure the data store type before calling.
      */
@@ -309,6 +315,50 @@ public class ErrorContextBuilder {
                 environment,
                 serviceDetails,
                 jdbi,
+                dataStoreType,
+                addHealthCheck,
+                timeWindowValue,
+                timeWindowUnit,
+                addCleanupJob,
+                cleanupConfig);
+    }
+
+    /**
+     * Build an {@link ErrorContext} with a no-op {@link ApplicationErrorDao}.
+     *
+     * @return a new {@link ErrorContext} instance
+     * @implNote The returned instance always has {@code dataStoreType} as {@link DataStoreType#NOT_SHARED}
+     * @see NoOpApplicationErrorDao
+     */
+    public ErrorContext buildWithNoOpDao() {
+        dataStoreType(DataStoreType.NOT_SHARED);
+        return buildWithDao(new NoOpApplicationErrorDao());
+    }
+
+    /**
+     * Build an {@link ErrorContext} with an in-memory {@link ApplicationErrorDao} that uses
+     * a {@link java.util.concurrent.ConcurrentMap ConcurrentMap} for storage.
+     *
+     * @return a new {@link ErrorContext} instance
+     * @implNote The returned instance always has {@code dataStoreType} as {@link DataStoreType#NOT_SHARED}
+     * @see ConcurrentMapApplicationErrorDao
+     */
+    public ErrorContext buildWithConcurrentMapDao() {
+        dataStoreType(DataStoreType.NOT_SHARED);
+        return buildWithDao(new ConcurrentMapApplicationErrorDao());
+    }
+
+    /**
+     * Build an {@link ErrorContext} that uses a specific {@link ApplicationErrorDao}.
+     *
+     * @param errorDao the {@link ApplicationErrorDao} to use
+     * @return a new {@link ErrorContext} instance
+     */
+    public ErrorContext buildWithDao(ApplicationErrorDao errorDao) {
+        return new SimpleErrorContext(
+                environment,
+                serviceDetails,
+                errorDao,
                 dataStoreType,
                 addHealthCheck,
                 timeWindowValue,
