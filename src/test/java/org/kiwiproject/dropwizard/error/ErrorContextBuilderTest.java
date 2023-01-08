@@ -33,6 +33,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
 import org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob;
@@ -131,18 +133,17 @@ class ErrorContextBuilderTest {
         private void assertIllegalArgumentExceptionThrownBuilding(SoftAssertions softly,
                                                                   ErrorContextBuilder builder,
                                                                   String expectedMessage) {
-            softly.assertThatThrownBy(
-                    builder::buildInMemoryH2)
+            softly.assertThatThrownBy(builder::buildInMemoryH2)
                     .isExactlyInstanceOf(IllegalArgumentException.class)
                     .hasMessage(expectedMessage);
 
-            softly.assertThatThrownBy(
-                    () -> builder.buildWithDataStoreFactory(mock(DataSourceFactory.class)))
+            softly.assertThatThrownBy(() ->
+                            builder.buildWithDataStoreFactory(mock(DataSourceFactory.class)))
                     .isExactlyInstanceOf(IllegalArgumentException.class)
                     .hasMessage(expectedMessage);
 
-            softly.assertThatThrownBy(
-                    () -> builder.buildWithJdbi3(mock(Jdbi.class)))
+            softly.assertThatThrownBy(() ->
+                            builder.buildWithJdbi3(mock(Jdbi.class)))
                     .isExactlyInstanceOf(IllegalArgumentException.class)
                     .hasMessage(expectedMessage);
         }
@@ -170,7 +171,7 @@ class ErrorContextBuilderTest {
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             builder.buildWithJdbi3(jdbi);
 
-            // We are checking 3 times here because this test is creating 3 separate ErrorContext objects and we need
+            // We are checking 3 times here because this test is creating 3 separate ErrorContext objects, and we need
             // to verify that each one sets up the cleanup job.
             verify(environment.lifecycle(), times(3)).scheduledExecutorService(cleanupConfig.getCleanupJobName(), true);
             verify(executor, times(3))
@@ -533,6 +534,142 @@ class ErrorContextBuilderTest {
         dataSourceFactory.setUser(POSTGRES.getTestDataSource().getUsername());
         dataSourceFactory.setPassword(POSTGRES.getTestDataSource().getPassword());
         return dataSourceFactory;
+    }
+
+    @Nested
+    class BuildWithNoOpDao {
+
+        @Test
+        void shouldBuildSimpleContext(SoftAssertions softly) {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithNoOpDao();
+
+            softly.assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class);
+            softly.assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+            softly.assertThat(errorContext.errorDao()).isInstanceOf(NoOpApplicationErrorDao.class);
+        }
+
+        @Test
+        void shouldRegisterResources() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithNoOpDao();
+
+            verifyRegistersJerseyResources();
+        }
+
+        @Test
+        void shouldRegisterHealthCheck() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithNoOpDao();
+
+            verifyRegistersHealthChecks();
+        }
+
+        @Test
+        void shouldForce_NOT_SHARED_DataStoreType() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .buildWithNoOpDao();
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+    }
+
+    @Nested
+    class BuildWithConcurrentMapDao {
+
+        @Test
+        void shouldBuildSimpleContext(SoftAssertions softly) {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithConcurrentMapDao();
+
+            softly.assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class);
+            softly.assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+            softly.assertThat(errorContext.errorDao()).isInstanceOf(ConcurrentMapApplicationErrorDao.class);
+        }
+
+        @Test
+        void shouldRegisterResources() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithConcurrentMapDao();
+
+            verifyRegistersJerseyResources();
+        }
+
+        @Test
+        void shouldRegisterHealthCheck() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithConcurrentMapDao();
+
+            verifyRegistersHealthChecks();
+        }
+
+        @Test
+        void shouldForce_NOT_SHARED_DataStoreType() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .buildWithConcurrentMapDao();
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+    }
+
+    @Nested
+    class BuildWithDao {
+
+        @Test
+        void shouldBuildSimpleContext(SoftAssertions softly) {
+            var errorDao = new NoOpApplicationErrorDao();
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .buildWithDao(errorDao);
+
+            softly.assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class);
+            softly.assertThat(errorContext.dataStoreType())
+                    .describedAs("should not force DataStoreType (even if it's wrong)")
+                    .isEqualTo(DataStoreType.SHARED);
+            softly.assertThat(errorContext.errorDao()).isSameAs(errorDao);
+        }
+
+        @Test
+        void shouldRegisterResources() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED)
+                    .buildWithDao(new NoOpApplicationErrorDao());
+
+            verifyRegistersJerseyResources();
+        }
+
+        @Test
+        void shouldRegisterHealthCheck() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED)
+                    .buildWithDao(new NoOpApplicationErrorDao());
+
+            verifyRegistersHealthChecks();
+        }
     }
 
     private void verifyRegistersJerseyResources() {
