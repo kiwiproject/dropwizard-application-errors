@@ -579,22 +579,22 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
 
         @Test
         void testGetUnresolvedErrorsByDescriptionAndHost_WhenMoreThanOneWithSameDescription_OnDifferentHosts() {
-            var hostl = "my-host-1";
+            var host1 = "my-host-1";
             var host2 = "my-host-2";
 
-            insertErrorsWithResolvedAs(5, Resolved.YES, hostl);
+            insertErrorsWithResolvedAs(5, Resolved.YES, host1);
             insertErrorsWithResolvedAs(3, Resolved.YES, host2);
-            insertErrorsWithResolvedAs(7, Resolved.NO, hostl);
+            insertErrorsWithResolvedAs(7, Resolved.NO, host1);
             insertErrorsWithResolvedAs(6, Resolved.NO, host2);
 
             var desc = description + random.nextInt(100_000);
-            var unresolvedError1 = newApplicationError(desc, Resolved.NO, hostl);
+            var unresolvedError1 = newApplicationError(desc, Resolved.NO, host1);
             long unresolvedId1 = insertApplicationError(unresolvedError1);
 
             var unresolvedError2 = newApplicationError(desc, Resolved.NO, host2);
             long unresolvedId2 = insertApplicationError(unresolvedError2);
 
-            var errors1 = errorDao.getUnresolvedErrorsByDescriptionAndHost(desc, hostl);
+            var errors1 = errorDao.getUnresolvedErrorsByDescriptionAndHost(desc, host1);
             assertThat(errors1)
                     .extracting("id")
                     .containsExactly(unresolvedId1);
