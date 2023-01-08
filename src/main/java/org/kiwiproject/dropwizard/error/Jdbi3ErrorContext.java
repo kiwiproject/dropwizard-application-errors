@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * JDBI 3 implementation of {@link ErrorContext}.
  * <p>
- * Note that the {@code SqlObjectPlugin} <em>must</em> be registered on the {@link Jdbi} instance. Otherwise we will
+ * Note that the {@code SqlObjectPlugin} <em>must</em> be registered on the {@link Jdbi} instance. Otherwise, we will
  * throw an {@link IllegalStateException} wrapping the {@link NoSuchExtensionException} that JDBI throws. The error
  * message provided by JDBI ({@code "Extension not found"}) is not all that helpful, so our message is more informative.
  *

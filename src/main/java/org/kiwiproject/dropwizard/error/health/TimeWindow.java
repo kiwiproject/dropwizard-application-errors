@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * the recent errors health check with a non-default time period.
  *
  * @implNote Assumes instances will be deserialized from a standard Dropwizard YAML configuration
- * file, therefore provides both an all-args constructor as well as a no-args constructor and setters.
+ * file, therefore provides both an all-args constructor and a no-args constructor and setters.
  */
 @Data
 @NoArgsConstructor

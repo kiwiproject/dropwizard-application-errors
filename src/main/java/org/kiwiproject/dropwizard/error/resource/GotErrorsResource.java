@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * A simple JAX-RS resource for clients to determine if application errors are available or not.
  * <p>
- * Clients can check if application errors are available using a HTTP GET request that returns a
+ * Clients can check if application errors are available using an HTTP GET request that returns a
  * {@code 200 OK} response if available. The response entity contains information on whether the
  * underlying data store is shared or not. A shared database means it is shared between separate
  * service/application instances, whereas a database that is <em>not</em> shared is local to the
