@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.PersistentHostInformation;
+import org.kiwiproject.net.KiwiInternetAddresses;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -18,7 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * A JUnit Jupiter extension that ensures the {@link PersistentHostInformation} is set on {@link ApplicationError}
@@ -100,12 +100,7 @@ public class ApplicationErrorExtension implements BeforeAllCallback, AfterAllCal
     }
 
     private InetAddress getLocalHost() {
-        try {
-            return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            LOG.debug("Error getting local host. Will default to loopback address", e);
-            return InetAddress.getLoopbackAddress();
-        }
+        return KiwiInternetAddresses.getLocalHostInetAddress().orElseGet(InetAddress::getLoopbackAddress);
     }
 
     @Override
