@@ -4,6 +4,7 @@ import static java.util.Objects.isNull;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.base.KiwiStrings.format;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.db.DataSourceFactory;
 import liquibase.Contexts;
 import liquibase.Liquibase;
@@ -86,7 +87,8 @@ public class ApplicationErrorJdbc {
         }
     }
 
-    private static String getDatabaseProductNameOrUnknown(Connection conn) {
+    @VisibleForTesting
+    static String getDatabaseProductNameOrUnknown(Connection conn) {
         try {
             return conn.getMetaData().getDatabaseProductName();
         } catch (Exception e) {
