@@ -14,6 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Synchronized;
 import lombok.Value;
 import lombok.With;
 
@@ -110,12 +111,13 @@ public class ApplicationError {
      * @param hostName  the persistent host name
      * @param ipAddress the persistent IP address
      * @param port      the persistent port
-     * @implNote This is synchronized even though it is highly unlikely two threads will be initializing persistent
-     * host information at the same time.
+     * @implNote This is synchronized internally even though it is highly unlikely two threads will be initializing
+     * persistent host information at the same time.
      * @implNote If you rename this method, you <strong>must</strong> also update the error message in
      * {@link #checkPersistentHostState()} for the error message to be correct.
      */
-    public static synchronized void setPersistentHostInformation(String hostName, String ipAddress, int port) {
+    @Synchronized
+    public static void setPersistentHostInformation(String hostName, String ipAddress, int port) {
         persistentHostInformation = new PersistentHostInformation(hostName, ipAddress, port);
     }
 
@@ -124,11 +126,12 @@ public class ApplicationError {
      * {@link PersistentHostInformation} instance.
      *
      * @param hostInfo the persistent host information
-     * @implNote This is synchronized even though it is highly unlikely two threads will be initializing persistent
-     * host information at the same time.
+     * @implNote This is synchronized internally even though it is highly unlikely two threads will be initializing
+     * persistent host information at the same time.
      * @implNote If you rename this method, you <strong>must</strong> also update the error message in
      * {@link #checkPersistentHostState()} for the error message to be correct.
      */
+    @Synchronized
     public static synchronized void setPersistentHostInformation(PersistentHostInformation hostInfo) {
         checkArgumentNotNull(hostInfo);
         setPersistentHostInformation(hostInfo.getHostName(), hostInfo.getIpAddress(), hostInfo.getPort());
@@ -139,9 +142,10 @@ public class ApplicationError {
      * <p>
      * <em>This is intended only for unit testing purposes.</em>
      *
-     * @implNote This is synchronized even though it is unlikely two threads will be initializing the persistent
-     * host information at the same time.
+     * @implNote This is synchronized internally even though it is unlikely two threads will be initializing the
+     * persistent host information at the same time.
      */
+    @Synchronized
     @VisibleForTesting
     public static synchronized void clearPersistentHostInformation() {
         persistentHostInformation = null;
