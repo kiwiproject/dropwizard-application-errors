@@ -9,7 +9,6 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRes
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersistentHostInformationFrom;
 
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
@@ -31,7 +30,6 @@ import java.util.Optional;
  *
  * @implNote This class is not public and is subject to change.
  */
-@Slf4j
 class Jdbi3ErrorContext implements ErrorContext {
 
     private static final String NO_SUCH_EXTENSION_ERROR_MESSAGE = f(
