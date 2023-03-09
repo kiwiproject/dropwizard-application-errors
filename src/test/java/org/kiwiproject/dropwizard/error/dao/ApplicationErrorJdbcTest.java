@@ -71,6 +71,40 @@ class ApplicationErrorJdbcTest {
     }
 
     @Nested
+    class GetDatabaseProductNameOrUnknown {
+
+        @Test
+        void shouldGetDatabaseProductName() throws SQLException {
+            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+
+            var url = dataSourceFactory.getUrl();
+            var user = dataSourceFactory.getUser();
+            var password = dataSourceFactory.getPassword();
+
+            try (var conn = DriverManager.getConnection(url, user, password)) {
+                var productName = ApplicationErrorJdbc.getDatabaseProductNameOrUnknown(conn);
+                assertThat(productName).isEqualTo("H2");
+            }
+        }
+
+        @Test
+        void shouldReturnUnknownIfExceptionThrown() throws SQLException {
+            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+
+            var url = dataSourceFactory.getUrl();
+            var user = dataSourceFactory.getUser();
+            var password = dataSourceFactory.getPassword();
+
+            var conn = DriverManager.getConnection(url, user, password);
+
+            // Closing the connection causes an exception when trying to get database metadata
+            conn.close();
+
+            assertThat(ApplicationErrorJdbc.getDatabaseProductNameOrUnknown(conn)).isEqualTo("[Unknown Error]");
+        }
+    }
+
+    @Nested
     class DataStoreTypeOf {
 
         @Test
