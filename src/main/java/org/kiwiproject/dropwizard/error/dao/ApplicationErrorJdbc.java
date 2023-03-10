@@ -13,6 +13,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 
 import java.sql.Connection;
@@ -33,7 +34,7 @@ public class ApplicationErrorJdbc {
     private static final String H2_IN_MEMORY_DB_URL = "jdbc:h2:mem:dw-app-errors;DB_CLOSE_DELAY=-1";
 
     private static final String H2_IN_MEMORY_DB_USERNAME = "appErrorUser";
-    private static final String H2_IN_MEMORY_DB_PASSWORD = "rotten tomatoes";
+    private static final String H2_IN_MEMORY_DB_PASSWORD = RandomStringUtils.randomAlphanumeric(20);
 
     /**
      * Creates an in-memory H2 database that will stay alive as long as the JVM is alive and will use the same database
