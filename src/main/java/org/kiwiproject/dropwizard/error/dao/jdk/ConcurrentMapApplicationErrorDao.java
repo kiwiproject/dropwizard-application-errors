@@ -252,7 +252,8 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
         return updateWith(original, newNumTimesOccurred, original.isResolved());
     }
 
-    private static ApplicationError updateWith(ApplicationError original, int numTimesOccurred, boolean resolved) {
+    @VisibleForTesting
+    static ApplicationError updateWith(ApplicationError original, int numTimesOccurred, boolean resolved) {
         checkArgumentNotNull(original, "ApplicationError to update must not be null");
 
         var now = ZonedDateTime.now(ZoneOffset.UTC);
