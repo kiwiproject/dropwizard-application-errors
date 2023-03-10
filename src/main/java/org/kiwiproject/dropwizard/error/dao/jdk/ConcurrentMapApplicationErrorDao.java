@@ -222,7 +222,8 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
         return removeCount.get();
     }
 
-    private static boolean isResolvedOrUnresolved(ApplicationErrorStatus status) {
+    @VisibleForTesting
+    static boolean isResolvedOrUnresolved(ApplicationErrorStatus status) {
         return status == ApplicationErrorStatus.RESOLVED || status == ApplicationErrorStatus.UNRESOLVED;
     }
 
