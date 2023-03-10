@@ -1,8 +1,14 @@
 package org.kiwiproject.dropwizard.error.dao.jdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.kiwiproject.dropwizard.error.dao.AbstractApplicationErrorDaoTest;
+import org.kiwiproject.dropwizard.error.dao.ApplicationErrorStatus;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 
 import java.util.Optional;
@@ -42,5 +48,19 @@ class ConcurrentMapApplicationErrorDaoTest extends AbstractApplicationErrorDaoTe
         var error = concurrentMapErrorDao.errors.get(id);
         return Optional.ofNullable(error)
                 .orElseThrow(() -> new IllegalStateException("No ApplicationError found with id " + id));
+    }
+
+    @Nested
+    class IsResolvedOrUnresolved {
+
+        @ParameterizedTest
+        @CsvSource({
+            "ALL, false",
+            "RESOLVED, true",
+            "UNRESOLVED, true"
+        })
+        void shouldReturnExpectedValue(ApplicationErrorStatus status, boolean expectedResult) {
+            assertThat(ConcurrentMapApplicationErrorDao.isResolvedOrUnresolved(status)).isEqualTo(expectedResult);
+        }
     }
 }

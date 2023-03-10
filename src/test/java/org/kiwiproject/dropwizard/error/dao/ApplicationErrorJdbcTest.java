@@ -15,6 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.test.jdbc.RuntimeSQLException;
+import org.kiwiproject.test.junit.jupiter.ClearBoxTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -73,7 +74,7 @@ class ApplicationErrorJdbcTest {
     @Nested
     class GetDatabaseProductNameOrUnknown {
 
-        @Test
+        @ClearBoxTest
         void shouldGetDatabaseProductName() throws SQLException {
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
@@ -87,7 +88,7 @@ class ApplicationErrorJdbcTest {
             }
         }
 
-        @Test
+        @ClearBoxTest
         void shouldReturnUnknownIfExceptionThrown() throws SQLException {
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
