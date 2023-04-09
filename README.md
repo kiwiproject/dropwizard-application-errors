@@ -6,7 +6,7 @@
 [![CodeQL](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/codeql.yml/badge.svg)](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/codeql.yml)
 [![javadoc](https://javadoc.io/badge2/org.kiwiproject/dropwizard-application-errors/javadoc.svg)](https://javadoc.io/doc/org.kiwiproject/dropwizard-application-errors)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/dropwizard-application-errors)](https://central.sonatype.com/artifact/org.kiwiproject/dropwizard-application-errors/1.2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/dropwizard-application-errors)](https://central.sonatype.com/artifact/org.kiwiproject/dropwizard-application-errors/)
 
 
 Dropwizard Application Errors is a library that provides Dropwizard applications with a simple
