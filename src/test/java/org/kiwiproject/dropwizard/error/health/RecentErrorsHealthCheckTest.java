@@ -29,7 +29,6 @@ import org.kiwiproject.dropwizard.error.model.PersistentHostInformation;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension.HostInfo;
-import org.kiwiproject.dropwizard.util.KiwiDropwizardDurations;
 import org.kiwiproject.metrics.health.HealthStatus;
 import org.mockito.ArgumentMatcher;
 
@@ -101,7 +100,7 @@ class RecentErrorsHealthCheckTest {
             var duration = Duration.parse(durationString);
             var healthCheck = newHealthCheck(new TimeWindow(duration));
 
-            var javaTimeDuration = KiwiDropwizardDurations.fromDropwizardDuration(duration);
+            var javaTimeDuration = duration.toJavaDuration();
             assertThat(healthCheck.getTimeWindowAmount()).isEqualTo(javaTimeDuration.toMillis());
             assertThat(healthCheck.getTimeWindowUnit()).isEqualTo(ChronoUnit.MILLIS);
             assertThat(healthCheck.getTimeWindow()).isEqualTo(javaTimeDuration);
@@ -125,7 +124,7 @@ class RecentErrorsHealthCheckTest {
             var duration = Duration.parse(durationString);
             var healthCheck = newHealthCheck(duration);
 
-            assertThat(healthCheck.getTimeWindow()).isEqualTo(KiwiDropwizardDurations.fromDropwizardDuration(duration));
+            assertThat(healthCheck.getTimeWindow()).isEqualTo(duration.toJavaDuration());
             assertThat(healthCheck.getHumanReadableTimeWindow()).isEqualTo(expectedReadableWindow);
         }
 
