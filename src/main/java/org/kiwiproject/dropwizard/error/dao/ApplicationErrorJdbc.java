@@ -6,11 +6,13 @@ import static org.kiwiproject.base.KiwiStrings.format;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.db.DataSourceFactory;
-import liquibase.Contexts;
-import liquibase.Liquibase;
+import liquibase.command.CommandScope;
+import liquibase.command.core.UpdateCommandStep;
+import liquibase.command.core.helpers.DbUrlConnectionCommandStep;
+import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.exception.CommandExecutionException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -74,9 +76,9 @@ public class ApplicationErrorJdbc {
 
         try {
             boolean originalAutoCommit = conn.getAutoCommit();
-            var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-            var liquibase = new Liquibase(MIGRATIONS_FILENAME, new ClassLoaderResourceAccessor(), database);
-            liquibase.update(new Contexts());
+            var liquibaseDatabase = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+            runLiquibaseUpdate(liquibaseDatabase);
+
             if (originalAutoCommit != conn.getAutoCommit()) {
                 LOG.trace("Liquibase changed Connection's autoCommit to: {}. Restoring to original value: {}",
                         conn.getAutoCommit(), originalAutoCommit);
@@ -86,6 +88,14 @@ public class ApplicationErrorJdbc {
             var message = format("Error migrating {} database", getDatabaseProductNameOrUnknown(conn));
             throw new ApplicationErrorJdbcException(message, e);
         }
+    }
+
+    private static void runLiquibaseUpdate(Database liquibaseDatabase) throws CommandExecutionException {
+        var updateCommand = new CommandScope(UpdateCommandStep.COMMAND_NAME)
+                .addArgumentValue(DbUrlConnectionCommandStep.DATABASE_ARG, liquibaseDatabase)
+                .addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, MIGRATIONS_FILENAME);
+        var updateResults = updateCommand.execute();
+        LOG.debug("Update results: {}", updateResults.getResults());
     }
 
     @VisibleForTesting
