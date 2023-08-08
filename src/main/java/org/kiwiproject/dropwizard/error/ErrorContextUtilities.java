@@ -3,7 +3,7 @@ package org.kiwiproject.dropwizard.error;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import lombok.experimental.UtilityClass;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;

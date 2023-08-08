@@ -39,30 +39,25 @@ class ApplicationErrorVerificationsTest {
 
         void performSomeProcessingThatCanFail(String input) {
             switch (input) {
-                case "foo": // one error with exception
+                case "foo" -> { // one error with exception
                     var fooError = ApplicationError.newUnresolvedError("Processing failed for input: foo");
                     errorDao.insertOrIncrementCount(fooError);
                     logProcessingComplete(Level.WARN, input);
-                    break;
-
-                case "bar": // one error with exception
+                }
+                case "bar" -> { // one error with exception
                     var cause = new IOException("I/O error");
                     var ex = new UncheckedIOException(cause);
                     var barError = ApplicationError.newUnresolvedError("Processing threw error with cause for input: bar", ex);
                     errorDao.insertOrIncrementCount(barError);
                     logProcessingComplete(Level.WARN, input);
-                    break;
-
-                case "baz": // one error plus a second call on errorDao
+                }
+                case "baz" -> { // one error plus a second call on errorDao
                     var bazError = ApplicationError.newUnresolvedError("Processing failed for input: baz");
                     errorDao.insertOrIncrementCount(bazError);
                     errorDao.countAllErrors();
                     logProcessingComplete(Level.WARN, input);
-                    break;
-
-                default:
-                    logProcessingComplete(Level.INFO, input);
-                    break;
+                }
+                default -> logProcessingComplete(Level.INFO, input);
             }
         }
 

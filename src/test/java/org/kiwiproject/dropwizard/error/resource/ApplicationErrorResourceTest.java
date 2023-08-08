@@ -14,6 +14,8 @@ import static org.mockito.Mockito.when;
 
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,8 +28,6 @@ import org.kiwiproject.dropwizard.error.model.ApplicationError.Resolved;
 import org.kiwiproject.dropwizard.error.model.ApplicationErrorPage;
 import org.kiwiproject.jaxrs.KiwiGenericTypes;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

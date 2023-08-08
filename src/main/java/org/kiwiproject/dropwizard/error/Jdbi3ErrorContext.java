@@ -8,7 +8,7 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRec
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerResources;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersistentHostInformationFrom;
 
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;

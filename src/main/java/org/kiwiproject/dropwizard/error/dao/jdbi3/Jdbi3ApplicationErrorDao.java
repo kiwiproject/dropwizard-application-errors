@@ -66,19 +66,11 @@ public interface Jdbi3ApplicationErrorDao extends ApplicationErrorDao {
 
         int offset = checkPagingArgumentsAndCalculateZeroBasedOffset(pageNumber, pageSize);
 
-        switch (status) {
-            case ALL:
-                return getAllErrorsInternal(pageSize, offset);
-
-            case RESOLVED:
-                return getErrorsInternal(true, pageSize, offset);
-
-            case UNRESOLVED:
-                return getErrorsInternal(false, pageSize, offset);
-
-            default:
-                throw new IllegalArgumentException("Unknown error status value: " + status.name());
-        }
+        return switch (status) {
+            case ALL -> getAllErrorsInternal(pageSize, offset);
+            case RESOLVED -> getErrorsInternal(true, pageSize, offset);
+            case UNRESOLVED -> getErrorsInternal(false, pageSize, offset);
+        };
     }
 
     /**

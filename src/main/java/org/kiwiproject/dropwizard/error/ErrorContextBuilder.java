@@ -5,8 +5,8 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.checkCommon
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.createInMemoryH2Database;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.isH2DataStore;
 
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;

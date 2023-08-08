@@ -45,11 +45,13 @@ class ApplicationErrorThrowerTest {
 
         @Test
         void shouldThrow_WhenGivenNullErrorDao() {
+            //noinspection DataFlowIssue
             assertThrowsNullPointerException("errorDao", () -> new ApplicationErrorThrower(null, LOG));
         }
 
         @Test
         void shouldThrow_WhenGivenNullLogger() {
+            //noinspection DataFlowIssue
             assertThrowsNullPointerException("logger", () -> new ApplicationErrorThrower(errorDao, null));
         }
     }
@@ -59,12 +61,14 @@ class ApplicationErrorThrowerTest {
 
         @Test
         void shouldThrow_WhenGivenNullErrorDao() {
+            //noinspection DataFlowIssue
             assertThrowsNullPointerException("errorDao",
                     () -> ApplicationErrorThrower.builder().errorDao(null).logger(LOG).build());
         }
 
         @Test
         void shouldThrow_WhenGivenNullLogger() {
+            //noinspection DataFlowIssue
             assertThrowsNullPointerException("logger",
                     () -> ApplicationErrorThrower.builder().errorDao(errorDao).logger(null).build());
         }
