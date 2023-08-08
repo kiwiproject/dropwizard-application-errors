@@ -13,10 +13,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
-import io.dropwizard.setup.Environment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -173,7 +173,7 @@ class ErrorContextUtilitiesTest {
             verifyNoMoreInteractions(healthChecks);
         }
 
-        @SuppressWarnings("ConstantConditions")
+        @SuppressWarnings("ConstantValue")
         @Test
         void shouldSkipRegisteringHealthCheck() {
             var healthCheck = ErrorContextUtilities.registerRecentErrorsHealthCheckOrNull(
@@ -217,7 +217,7 @@ class ErrorContextUtilitiesTest {
                     eq(TimeUnit.MINUTES));
         }
 
-        @SuppressWarnings("ConstantConditions")
+        @SuppressWarnings("ConstantValue")
         @Test
         void shouldSkipRegisteringHealthCheck() {
             var job = ErrorContextUtilities.registerCleanupJobOrNull(

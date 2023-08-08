@@ -2,11 +2,11 @@ package org.kiwiproject.dropwizard.error.health;
 
 import io.dropwizard.util.Duration;
 import io.dropwizard.validation.MinDuration;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.util.concurrent.TimeUnit;
 
 /**

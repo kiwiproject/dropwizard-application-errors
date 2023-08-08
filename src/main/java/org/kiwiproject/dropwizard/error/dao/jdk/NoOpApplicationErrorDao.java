@@ -15,7 +15,7 @@ import java.util.Optional;
  * This might be useful in unit tests or when another class requires you to provide an {@link ApplicationErrorDao}
  * but you don't care about application errors and want them to be a "no-op" operation.
  * <p>
- * Methods that return primitive types return the default value, e.g.. zero for {@code long}, while methods that
+ * Methods that return primitive types return the default value, e.g. zero for {@code long}, while methods that
  * return reference types return a reasonable, non-null value, e.g. an empty list or optional.
  */
 public class NoOpApplicationErrorDao implements ApplicationErrorDao {

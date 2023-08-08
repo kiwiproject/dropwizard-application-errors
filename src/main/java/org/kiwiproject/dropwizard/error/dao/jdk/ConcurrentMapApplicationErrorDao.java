@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentIsNull;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao.checkPagingArgumentsAndCalculateZeroBasedOffset;
@@ -106,7 +105,7 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
                 .sorted(UPDATED_AT_DESCENDING)
                 .skip(offset)
                 .limit(pageSize)
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -115,7 +114,7 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
                 .stream()
                 .filter(byStatus(ApplicationErrorStatus.UNRESOLVED))
                 .filter(error -> error.getDescription().equals(description))
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -125,7 +124,7 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
                 .filter(byStatus(ApplicationErrorStatus.UNRESOLVED))
                 .filter(error -> error.getHostName().equals(hostName))
                 .filter(error -> error.getDescription().equals(description))
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -187,19 +186,11 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
     }
 
     private static Predicate<ApplicationError> byStatus(ApplicationErrorStatus status) {
-        switch (status) {
-            case ALL:
-                return applicationError -> true;
-
-            case RESOLVED:
-                return ApplicationError::isResolved;
-
-            case UNRESOLVED:
-                return not(ApplicationError::isResolved);
-
-            default:
-                throw new IllegalStateException("unknown status: " + status);
-        }
+        return switch (status) {
+            case ALL -> applicationError -> true;
+            case RESOLVED -> ApplicationError::isResolved;
+            case UNRESOLVED -> not(ApplicationError::isResolved);
+        };
     }
 
     @Override

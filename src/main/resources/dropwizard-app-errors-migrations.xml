@@ -2,7 +2,7 @@
 <!--
 Migrations file for Dropwizard Application Errors.
 
-We currently do not have an automated process for running this migration when not using the in-memory H2 database
+We currently do not have an automated process for running this migration when not using the in-memory H2 database,
 so you will need to copy the migration directly into your own application's migrations.xml file and run the migrations.
 The default Dropwizard migrations does support specifying separate files, but our current deployment process does not.
 

@@ -7,7 +7,7 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRec
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerResources;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersistentHostInformationFrom;
 
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
