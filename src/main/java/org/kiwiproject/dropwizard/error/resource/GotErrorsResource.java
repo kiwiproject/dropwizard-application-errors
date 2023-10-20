@@ -12,6 +12,8 @@ import java.util.Map;
 
 /**
  * A simple JAX-RS resource for clients to determine if application errors are available or not.
+ * It can be used by clients as a generic way to determine whether, for example, a web service
+ * exposes its application errors.
  * <p>
  * Clients can check if application errors are available using an HTTP GET request that returns a
  * {@code 200 OK} response if available. The response entity contains information on whether the

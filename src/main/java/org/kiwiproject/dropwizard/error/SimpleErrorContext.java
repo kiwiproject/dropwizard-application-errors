@@ -32,6 +32,8 @@ class SimpleErrorContext implements ErrorContext {
                               ServiceDetails serviceDetails,
                               ApplicationErrorDao errorDao,
                               DataStoreType dataStoreType,
+                              boolean addErrorsResource,
+                              boolean addGotErrorsResource,
                               boolean addHealthCheck,
                               long timeWindowValue,
                               TemporalUnit timeWindowUnit,
@@ -48,7 +50,7 @@ class SimpleErrorContext implements ErrorContext {
                 addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
 
         registerCleanupJobOrNull(addCleanupJob, environment, errorDao, cleanupConfig);
-        registerResources(environment, errorDao, dataStoreType);
+        registerResources(environment, errorDao, dataStoreType, addErrorsResource, addGotErrorsResource);
     }
 
     @Override

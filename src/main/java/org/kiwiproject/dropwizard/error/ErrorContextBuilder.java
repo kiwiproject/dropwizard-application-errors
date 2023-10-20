@@ -90,6 +90,8 @@ public class ErrorContextBuilder {
     private ServiceDetails serviceDetails;
     private DataStoreType dataStoreType;
     private boolean dataStoreTypeAlreadySet;
+    private boolean addErrorsResource = true;
+    private boolean addGotErrorsResource = true;
     private boolean addHealthCheck = true;
     private boolean addCleanupJob = true;
     private long timeWindowValue = TimeWindow.DEFAULT_TIME_WINDOW_MINUTES;
@@ -139,6 +141,28 @@ public class ErrorContextBuilder {
             this.dataStoreTypeAlreadySet = true;
         }
 
+        return this;
+    }
+
+    /**
+     * Configures the resulting {@link ErrorContext} so that it does not create/register an
+     * {@link org.kiwiproject.dropwizard.error.resource.ApplicationErrorResource ApplicationErrorResource}.
+     *
+     * @return this builder
+     */
+    public ErrorContextBuilder skipErrorsResource() {
+        this.addErrorsResource = false;
+        return this;
+    }
+
+    /**
+     * Configures the resulting {@link ErrorContext} so that it does not create/register a
+     * {@link org.kiwiproject.dropwizard.error.resource.GotErrorsResource GotErrorsResource}.
+     *
+     * @return this builder
+     */
+    public ErrorContextBuilder skipGotErrorsResource() {
+        this.addGotErrorsResource = false;
         return this;
     }
 
@@ -316,6 +340,8 @@ public class ErrorContextBuilder {
                 serviceDetails,
                 jdbi,
                 dataStoreType,
+                addErrorsResource,
+                addGotErrorsResource,
                 addHealthCheck,
                 timeWindowValue,
                 timeWindowUnit,
@@ -360,6 +386,8 @@ public class ErrorContextBuilder {
                 serviceDetails,
                 errorDao,
                 dataStoreType,
+                addErrorsResource,
+                addGotErrorsResource,
                 addHealthCheck,
                 timeWindowValue,
                 timeWindowUnit,

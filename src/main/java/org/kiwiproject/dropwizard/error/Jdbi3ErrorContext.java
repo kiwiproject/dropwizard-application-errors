@@ -44,6 +44,8 @@ class Jdbi3ErrorContext implements ErrorContext {
                       ServiceDetails serviceDetails,
                       Jdbi jdbi,
                       DataStoreType dataStoreType,
+                      boolean addErrorsResource,
+                      boolean addGotErrorsResource,
                       boolean addHealthCheck,
                       long timeWindowValue,
                       TemporalUnit timeWindowUnit,
@@ -60,7 +62,7 @@ class Jdbi3ErrorContext implements ErrorContext {
                 addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
 
         registerCleanupJobOrNull(addCleanupJob, environment, errorDao, cleanupConfig);
-        registerResources(environment, errorDao, dataStoreType);
+        registerResources(environment, errorDao, dataStoreType, addErrorsResource, addGotErrorsResource);
     }
 
     private static Jdbi3ApplicationErrorDao getOnDemandErrorDao(Jdbi jdbi) {

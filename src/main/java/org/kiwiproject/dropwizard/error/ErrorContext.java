@@ -12,14 +12,20 @@ import java.util.Optional;
  * though you can build everything programmatically if you want to.
  * <p>
  * This acts much like a Dropwizard bundle in that it creates an {@link ApplicationErrorDao} for use anywhere in
- * your application, and registers an
+ * your application, and (by default) registers an
  * {@link org.kiwiproject.dropwizard.error.resource.ApplicationErrorResource ApplicationErrorResource} which
- * exposes application errors via REST. The {@link #errorDao()} method provides the DAO once an {@link ErrorContext}
- * has been built by one of the build methods in {@link ErrorContextBuilder}.
+ * exposes application errors via REST. By default, it also registers a
+ * {@link org.kiwiproject.dropwizard.error.resource.GotErrorsResource GotErrorsResource}, which is a REST
+ * endpoint that can be used to determine if application errors are supported. If you don't want to register
+ * one or both of these resources, you can disable registration via the {@link ErrorContextBuilder#skipErrorsResource()}
+ * and {@link ErrorContextBuilder#skipGotErrorsResource()} methods.
  * <p>
- * It also registers a health check that reports healthy if no errors have occurred in a configurable time window. The
- * default value is the last 15 minutes. If desired, you can disable the creation of the health check by calling
- * {@link ErrorContextBuilder#skipHealthCheck()} when constructing the instance.
+ * The {@link #errorDao()} method provides the DAO once an {@link ErrorContext} has been built by one of the
+ * "build" methods in {@link ErrorContextBuilder}.
+ * <p>
+ * This library also registers a health check that reports healthy if no errors have occurred in a configurable time
+ * window. The default value is the last 15 minutes. If desired, you can disable the creation of the health check by
+ * calling {@link ErrorContextBuilder#skipHealthCheck()} when constructing the instance.
  * <p>
  * We currently support storing errors to a relational database with JDBI 3. If your application does not currently
  * have a database or uses something else, we also provide several other options including an in-memory H2 database,

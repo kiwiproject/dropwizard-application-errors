@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
@@ -29,6 +33,7 @@ import org.kiwiproject.test.dropwizard.mockito.DropwizardMockitoMocks;
 import org.kiwiproject.test.h2.H2FileBasedDatabase;
 import org.kiwiproject.test.junit.jupiter.H2Database;
 import org.kiwiproject.test.junit.jupiter.H2FileBasedDatabaseExtension;
+import org.mockito.verification.VerificationMode;
 
 import java.time.temporal.ChronoUnit;
 
@@ -137,12 +142,53 @@ class Jdbi3ErrorContextTest {
                     serviceDetails,
                     jdbi,
                     DataStoreType.NOT_SHARED,
+                    true,
+                    true,
                     addHealthCheck,
                     timeWindowAmount,
                     timeWindowUnit,
                     false,
                     new CleanupConfig()
                     );
+        }
+    }
+
+    @Nested
+    class Resources {
+
+        @ParameterizedTest
+        @CsvSource(textBlock = """
+            true, true
+            true, false
+            false, true,
+            false, false
+            """)
+        void shouldOptionallyRegisterResources(boolean addErrorsResource, boolean addGotErrorsResource) {
+            newContextWithAddResourceOptionsOf(addErrorsResource, addGotErrorsResource);
+
+            var jersey = environment.jersey();
+            verify(jersey, timesExpected(addErrorsResource)).register(isA(ApplicationErrorResource.class));
+            verify(jersey, timesExpected(addGotErrorsResource)).register(isA(GotErrorsResource.class));
+            verifyNoMoreInteractions(jersey);
+        }
+
+        private VerificationMode timesExpected(boolean addResource) {
+            return addResource ? times(2) : never();
+        }
+
+        private Jdbi3ErrorContext newContextWithAddResourceOptionsOf(boolean addErrorsResource,
+                                                                     boolean addGotErrorsResource) {
+            return new Jdbi3ErrorContext(environment,
+                    serviceDetails,
+                    jdbi,
+                    DataStoreType.NOT_SHARED,
+                    addErrorsResource,
+                    addGotErrorsResource,
+                    true,
+                    timeWindowAmount,
+                    timeWindowUnit,
+                    false,
+                    new CleanupConfig());
         }
     }
 }
