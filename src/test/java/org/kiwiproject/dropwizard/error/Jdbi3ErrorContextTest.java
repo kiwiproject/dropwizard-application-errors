@@ -173,7 +173,7 @@ class Jdbi3ErrorContextTest {
         }
 
         private VerificationMode timesExpected(boolean addResource) {
-            return addResource ? times(2) : never();
+            return addResource ? times(1) : never();
         }
 
         private Jdbi3ErrorContext newContextWithAddResourceOptionsOf(boolean addErrorsResource,
