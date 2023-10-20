@@ -202,6 +202,42 @@ class ErrorContextBuilderTest {
     }
 
     @Nested
+    class Resources {
+
+        @Test
+        void shouldRegisterResourcesByDefault() {
+            var builder = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED);
+
+            builder.buildWithConcurrentMapDao();
+
+            var jersey = environment.jersey();
+            verify(jersey).register(isA(ApplicationErrorResource.class));
+            verify(jersey).register(isA(GotErrorsResource.class));
+            verifyNoMoreInteractions(jersey);
+        }
+
+        @Test
+        void shouldAllowSkippingResourceRegistration() {
+            var builder = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED)
+                    .skipErrorsResource()
+                    .skipGotErrorsResource();
+
+            builder.buildWithConcurrentMapDao();
+
+            var jersey = environment.jersey();
+            verify(jersey, never()).register(isA(ApplicationErrorResource.class));
+            verify(jersey, never()).register(isA(GotErrorsResource.class));
+            verifyNoMoreInteractions(jersey);
+        }
+    }
+
+    @Nested
     class RecentApplicationErrorsHealthCheck {
 
         @Test
