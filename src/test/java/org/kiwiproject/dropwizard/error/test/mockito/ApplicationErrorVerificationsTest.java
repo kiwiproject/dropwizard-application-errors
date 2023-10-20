@@ -2,9 +2,14 @@ package org.kiwiproject.dropwizard.error.test.mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.collect.KiwiLists.second;
+import static org.kiwiproject.collect.KiwiLists.third;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -196,6 +201,150 @@ class ApplicationErrorVerificationsTest {
                 assertThatThrownBy(() ->
                         ApplicationErrorVerifications.verifyAtLeastOneInsertOrIncrementCount(errorService))
                         .isExactlyInstanceOf(NoInteractionsWanted.class);
+            }
+        }
+    }
+
+    @Nested
+    class VerifyOneOrLatestInsertOrIncrementCount {
+
+        @Nested
+        class WhenVerificationSucceeds {
+
+            @Test
+            void shouldReturnApplicationError() {
+                businessService.performSomeProcessingThatCanFail("foo");
+                var appError = ApplicationErrorVerifications
+                        .verifyOneOrLatestInsertOrIncrementCount(errorService, timeout(500).only());
+
+                assertAll(
+                        () -> assertThat(appError.getDescription()).isEqualTo("Processing failed for input: foo"),
+                        () -> assertThat(appError.getExceptionType()).isNull(),
+                        () -> assertThat(appError.getExceptionCauseType()).isNull()
+                );
+            }
+
+            @Test
+            void shouldReturnLatestApplicationError_WhenThereAreMultipleInvocations() {
+                businessService.performSomeProcessingThatCanFail("foo");
+                businessService.performSomeProcessingThatCanFail("bar");
+
+                var appError = ApplicationErrorVerifications
+                        .verifyOneOrLatestInsertOrIncrementCount(errorService, timeout(500).times(2));
+
+                assertAll(
+                        () -> assertThat(appError.getDescription()).isEqualTo("Processing threw error with cause for input: bar"),
+                        () -> assertThat(appError.getExceptionType()).isEqualTo(UncheckedIOException.class.getName()),
+                        () -> assertThat(appError.getExceptionCauseType()).isEqualTo(IOException.class.getName())
+                );
+            }
+        }
+
+        @Nested
+        class WhenVerificationFails {
+
+            @Test
+            void shouldFailWhenNoApplicationErrors() {
+                businessService.performSomeProcessingThatCanFail("this won't fail");
+
+                var mode = only();
+                assertThatThrownBy(() ->
+                        ApplicationErrorVerifications.verifyOneOrLatestInsertOrIncrementCount(errorService, mode))
+                        .isExactlyInstanceOf(WantedButNotInvoked.class);
+            }
+
+            @Test
+            void shouldFailWhenUnwantedInteractions() {
+                businessService.performSomeProcessingThatCanFail("baz");
+
+                var mode = only();
+                assertThatThrownBy(() ->
+                        ApplicationErrorVerifications.verifyOneOrLatestInsertOrIncrementCount(errorService, mode))
+                        .isExactlyInstanceOf(NoInteractionsWanted.class);
+            }
+        }
+    }
+
+    @Nested
+    class VerifyManyLatestInsertOrIncrementCount {
+
+        @Nested
+        class WhenVerificationSucceeds {
+
+            @Test
+            void shouldReturnSingleApplicationError() {
+                businessService.performSomeProcessingThatCanFail("foo");
+
+                var appErrors = ApplicationErrorVerifications.verifyManyInsertOrIncrementCount(errorService, only());
+
+                assertThat(appErrors).hasSize(1);
+
+                var appError = first(appErrors);
+                assertAll(
+                        () -> assertThat(appError.getDescription()).isEqualTo("Processing failed for input: foo"),
+                        () -> assertThat(appError.getExceptionType()).isNull(),
+                        () -> assertThat(appError.getExceptionCauseType()).isNull()
+                );
+            }
+
+            @Test
+            void shouldReturnApplicationErrors() {
+                businessService.performSomeProcessingThatCanFail("foo");
+                businessService.performSomeProcessingThatCanFail("bar");
+                businessService.performSomeProcessingThatCanFail("baz");
+
+                var wantedNumberOfInvocations = 3;
+                var appErrors = ApplicationErrorVerifications
+                        .verifyManyInsertOrIncrementCount(errorService, times(wantedNumberOfInvocations));
+
+                assertThat(appErrors).hasSize(wantedNumberOfInvocations);
+
+                var firstAppError = first(appErrors);
+                assertAll(
+                        () -> assertThat(firstAppError.getDescription()).isEqualTo("Processing failed for input: foo"),
+                        () -> assertThat(firstAppError.getExceptionType()).isNull(),
+                        () -> assertThat(firstAppError.getExceptionCauseType()).isNull()
+                );
+
+                var secondAppError = second(appErrors);
+                assertAll(
+                        () -> assertThat(secondAppError.getDescription()).isEqualTo("Processing threw error with cause for input: bar"),
+                        () -> assertThat(secondAppError.getExceptionType()).isEqualTo(UncheckedIOException.class.getName()),
+                        () -> assertThat(secondAppError.getExceptionCauseType()).isEqualTo(IOException.class.getName())
+                );
+
+                var thirdAppError = third(appErrors);
+                assertAll(
+                        () -> assertThat(thirdAppError.getDescription()).isEqualTo("Processing failed for input: baz"),
+                        () -> assertThat(thirdAppError.getExceptionType()).isNull(),
+                        () -> assertThat(thirdAppError.getExceptionCauseType()).isNull()
+                );
+            }
+        }
+
+        @Nested
+        class WhenVerificationFails {
+
+            @Test
+            void shouldFailWhenNoApplicationErrors() {
+                businessService.performSomeProcessingThatCanFail("this won't fail");
+
+                var mode = times(2);
+                assertThatThrownBy(() ->
+                        ApplicationErrorVerifications.verifyManyInsertOrIncrementCount(errorService, mode))
+                        .isExactlyInstanceOf(WantedButNotInvoked.class);
+            }
+
+            @Test
+            void shouldFailWhenUnwantedInteractions() {
+                businessService.performSomeProcessingThatCanFail("foo");
+                businessService.performSomeProcessingThatCanFail("bar");
+                businessService.performSomeProcessingThatCanFail("baz");
+
+                var mode = times(2);
+                assertThatThrownBy(() ->
+                        ApplicationErrorVerifications.verifyManyInsertOrIncrementCount(errorService, mode))
+                        .isExactlyInstanceOf(TooManyActualInvocations.class);
             }
         }
     }
