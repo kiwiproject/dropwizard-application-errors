@@ -53,14 +53,21 @@ class ErrorContextUtilities {
 
     static void registerResources(Environment environment,
                                   ApplicationErrorDao errorDao,
-                                  DataStoreType dataStoreType) {
+                                  DataStoreType dataStoreType,
+                                  boolean addErrorsResource,
+                                  boolean addGotErrorsResource) {
 
         checkArgumentNotNull(environment);
         checkArgumentNotNull(errorDao);
         checkArgumentNotNull(dataStoreType);
 
-        environment.jersey().register(new ApplicationErrorResource(errorDao));
-        environment.jersey().register(new GotErrorsResource(dataStoreType));
+        if (addErrorsResource) {
+            environment.jersey().register(new ApplicationErrorResource(errorDao));
+        }
+
+        if (addGotErrorsResource) {
+            environment.jersey().register(new GotErrorsResource(dataStoreType));
+        }
     }
 
     static RecentErrorsHealthCheck registerRecentErrorsHealthCheckOrNull(boolean addHealthCheck,

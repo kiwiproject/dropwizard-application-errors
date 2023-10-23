@@ -3,6 +3,8 @@ package org.kiwiproject.dropwizard.error;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
@@ -23,6 +27,7 @@ import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 import org.kiwiproject.dropwizard.error.resource.ApplicationErrorResource;
 import org.kiwiproject.dropwizard.error.resource.GotErrorsResource;
 import org.kiwiproject.test.dropwizard.mockito.DropwizardMockitoMocks;
+import org.mockito.verification.VerificationMode;
 
 import java.time.temporal.ChronoUnit;
 
@@ -113,11 +118,52 @@ class SimpleErrorContextTest {
                 serviceDetails,
                 errorDao,
                 dataStoreType,
+                true,
+                true,
                 addHealthCheck,
                 timeWindowAmount,
                 timeWindowUnit,
                 false,
                 new CleanupConfig()
         );
+    }
+
+    @Nested
+    class Resources {
+
+        @ParameterizedTest
+        @CsvSource(textBlock = """
+            true, true
+            true, false
+            false, true,
+            false, false
+            """)
+        void shouldOptionallyRegisterResources(boolean addErrorsResource, boolean addGotErrorsResource) {
+            newContextWithAddResourceOptionsOf(addErrorsResource, addGotErrorsResource);
+
+            var jersey = environment.jersey();
+            verify(jersey, timesExpected(addErrorsResource)).register(isA(ApplicationErrorResource.class));
+            verify(jersey, timesExpected(addGotErrorsResource)).register(isA(GotErrorsResource.class));
+            verifyNoMoreInteractions(jersey);
+        }
+
+        private VerificationMode timesExpected(boolean addResource) {
+            return addResource ? times(1) : never();
+        }
+    }
+
+    private SimpleErrorContext newContextWithAddResourceOptionsOf(boolean addErrorsResource,
+                                                                  boolean addGotErrorsResource) {
+        return new SimpleErrorContext(environment,
+                serviceDetails,
+                errorDao,
+                dataStoreType,
+                addErrorsResource,
+                addGotErrorsResource,
+                true,
+                timeWindowAmount,
+                timeWindowUnit,
+                false,
+                new CleanupConfig());
     }
 }

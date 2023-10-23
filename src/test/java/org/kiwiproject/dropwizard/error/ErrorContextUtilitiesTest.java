@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -137,10 +138,19 @@ class ErrorContextUtilitiesTest {
 
         @Test
         void shouldRegisterResources() {
-            ErrorContextUtilities.registerResources(environment, errorDao, DataStoreType.SHARED);
+            ErrorContextUtilities.registerResources(environment, errorDao, DataStoreType.SHARED, true, true);
 
             verify(jersey).register(isA(ApplicationErrorResource.class));
             verify(jersey).register(isA(GotErrorsResource.class));
+            verifyNoMoreInteractions(jersey);
+        }
+
+        @Test
+        void shouldNotRegisterResources_WhenTheyAreNotWanted() {
+            ErrorContextUtilities.registerResources(environment, errorDao, DataStoreType.SHARED, false, false);
+
+            verify(jersey, never()).register(isA(ApplicationErrorResource.class));
+            verify(jersey, never()).register(isA(GotErrorsResource.class));
             verifyNoMoreInteractions(jersey);
         }
     }
