@@ -8,13 +8,11 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.registerRes
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersistentHostInformationFrom;
 
 import io.dropwizard.core.setup.Environment;
-import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 /**
@@ -28,29 +26,21 @@ class SimpleErrorContext implements ErrorContext {
     private final DataStoreType dataStoreType;
     private final RecentErrorsHealthCheck healthCheck;
 
-    public SimpleErrorContext(Environment environment,
-                              ServiceDetails serviceDetails,
-                              ApplicationErrorDao errorDao,
-                              DataStoreType dataStoreType,
-                              boolean addErrorsResource,
-                              boolean addGotErrorsResource,
-                              boolean addHealthCheck,
-                              long timeWindowValue,
-                              TemporalUnit timeWindowUnit,
-                              boolean addCleanupJob,
-                              CleanupConfig cleanupConfig) {
+    SimpleErrorContext(Environment environment,
+                       ServiceDetails serviceDetails,
+                       ApplicationErrorDao errorDao,
+                       ErrorContextOptions options) {
 
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
+        checkCommonArguments(environment, serviceDetails, options);
         checkArgumentNotNull(errorDao, "ApplicationErrorDao must not be null");
         setPersistentHostInformationFrom(serviceDetails);
 
         this.errorDao = errorDao;
-        this.dataStoreType = dataStoreType;
-        this.healthCheck = registerRecentErrorsHealthCheckOrNull(
-                addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
+        this.dataStoreType = options.getDataStoreType();
+        this.healthCheck = registerRecentErrorsHealthCheckOrNull(environment, serviceDetails, errorDao, options);
 
-        registerCleanupJobOrNull(addCleanupJob, environment, errorDao, cleanupConfig);
-        registerResources(environment, errorDao, dataStoreType, addErrorsResource, addGotErrorsResource);
+        registerCleanupJobOrNull(environment, errorDao, options);
+        registerResources(environment, errorDao, options);
     }
 
     @Override

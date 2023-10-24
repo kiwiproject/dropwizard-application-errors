@@ -231,9 +231,7 @@ class ErrorContextBuilderTest {
             builder.buildWithConcurrentMapDao();
 
             var jersey = environment.jersey();
-            verify(jersey, never()).register(isA(ApplicationErrorResource.class));
-            verify(jersey, never()).register(isA(GotErrorsResource.class));
-            verifyNoMoreInteractions(jersey);
+            verifyNoInteractions(jersey);
         }
     }
 

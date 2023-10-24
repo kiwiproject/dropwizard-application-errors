@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
@@ -54,8 +53,8 @@ class Jdbi3ErrorContextTest {
 
         jdbi = Jdbi.create(database.getDataSource()).installPlugin(new SqlObjectPlugin());
 
-        timeWindowAmount = 20;
-        timeWindowUnit = ChronoUnit.MINUTES;
+        timeWindowAmount = 1;
+        timeWindowUnit = ChronoUnit.HOURS;
     }
 
     @AfterEach
@@ -138,18 +137,15 @@ class Jdbi3ErrorContextTest {
         }
 
         private Jdbi3ErrorContext newContextWithHealthCheck(boolean addHealthCheck) {
-            return new Jdbi3ErrorContext(environment,
-                    serviceDetails,
-                    jdbi,
-                    DataStoreType.NOT_SHARED,
-                    true,
-                    true,
-                    addHealthCheck,
-                    timeWindowAmount,
-                    timeWindowUnit,
-                    false,
-                    new CleanupConfig()
-                    );
+            var options = ErrorContextOptions.builder()
+                    .dataStoreType(DataStoreType.NOT_SHARED)
+                    .addHealthCheck(addHealthCheck)
+                    .timeWindowValue(timeWindowAmount)
+                    .timeWindowUnit(timeWindowUnit)
+                    .addCleanupJob(false)
+                    .build();
+
+            return new Jdbi3ErrorContext(environment, serviceDetails, jdbi, options);
         }
     }
 
@@ -178,17 +174,17 @@ class Jdbi3ErrorContextTest {
 
         private Jdbi3ErrorContext newContextWithAddResourceOptionsOf(boolean addErrorsResource,
                                                                      boolean addGotErrorsResource) {
-            return new Jdbi3ErrorContext(environment,
-                    serviceDetails,
-                    jdbi,
-                    DataStoreType.NOT_SHARED,
-                    addErrorsResource,
-                    addGotErrorsResource,
-                    true,
-                    timeWindowAmount,
-                    timeWindowUnit,
-                    false,
-                    new CleanupConfig());
+
+            var options = ErrorContextOptions.builder()
+                    .dataStoreType(DataStoreType.NOT_SHARED)
+                    .addErrorsResource(addErrorsResource)
+                    .addGotErrorsResource(addGotErrorsResource)
+                    .timeWindowValue(timeWindowAmount)
+                    .timeWindowUnit(timeWindowUnit)
+                    .addCleanupJob(false)
+                    .build();
+
+            return new Jdbi3ErrorContext(environment, serviceDetails, jdbi, options);
         }
     }
 }
