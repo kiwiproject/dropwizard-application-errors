@@ -11,14 +11,12 @@ import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.setPersiste
 import io.dropwizard.core.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.dropwizard.error.model.ServiceDetails;
 
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 /**
@@ -43,26 +41,18 @@ class Jdbi3ErrorContext implements ErrorContext {
     Jdbi3ErrorContext(Environment environment,
                       ServiceDetails serviceDetails,
                       Jdbi jdbi,
-                      DataStoreType dataStoreType,
-                      boolean addErrorsResource,
-                      boolean addGotErrorsResource,
-                      boolean addHealthCheck,
-                      long timeWindowValue,
-                      TemporalUnit timeWindowUnit,
-                      boolean addCleanupJob,
-                      CleanupConfig cleanupConfig) {
+                      ErrorContextOptions options) {
 
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
+        checkCommonArguments(environment, serviceDetails, options);
         checkArgumentNotNull(jdbi, "Jdbi (version 3) instance cannot be null");
         setPersistentHostInformationFrom(serviceDetails);
 
-        this.dataStoreType = dataStoreType;
+        this.dataStoreType = options.getDataStoreType();
         this.errorDao = getOnDemandErrorDao(jdbi);
-        this.healthCheck = registerRecentErrorsHealthCheckOrNull(
-                addHealthCheck, environment, errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
+        this.healthCheck = registerRecentErrorsHealthCheckOrNull(environment, serviceDetails, errorDao, options);
 
-        registerCleanupJobOrNull(addCleanupJob, environment, errorDao, cleanupConfig);
-        registerResources(environment, errorDao, dataStoreType, addErrorsResource, addGotErrorsResource);
+        registerCleanupJobOrNull(environment, errorDao, options);
+        registerResources(environment, errorDao, options);
     }
 
     private static Jdbi3ApplicationErrorDao getOnDemandErrorDao(Jdbi jdbi) {

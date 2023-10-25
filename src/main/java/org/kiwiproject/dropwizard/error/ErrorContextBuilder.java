@@ -335,18 +335,7 @@ public class ErrorContextBuilder {
     }
 
     private Jdbi3ErrorContext newJdbi3ErrorContext(Jdbi jdbi) {
-        return new Jdbi3ErrorContext(
-                environment,
-                serviceDetails,
-                jdbi,
-                dataStoreType,
-                addErrorsResource,
-                addGotErrorsResource,
-                addHealthCheck,
-                timeWindowValue,
-                timeWindowUnit,
-                addCleanupJob,
-                cleanupConfig);
+        return new Jdbi3ErrorContext(environment, serviceDetails, jdbi, buildOptions());
     }
 
     /**
@@ -381,17 +370,19 @@ public class ErrorContextBuilder {
      * @return a new {@link ErrorContext} instance
      */
     public ErrorContext buildWithDao(ApplicationErrorDao errorDao) {
-        return new SimpleErrorContext(
-                environment,
-                serviceDetails,
-                errorDao,
-                dataStoreType,
-                addErrorsResource,
-                addGotErrorsResource,
-                addHealthCheck,
-                timeWindowValue,
-                timeWindowUnit,
-                addCleanupJob,
-                cleanupConfig);
+        return new SimpleErrorContext(environment, serviceDetails, errorDao, buildOptions());
+    }
+
+    private ErrorContextOptions buildOptions() {
+        return ErrorContextOptions.builder()
+                .dataStoreType(dataStoreType)
+                .addErrorsResource(addErrorsResource)
+                .addGotErrorsResource(addGotErrorsResource)
+                .addHealthCheck(addHealthCheck)
+                .timeWindowValue(timeWindowValue)
+                .timeWindowValue(timeWindowValue)
+                .addCleanupJob(addCleanupJob)
+                .cleanupConfig(cleanupConfig)
+                .build();
     }
 }

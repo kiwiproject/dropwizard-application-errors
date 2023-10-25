@@ -1,11 +1,12 @@
 package org.kiwiproject.dropwizard.error;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 
 import io.dropwizard.core.setup.Environment;
 import lombok.experimental.UtilityClass;
-import org.kiwiproject.dropwizard.error.config.CleanupConfig;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob;
@@ -26,6 +27,18 @@ import java.util.concurrent.TimeUnit;
  */
 @UtilityClass
 class ErrorContextUtilities {
+
+    static void checkCommonArguments(Environment environment,
+                                     ServiceDetails serviceDetails,
+                                     ErrorContextOptions options) {
+
+        checkArgumentNotNull(options, "options cannot be null");
+        checkCommonArguments(environment,
+                serviceDetails,
+                options.getDataStoreType(),
+                options.getTimeWindowValue(),
+                options.getTimeWindowUnit());
+    }
 
     static void checkCommonArguments(Environment environment,
                                      ServiceDetails serviceDetails,
@@ -53,32 +66,35 @@ class ErrorContextUtilities {
 
     static void registerResources(Environment environment,
                                   ApplicationErrorDao errorDao,
-                                  DataStoreType dataStoreType,
-                                  boolean addErrorsResource,
-                                  boolean addGotErrorsResource) {
+                                  ErrorContextOptions options) {
 
         checkArgumentNotNull(environment);
         checkArgumentNotNull(errorDao);
+        checkArgumentNotNull(options);
+
+        var dataStoreType = options.getDataStoreType();
         checkArgumentNotNull(dataStoreType);
 
-        if (addErrorsResource) {
+        if (options.isAddErrorsResource()) {
             environment.jersey().register(new ApplicationErrorResource(errorDao));
         }
 
-        if (addGotErrorsResource) {
+        if (options.isAddGotErrorsResource()) {
             environment.jersey().register(new GotErrorsResource(dataStoreType));
         }
     }
 
-    static RecentErrorsHealthCheck registerRecentErrorsHealthCheckOrNull(boolean addHealthCheck,
-                                                                         Environment environment,
-                                                                         ApplicationErrorDao errorDao,
+    @Nullable
+    static RecentErrorsHealthCheck registerRecentErrorsHealthCheckOrNull(Environment environment,
                                                                          ServiceDetails serviceDetails,
-                                                                         long timeWindowValue,
-                                                                         TemporalUnit timeWindowUnit) {
+                                                                         ApplicationErrorDao errorDao,
+                                                                         ErrorContextOptions options) {
 
-        if (addHealthCheck) {
-            var healthCheck = new RecentErrorsHealthCheck(errorDao, serviceDetails, timeWindowValue, timeWindowUnit);
+        if (options.isAddHealthCheck()) {
+            var healthCheck = new RecentErrorsHealthCheck(errorDao,
+                    serviceDetails,
+                    options.getTimeWindowValue(),
+                    options.getTimeWindowUnit());
             environment.healthChecks().register("recentApplicationErrors", healthCheck);
             return healthCheck;
         }
@@ -86,11 +102,14 @@ class ErrorContextUtilities {
         return null;
     }
 
-    static CleanupApplicationErrorsJob registerCleanupJobOrNull(boolean addCleanupJob,
-                                                                Environment environment,
+    @Nullable
+    static CleanupApplicationErrorsJob registerCleanupJobOrNull(Environment environment,
                                                                 ApplicationErrorDao errorDao,
-                                                                CleanupConfig cleanupConfig) {
-        if (addCleanupJob) {
+                                                                ErrorContextOptions options) {
+
+        if (options.isAddCleanupJob()) {
+            var cleanupConfig = requireNonNull(options.getCleanupConfig(),
+                    "cleanupConfig cannot be null when addCleanupJob=true");
             var executor = environment.lifecycle()
                     .scheduledExecutorService(cleanupConfig.getCleanupJobName(), true)
                     .build();

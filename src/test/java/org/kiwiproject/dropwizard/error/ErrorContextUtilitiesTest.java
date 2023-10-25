@@ -3,11 +3,11 @@ package org.kiwiproject.dropwizard.error;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -83,6 +83,13 @@ class ErrorContextUtilitiesTest {
         }
 
         @Test
+        void shouldThrowIllegalArgumentException_GivenNullOptions() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() ->
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, null));
+        }
+
+        @Test
         void shouldThrowIllegalArgumentException_GivenNullDataStoreType() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
@@ -138,7 +145,8 @@ class ErrorContextUtilitiesTest {
 
         @Test
         void shouldRegisterResources() {
-            ErrorContextUtilities.registerResources(environment, errorDao, DataStoreType.SHARED, true, true);
+            var options = ErrorContextOptions.builder().build();
+            ErrorContextUtilities.registerResources(environment, errorDao, options);
 
             verify(jersey).register(isA(ApplicationErrorResource.class));
             verify(jersey).register(isA(GotErrorsResource.class));
@@ -147,11 +155,13 @@ class ErrorContextUtilitiesTest {
 
         @Test
         void shouldNotRegisterResources_WhenTheyAreNotWanted() {
-            ErrorContextUtilities.registerResources(environment, errorDao, DataStoreType.SHARED, false, false);
+            var options = ErrorContextOptions.builder()
+                    .addErrorsResource(false)
+                    .addGotErrorsResource(false)
+                    .build();
+            ErrorContextUtilities.registerResources(environment, errorDao, options);
 
-            verify(jersey, never()).register(isA(ApplicationErrorResource.class));
-            verify(jersey, never()).register(isA(GotErrorsResource.class));
-            verifyNoMoreInteractions(jersey);
+            verifyNoInteractions(jersey);
         }
     }
 
@@ -162,6 +172,7 @@ class ErrorContextUtilitiesTest {
         private HealthCheckRegistry healthChecks;
         private long timeWindowAmount;
         private ChronoUnit timeWindowUnit;
+        private ErrorContextOptions options;
 
         @BeforeEach
         void setUp() {
@@ -169,12 +180,18 @@ class ErrorContextUtilitiesTest {
             healthChecks = environment.healthChecks();
             timeWindowAmount = 25;
             timeWindowUnit = ChronoUnit.MINUTES;
+            options = ErrorContextOptions.builder()
+                    .timeWindowValue(25)
+                    .build();
         }
 
         @Test
         void shouldRegisterHealthCheck() {
+            options = ErrorContextOptions.builder()
+                    .timeWindowValue(timeWindowAmount)
+                    .build();
             var healthCheck = ErrorContextUtilities.registerRecentErrorsHealthCheckOrNull(
-                    true, environment, errorDao, serviceDetails, timeWindowAmount, timeWindowUnit);
+                    environment, serviceDetails, errorDao, options);
 
             assertThat(healthCheck).isNotNull();
             assertThat(healthCheck.getTimeWindow()).isEqualTo(Duration.of(timeWindowAmount, timeWindowUnit));
@@ -186,8 +203,11 @@ class ErrorContextUtilitiesTest {
         @SuppressWarnings("ConstantValue")
         @Test
         void shouldSkipRegisteringHealthCheck() {
+            options = ErrorContextOptions.builder()
+                    .addHealthCheck(false)
+                    .build();
             var healthCheck = ErrorContextUtilities.registerRecentErrorsHealthCheckOrNull(
-                    false, environment, errorDao, serviceDetails, timeWindowAmount, timeWindowUnit);
+                    environment, serviceDetails, errorDao, options);
 
             assertThat(healthCheck).isNull();
 
@@ -216,8 +236,11 @@ class ErrorContextUtilitiesTest {
             when(lifecycleEnvironment.scheduledExecutorService(config.getCleanupJobName(), true))
                     .thenReturn(executorBuilder);
 
-            var job = ErrorContextUtilities.registerCleanupJobOrNull(
-                    true, environment, errorDao, config);
+            var options = ErrorContextOptions.builder()
+                    .cleanupConfig(config)
+                    .build();
+
+            var job = ErrorContextUtilities.registerCleanupJobOrNull(environment, errorDao, options);
 
             assertThat(job).isNotNull();
 
@@ -229,13 +252,27 @@ class ErrorContextUtilitiesTest {
 
         @SuppressWarnings("ConstantValue")
         @Test
-        void shouldSkipRegisteringHealthCheck() {
-            var job = ErrorContextUtilities.registerCleanupJobOrNull(
-                    false, environment, errorDao, config);
+        void shouldSkipRegisteringCleanupJob() {
+            var options = ErrorContextOptions.builder()
+                    .addCleanupJob(false)
+                    .build();
+
+            var job = ErrorContextUtilities.registerCleanupJobOrNull(environment, errorDao, options);
 
             assertThat(job).isNull();
 
             verifyNoInteractions(lifecycleEnvironment);
+        }
+
+        @Test
+        void shouldThrowCustomNullPointerException_WhenRegisteringCleanupJob_AndCleanupConfig_IsNull() {
+            var options = ErrorContextOptions.builder()
+                    .cleanupConfig(null)
+                    .build();
+
+            assertThatNullPointerException()
+                    .isThrownBy(() -> ErrorContextUtilities.registerCleanupJobOrNull(environment, errorDao, options))
+                    .withMessage("cleanupConfig cannot be null when addCleanupJob=true");
         }
     }
 }

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
@@ -114,18 +113,14 @@ class SimpleErrorContextTest {
     }
 
     private SimpleErrorContext newContextWithAddHealthCheckOf(boolean addHealthCheck) {
-        return new SimpleErrorContext(environment,
-                serviceDetails,
-                errorDao,
-                dataStoreType,
-                true,
-                true,
-                addHealthCheck,
-                timeWindowAmount,
-                timeWindowUnit,
-                false,
-                new CleanupConfig()
-        );
+        var options = ErrorContextOptions.builder()
+            .dataStoreType(dataStoreType)
+            .addHealthCheck(addHealthCheck)
+            .timeWindowValue(timeWindowAmount)
+            .addCleanupJob(false)
+            .build();
+
+        return new SimpleErrorContext(environment, serviceDetails, errorDao, options);
     }
 
     @Nested
@@ -154,16 +149,16 @@ class SimpleErrorContextTest {
 
     private SimpleErrorContext newContextWithAddResourceOptionsOf(boolean addErrorsResource,
                                                                   boolean addGotErrorsResource) {
-        return new SimpleErrorContext(environment,
-                serviceDetails,
-                errorDao,
-                dataStoreType,
-                addErrorsResource,
-                addGotErrorsResource,
-                true,
-                timeWindowAmount,
-                timeWindowUnit,
-                false,
-                new CleanupConfig());
+
+        var options = ErrorContextOptions.builder()
+                .dataStoreType(dataStoreType)
+                .addErrorsResource(addErrorsResource)
+                .addGotErrorsResource(addGotErrorsResource)
+                .timeWindowValue(timeWindowAmount)
+                .timeWindowUnit(timeWindowUnit)
+                .addCleanupJob(false)
+                .build();
+
+        return new SimpleErrorContext(environment, serviceDetails, errorDao, options);
     }
 }
