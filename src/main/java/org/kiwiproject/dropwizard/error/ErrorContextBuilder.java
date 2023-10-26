@@ -1,13 +1,16 @@
 package org.kiwiproject.dropwizard.error;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.kiwiproject.base.KiwiStrings.f;
 import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.checkCommonArguments;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.createInMemoryH2Database;
-import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.isH2DataStore;
+import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.isH2EmbeddedDataStore;
 
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jdbi.v3.core.Jdbi;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
@@ -271,7 +274,7 @@ public class ErrorContextBuilder {
      */
     public ErrorContext buildInMemoryH2() {
         if (dataStoreTypeAlreadySet && dataStoreType == DataStoreType.SHARED) {
-            forceH2DatabaseToBeNotSharedWithWarning();
+            forceH2EmbeddedDatabaseToBeNotSharedWithWarning(null);
         } else {
             dataStoreType = DataStoreType.NOT_SHARED;
         }
@@ -296,8 +299,8 @@ public class ErrorContextBuilder {
      * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
      */
     public ErrorContext buildWithDataStoreFactory(DataSourceFactory dataSourceFactory) {
-        if (dataStoreTypeAlreadySet && isH2DataStore(dataSourceFactory)) {
-            forceH2DatabaseToBeNotSharedWithWarning();
+        if (dataStoreTypeAlreadySet && isH2EmbeddedDataStore(dataSourceFactory) && dataStoreType == DataStoreType.SHARED) {
+            forceH2EmbeddedDatabaseToBeNotSharedWithWarning(dataSourceFactory.getUrl());
         } else if (!dataStoreTypeAlreadySet) {
             dataStoreType = ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory);
         }
@@ -312,9 +315,10 @@ public class ErrorContextBuilder {
         return newJdbi3ErrorContext(jdbi);
     }
 
-    private void forceH2DatabaseToBeNotSharedWithWarning() {
-        LOG.warn("An in-memory H2 database was requested with a SHARED data store type." +
-                " This will be converted to a NOT_SHARED data store type.");
+    private void forceH2EmbeddedDatabaseToBeNotSharedWithWarning(@Nullable String url) {
+        var urlMessage = isNull(url) ? "" : f(" (url: %s)", url);
+        LOG.warn("An embedded H2 database was requested with a SHARED data store type." +
+                " This will be converted to a NOT_SHARED data store type.{}", urlMessage);
         this.dataStoreType = DataStoreType.NOT_SHARED;
     }
 
