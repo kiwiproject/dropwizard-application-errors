@@ -64,7 +64,15 @@ class ErrorContextUtilitiesTest {
         @Test
         void shouldNotThrowException_GivenValidArguments() {
             assertThatCode(() ->
-                    ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 10, ChronoUnit.MINUTES))
+                    ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 10, ChronoUnit.MINUTES, new CleanupConfig()))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void shouldAllowNullCleanupConfig() {
+            assertThatCode(() ->
+                    ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 10, ChronoUnit.MINUTES, null))
+                    .describedAs("cleanupConfig can be null when not adding cleanup job")
                     .doesNotThrowAnyException();
         }
 
@@ -72,14 +80,14 @@ class ErrorContextUtilitiesTest {
         void shouldThrowIllegalArgumentException_GivenNullEnvironment() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(null, serviceDetails, DataStoreType.SHARED, 15, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(null, serviceDetails, DataStoreType.SHARED, 15, ChronoUnit.MINUTES, new CleanupConfig()));
         }
 
         @Test
         void shouldThrowIllegalArgumentException_GivenNullServiceDetails() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, null, DataStoreType.NOT_SHARED, 15, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(environment, null, DataStoreType.NOT_SHARED, 15, ChronoUnit.MINUTES, new CleanupConfig()));
         }
 
         @Test
@@ -93,7 +101,7 @@ class ErrorContextUtilitiesTest {
         void shouldThrowIllegalArgumentException_GivenNullDataStoreType() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, null, 15, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, null, 15, ChronoUnit.MINUTES, new CleanupConfig()));
         }
 
         @ParameterizedTest
@@ -101,14 +109,25 @@ class ErrorContextUtilitiesTest {
         void shouldThrowIllegalArgumentException_GivenZeroOrNegativeTimeWindowValue(long value) {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, value, ChronoUnit.MINUTES));
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, value, ChronoUnit.MINUTES, new CleanupConfig()));
         }
 
         @Test
         void shouldThrowIllegalArgumentException_GivenNullTimeWindowUnit() {
             assertThatIllegalArgumentException()
                     .isThrownBy(() ->
-                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 15, null));
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 15, null, new CleanupConfig()));
+        }
+
+        @Test
+        void shouldThrowIllegalArgumentException_GivenInvalidCleanupConfig() {
+            var cleanupConfig = new CleanupConfig();
+            cleanupConfig.setCleanupStrategy(null);
+            cleanupConfig.setInitialJobDelay(io.dropwizard.util.Duration.seconds(-1));
+
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() ->
+                            ErrorContextUtilities.checkCommonArguments(environment, serviceDetails, DataStoreType.SHARED, 25, ChronoUnit.MINUTES, cleanupConfig));
         }
     }
 

@@ -1,12 +1,15 @@
 package org.kiwiproject.dropwizard.error;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
+import static org.kiwiproject.validation.KiwiValidations.checkArgumentValid;
 
 import io.dropwizard.core.setup.Environment;
 import lombok.experimental.UtilityClass;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.job.CleanupApplicationErrorsJob;
@@ -37,20 +40,25 @@ class ErrorContextUtilities {
                 serviceDetails,
                 options.getDataStoreType(),
                 options.getTimeWindowValue(),
-                options.getTimeWindowUnit());
+                options.getTimeWindowUnit(),
+                options.getCleanupConfig());
     }
 
     static void checkCommonArguments(Environment environment,
                                      ServiceDetails serviceDetails,
                                      DataStoreType dataStoreType,
                                      long timeWindowValue,
-                                     TemporalUnit timeWindowUnit) {
+                                     TemporalUnit timeWindowUnit,
+                                     CleanupConfig cleanupConfig) {
 
         checkArgumentNotNull(environment, "Dropwizard Environment cannot be null");
         checkArgumentNotNull(serviceDetails, "serviceDetails cannot be null");
         checkArgumentNotNull(dataStoreType, "dataStoreType cannot be null");
         checkArgument(timeWindowValue > 0, "timeWindowValue must be positive");
         checkArgumentNotNull(timeWindowUnit, "timeWindowUnit cannot be null");
+        if (nonNull(cleanupConfig)) {
+            checkArgumentValid(cleanupConfig);
+        }
     }
 
     static PersistentHostInformation setPersistentHostInformationFrom(ServiceDetails serviceDetails) {
