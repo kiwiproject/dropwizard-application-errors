@@ -276,7 +276,9 @@ public class ErrorContextBuilder {
             dataStoreType = DataStoreType.NOT_SHARED;
         }
 
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
+        // Check arguments before creating database and Jdbi instance
+        // (this avoids doing work if context creation will ultimately fail)
+        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit, cleanupConfig);
 
         var dataSourceFactory = createInMemoryH2Database();
         var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory, DEFAULT_DATABASE_HEALTH_CHECK_NAME);
@@ -300,7 +302,9 @@ public class ErrorContextBuilder {
             dataStoreType = ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory);
         }
 
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
+        // Check arguments before creating Jdbi instance
+        // (this avoids doing work if context creation will ultimately fail)
+        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit, cleanupConfig);
 
         LOG.info("Creating a {} JDBI (version 3) ErrorContext instance from the dataSourceFactory", dataStoreType);
         var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory, DEFAULT_DATABASE_HEALTH_CHECK_NAME);
@@ -328,8 +332,6 @@ public class ErrorContextBuilder {
         if (!dataStoreTypeAlreadySet) {
             dataStoreType = DataStoreType.SHARED;
         }
-
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit);
 
         return newJdbi3ErrorContext(jdbi);
     }

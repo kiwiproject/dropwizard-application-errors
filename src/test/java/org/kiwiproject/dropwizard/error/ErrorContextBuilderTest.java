@@ -46,6 +46,8 @@ import org.kiwiproject.dropwizard.error.resource.GotErrorsResource;
 import org.kiwiproject.dropwizard.jdbi3.Jdbi3Builders;
 import org.kiwiproject.test.dropwizard.mockito.DropwizardMockitoMocks;
 import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
+import org.kiwiproject.validation.KiwiConstraintViolations;
+import org.kiwiproject.validation.KiwiValidations;
 import org.postgresql.Driver;
 
 import java.time.temporal.ChronoUnit;
@@ -128,6 +130,25 @@ class ErrorContextBuilderTest {
                     .timeWindowUnit(timeWindowUnit);
 
             assertIllegalArgumentExceptionThrownBuilding(softly, builder, "timeWindowValue must be positive");
+        }
+
+        @Test
+        void whenCleanupConfigIsNotValid(SoftAssertions softly) {
+            var cleanupConfig = new CleanupConfig();
+            cleanupConfig.setCleanupStrategy(null);
+            cleanupConfig.setInitialJobDelay(Duration.seconds(-1));
+
+            var builder = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .timeWindowValue(timeWindowAmount)
+                    .timeWindowUnit(timeWindowUnit)
+                    .cleanupConfig(cleanupConfig);
+
+            var violations = KiwiValidations.validate(cleanupConfig);
+            var expectedMessage = KiwiConstraintViolations.simpleCombinedErrorMessage(violations);
+            assertIllegalArgumentExceptionThrownBuilding(softly, builder, expectedMessage);
         }
 
         private void assertIllegalArgumentExceptionThrownBuilding(SoftAssertions softly,
