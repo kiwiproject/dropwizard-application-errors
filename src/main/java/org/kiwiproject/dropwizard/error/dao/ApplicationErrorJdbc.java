@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
@@ -47,11 +48,11 @@ public class ApplicationErrorJdbc {
     private static final String H2_EMBEDDED_FILE_POSIX_ABSOLUTE_URL_PREFIX = "jdbc:h2:/";
     private static final String H2_EMBEDDED_FILE_WINDOWS_ABSOLUTE_URL_PREFIX = "jdbc:h2:C:";
     private static final String[] H2_EMBEDDED_URL_PREFIXES = {
-        H2_EMBEDDED_IN_MEMORY_URL_PREFIX,
-        H2_EMBEDDED_FILE_EXPLICIT_URL_PREFIX,
-        H2_EMBEDDED_FILE_RELATIVE_URL_PREFIX,
-        H2_EMBEDDED_FILE_POSIX_ABSOLUTE_URL_PREFIX,
-        H2_EMBEDDED_FILE_WINDOWS_ABSOLUTE_URL_PREFIX
+            H2_EMBEDDED_IN_MEMORY_URL_PREFIX,
+            H2_EMBEDDED_FILE_EXPLICIT_URL_PREFIX,
+            H2_EMBEDDED_FILE_RELATIVE_URL_PREFIX,
+            H2_EMBEDDED_FILE_POSIX_ABSOLUTE_URL_PREFIX,
+            H2_EMBEDDED_FILE_WINDOWS_ABSOLUTE_URL_PREFIX
     };
     private static final String H2_AUTOMATIC_MIXED_MODE = "AUTO_SERVER=TRUE";
 
@@ -146,21 +147,27 @@ public class ApplicationErrorJdbc {
      * Is the given {@link DataSourceFactory} configured for an H2 database?
      *
      * @param dataSourceFactory the DataSourceFactory to check
-     * @return true if the driver class is the H2 driver, false otherwise (including null argument)
+     * @return true if the driver class is the H2 driver and the JDBC URL starts with the H2 prefix "jdbc:h2:",
+     * otherwise false (including a null argument)
      */
     public static boolean isH2DataStore(@Nullable DataSourceFactory dataSourceFactory) {
         if (isNull(dataSourceFactory)) {
             return false;
         }
 
-        return H2_DRIVER.equals(dataSourceFactory.getDriverClass());
+        return H2_DRIVER.equals(dataSourceFactory.getDriverClass()) &&
+                isNotBlank(dataSourceFactory.getUrl())
+                && dataSourceFactory.getUrl().startsWith("jdbc:h2:");
     }
 
     /**
-     *  Is the given {@link DataSourceFactory} configured for an embedded (in-memory or file-based) H2 database?
+     * Is the given {@link DataSourceFactory} configured for an embedded (in-memory or file-based) H2 database?
+     * <p>
+     * Note that since H2 Automatic Mixed Mode allows both a single embedded connection and remote
+     * connections, for example from separate process, this is not considered embedded.
      *
      * @param dataSourceFactory the DataSourceFactory to check
-     * @return true if the driver class is the H2 driver, and the databae URL is definitely an embedded in-memory
+     * @return true if the driver class is the H2 driver, and the database URL is definitely an embedded in-memory
      * or file-based database connection string. If the driver is not H2, or the URL is not definitively known
      * to be for an embedded database, returns false.
      * @see <a href="http://www.h2database.com/html/features.html#connection_modes">H2 Connection Modes</a>
@@ -168,15 +175,17 @@ public class ApplicationErrorJdbc {
      * @see <a href="http://www.h2database.com/html/features.html#auto_mixed_mode">H2 Automatic Mixed Mode</a>
      */
     public static boolean isH2EmbeddedDataStore(@Nullable DataSourceFactory dataSourceFactory) {
-        if (!isH2DataStore(dataSourceFactory)) {
+        if (isNotH2DataStore(dataSourceFactory)) {
             return false;
         }
 
-        var url = dataSourceFactory.getUrl();
+        var url = requireNonNull(dataSourceFactory).getUrl();
 
-        return isNotBlank(url) &&
-                startsWithAny(url, H2_EMBEDDED_URL_PREFIXES) &&
-                isNotH2AutomaticMixedMode(url);
+        return startsWithAny(url, H2_EMBEDDED_URL_PREFIXES) && isNotH2AutomaticMixedMode(url);
+    }
+
+    private static boolean isNotH2DataStore(@Nullable DataSourceFactory dataSourceFactory) {
+        return !isH2DataStore(dataSourceFactory);
     }
 
     private static boolean isNotH2AutomaticMixedMode(String url) {
