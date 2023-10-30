@@ -12,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.test.jdbc.RuntimeSQLException;
@@ -22,7 +24,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @DisplayName("ApplicationErrorJdbc")
-@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
+@SuppressWarnings({ "SqlDialectInspection", "SqlNoDataSourceInspection" })
 class ApplicationErrorJdbcTest {
 
     private DataSourceFactory dataSourceFactory;
@@ -108,10 +110,32 @@ class ApplicationErrorJdbcTest {
     @Nested
     class DataStoreTypeOf {
 
-        @Test
-        void shouldReturn_NOT_SHARED_WhenH2Driver() {
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "jdbc:h2:mem:",
+                "jdbc:h2:mem:test_db",
+                "jdbc:h2:~/test",
+                "jdbc:h2:file:/data/sample",
+                "jdbc:h2:file:C:/data/sample.db",
+        })
+        void shouldReturn_NOT_SHARED_WhenH2Driver_AndEmbeddedConnectionUrl(String url) {
             dataSourceFactory.setDriverClass(org.h2.Driver.class.getName());
+            dataSourceFactory.setUrl(url);
             assertThat(ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory)).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "jdbc:h2:tcp://localhost/~/test",
+                "jdbc:h2:tcp://dbserv:8084/~/sample",
+                "jdbc:h2:ssl://localhost:8085/~/sample",
+                "jdbc:h2:zip:~/db.zip!/test",
+                "jdbc:h2:/data/test;AUTO_SERVER=TRUE",  // mixed mode
+        })
+        void shouldReturn_SHARED_WhenH2Driver_AndServerOrMixedModeConnectionUrl(String url) {
+            dataSourceFactory.setDriverClass(org.h2.Driver.class.getName());
+            dataSourceFactory.setUrl(url);
+            assertThat(ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory)).isEqualTo(DataStoreType.SHARED);
         }
 
         @Test
@@ -151,6 +175,7 @@ class ApplicationErrorJdbcTest {
 
         @Test
         void shouldThrow_WhenMigrationErrorOccurs() {
+            //noinspection resource
             var conn = mock(Connection.class);
 
             assertThatThrownBy(() -> ApplicationErrorJdbc.migrateDatabase(conn))
@@ -168,6 +193,20 @@ class ApplicationErrorJdbcTest {
         }
 
         @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {
+                "jdbc:mysql://localhost:3306/test_db",
+                "jdbc:postgresql://localhost:5432/sample",
+                "jdbc:sqlite:sample.db"
+        })
+        void shouldReturnFalse_WhenDriverIsH2_ButUrlIsNotH2(String jdbcUrl) {
+            var dataSourceFactory = new DataSourceFactory();
+            dataSourceFactory.setDriverClass(Driver.class.getName());
+            dataSourceFactory.setUrl(jdbcUrl);
+            assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isFalse();
+        }
+
+        @ParameterizedTest
         @ValueSource(strings = {
                 "org.postgresql.Driver",
                 "com.mysql.jdbc.Driver",
@@ -179,11 +218,92 @@ class ApplicationErrorJdbcTest {
             assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isFalse();
         }
 
-        @Test
-        void shouldReturnTrue_WhenGivenH2DataSourceFactory() {
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "jdbc:h2:mem:",
+                "jdbc:h2:file:/data/sample",
+                "jdbc:h2:tcp://localhost/~/test"
+        })
+        void shouldReturnTrue_WhenGivenH2DataSourceFactory(String jdbcUrl) {
             var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(Driver.class.getName());
+            dataSourceFactory.setUrl(jdbcUrl);
             assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isTrue();
+        }
+    }
+
+    @Nested
+    class IsH2EmbeddedDataStore {
+
+        @Test
+        void shouldReturnFalse_WhenGivenNullDataSourceFactory() {
+            assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(null)).isFalse();
+        }
+
+        @ParameterizedTest
+        @CsvSource(textBlock = """
+                org.h2.Driver, jdbc:sqlite:sample.db
+                org.acme.db.Driver, jdbc:h2:~/test_db
+                '', jdbc:h2:~/test_db
+                null, jdbc:h2:~/test_db
+                org.h2.Driver, ''
+                org.h2.Driver, null
+                """, nullValues = "null")
+        void shouldReturnFalse_WhenGivenNonH2_DataSourceFactory(String driverClass, String jdbcUrl) {
+            var dataSourceFactory = new DataSourceFactory();
+            dataSourceFactory.setDriverClass(driverClass);
+            dataSourceFactory.setUrl(jdbcUrl);
+            assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isFalse();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "org.postgresql.Driver",
+                "com.mysql.jdbc.Driver",
+                "org.acme.db.Driver"
+        })
+        void shouldReturnFalse_WhenGivenNonH2DataSourceFactory(String value) {
+            var dataSourceFactory = new DataSourceFactory();
+            dataSourceFactory.setDriverClass(value);
+            assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isFalse();
+        }
+
+        /**
+         * We do NOT consider the "Automatic mixed mode" to be embedded, since it
+         * allows connections from other processes, JVMs, etc. This mode is enabled
+         * via the AUTO_SERVER=TRUE
+         */
+        @ParameterizedTest
+        @CsvSource(textBlock = """
+                jdbc:h2:mem:, true
+                jdbc:h2:mem:test_db, true
+                jdbc:h2:~/test, true
+                jdbc:h2:~/test.db, true
+                jdbc:h2:file:/data/sample, true
+                jdbc:h2:file:/data/var/h2/test.db, true
+                jdbc:h2:file:C:/data/sample.db, true
+                jdbc:h2:file:~/secure;CIPHER=AES, true
+                jdbc:h2:file:~/private;CIPHER=AES;FILE_LOCK=SOCKET, true
+                jdbc:h2:file:~/sample;IFEXISTS=TRUE, true
+                jdbc:h2:file:~/sample;USER=sa;PASSWORD=123, true
+                jdbc:h2:~/test;MODE=MYSQL;DATABASE_TO_LOWER=TRUE, true
+
+                jdbc:h2:tcp://localhost/~/test, false
+                jdbc:h2:tcp://dbserv:8084/~/sample, false
+                jdbc:h2:tcp://localhost/mem:test, false
+                jdbc:h2:tcp://localhost/~/test;AUTO_RECONNECT=TRUE, false
+                jdbc:h2:ssl://localhost:8085/~/sample, false
+                jdbc:h2:ssl://localhost/~/test;CIPHER=AES, false
+                jdbc:h2:zip:~/db.zip!/test, false
+                jdbc:h2:/data/test;AUTO_SERVER=TRUE, false
+                jdbc:h2:/data/test;AUTO_SERVER=true, false
+                jdbc:h2:/data/test;auto_server=true, false
+                """)
+        void shouldReturnTrue_WhenGivenEmbeddedH2DataSourceFactory(String url, boolean isEmbeddedUrl) {
+            var dataSourceFactory = new DataSourceFactory();
+            dataSourceFactory.setDriverClass(Driver.class.getName());
+            dataSourceFactory.setUrl(url);
+            assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isEqualTo(isEmbeddedUrl);
         }
     }
 }
