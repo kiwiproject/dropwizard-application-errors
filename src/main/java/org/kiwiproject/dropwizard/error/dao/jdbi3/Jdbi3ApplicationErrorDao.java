@@ -1,7 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.dropwizard.logback.shaded.guava.base.Preconditions.checkNotNull;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentIsNull;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao.checkPagingArgumentsAndCalculateZeroBasedOffset;
