@@ -1,18 +1,16 @@
-package org.kiwiproject.dropwizard.error.dao.jdbi3;
+package org.kiwiproject.dropwizard.error.dao.jdk;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
-import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
-@DisplayName("Jdbi3ApplicationErrorDao (H2)")
-class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
+@DisplayName("JdbcApplicationErrorDao (H2)")
+public class H2JdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
     private static JdbcDataSource DATA_SOURCE;
 
@@ -28,20 +26,14 @@ class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTes
 
     @AfterAll
     static void afterAll() throws SQLException {
+
         ApplicationErrorJdbc.shutdownH2Database(DATA_SOURCE);
 
         DATA_SOURCE = null;
     }
 
-    @RegisterExtension final Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> jdbi3DaoExtension =
-            Jdbi3DaoExtension.<Jdbi3ApplicationErrorDao>builder()
-                    .daoType(Jdbi3ApplicationErrorDao.class)
-                    .dataSource(DATA_SOURCE)
-                    .plugin(new H2DatabasePlugin())
-                    .build();
-
     @Override
-    Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> getTestExtension() {
-        return jdbi3DaoExtension;
+    protected DataSource getDataSource() {
+        return DATA_SOURCE;
     }
 }

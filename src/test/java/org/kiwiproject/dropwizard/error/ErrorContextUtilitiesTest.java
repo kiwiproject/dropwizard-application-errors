@@ -219,7 +219,6 @@ class ErrorContextUtilitiesTest {
             verifyNoMoreInteractions(healthChecks);
         }
 
-        @SuppressWarnings("ConstantValue")
         @Test
         void shouldSkipRegisteringHealthCheck() {
             options = ErrorContextOptions.builder()
@@ -269,7 +268,6 @@ class ErrorContextUtilitiesTest {
                     eq(TimeUnit.MINUTES));
         }
 
-        @SuppressWarnings("ConstantValue")
         @Test
         void shouldSkipRegisteringCleanupJob() {
             var options = ErrorContextOptions.builder()
