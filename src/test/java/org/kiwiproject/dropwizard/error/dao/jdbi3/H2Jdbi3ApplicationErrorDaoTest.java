@@ -1,5 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
+import static org.kiwiproject.dropwizard.error.util.TestHelpers.shutdownH2Database;
+
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.junit.jupiter.api.AfterAll;
@@ -28,7 +30,7 @@ class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTes
 
     @AfterAll
     static void afterAll() throws SQLException {
-        ApplicationErrorJdbc.shutdownH2Database(DATA_SOURCE);
+       shutdownH2Database(DATA_SOURCE);
 
         DATA_SOURCE = null;
     }

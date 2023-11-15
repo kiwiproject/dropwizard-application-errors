@@ -220,13 +220,6 @@ public class ApplicationErrorJdbc {
         checkState(rs.next(), "ResultSet.next() returned false");
     }
 
-    @SuppressWarnings({ "SqlDialectInspection", "SqlNoDataSourceInspection" })
-    public static void shutdownH2Database(JdbcDataSource h2DataSource) throws SQLException {
-        try (var conn = h2DataSource.getConnection(); var stmt = conn.createStatement()) {
-            stmt.executeUpdate("shutdown");
-        }
-    }
-
     /**
      * Runtime exception wrapper around JDBC-related exceptions, e.g. {@link SQLException}.
      */
