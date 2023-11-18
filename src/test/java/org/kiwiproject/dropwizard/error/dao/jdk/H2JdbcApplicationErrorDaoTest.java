@@ -2,28 +2,27 @@ package org.kiwiproject.dropwizard.error.dao.jdk;
 
 import static org.kiwiproject.dropwizard.error.util.TestHelpers.shutdownH2Database;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
+import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
 @DisplayName("JdbcApplicationErrorDao (H2)")
 public class H2JdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
-    private static JdbcDataSource DATA_SOURCE;
+    private static SimpleSingleConnectionDataSource DATA_SOURCE;
 
     @BeforeAll
     static void beforeAll() {
         var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
-        DATA_SOURCE = new JdbcDataSource();
-        DATA_SOURCE.setUrl(dataSourceFactory.getUrl());
-        DATA_SOURCE.setUser(dataSourceFactory.getUser());
-        DATA_SOURCE.setPassword(dataSourceFactory.getPassword());
+        DATA_SOURCE = new SimpleSingleConnectionDataSource(
+                dataSourceFactory.getUrl(),
+                dataSourceFactory.getUser(),
+                dataSourceFactory.getPassword());
     }
 
     @AfterAll
@@ -34,7 +33,7 @@ public class H2JdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorD
     }
 
     @Override
-    protected DataSource getDataSource() {
+    protected SimpleSingleConnectionDataSource getDataSource() {
         return DATA_SOURCE;
     }
 }

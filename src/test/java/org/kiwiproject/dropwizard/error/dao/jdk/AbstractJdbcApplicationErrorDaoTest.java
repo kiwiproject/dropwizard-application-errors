@@ -5,6 +5,7 @@ import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrTh
 import static org.kiwiproject.jdbc.KiwiJdbc.timestampFromZonedDateTime;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kiwiproject.dropwizard.error.dao.AbstractApplicationErrorDaoTest;
@@ -12,8 +13,8 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension;
 import org.kiwiproject.test.jdbc.RuntimeSQLException;
+import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,32 +24,30 @@ import java.sql.Statement;
  * Base test class for testing {@link JdbcApplicationErrorDao}. Used to test against different databases, currently
  * Postgres and an in-memory H2 database.
  * <p>
- * NOTE: This implementation does not use transaction rollback after tests, and therefore the {@link #baseSetUpJdbc()}
- * method deletes all application errors before each test to ensure a clean database. It would be better to use
- * transaction rollback after each test, and faster. To do this, we might be able to use a
- * {@link org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource SimpleSingleConnectionDataSource} to ensure that
- * the {@link JdbcApplicationErrorDao} under test uses the same Connection throughout each test.
+ * This base class requires subclasses to provide a {@link SimpleSingleConnectionDataSource} so that we can
+ * set up a transaction before each test, and roll it back after each test. Using {@link SimpleSingleConnectionDataSource}
+ * ensures that the {@link JdbcApplicationErrorDao} under test uses the same Connection throughout each test.
  */
 @SuppressWarnings({ "SqlDialectInspection", "SqlNoDataSourceInspection" })
 @ExtendWith(ApplicationErrorExtension.class)
 @Slf4j
 public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplicationErrorDaoTest<JdbcApplicationErrorDao> {
 
-    // TODO: Investigate using SimpleSingleConnectionDataSource and implementing transaction rollback after each test.
+    protected abstract SimpleSingleConnectionDataSource getDataSource();
 
-    protected abstract DataSource getDataSource();
+    private Connection connection;
 
     @BeforeEach
     void baseSetUpJdbc() throws SQLException {
-        deleteAllApplicationErrors();
+        connection = getDataSource().getConnection();
+        connection.setAutoCommit(false);
+
         countAndVerifyNoApplicationErrorsExist();
     }
 
-    protected void deleteAllApplicationErrors() throws SQLException {
-        try (var conn = connection(); var stmt = conn.createStatement()) {
-            var count = stmt.executeUpdate("delete from application_errors");
-            LOG.info("Deleted {} application_errors", count);
-        }
+    @AfterEach
+    void tearDown() throws SQLException {
+        connection.rollback();
     }
 
     @Override

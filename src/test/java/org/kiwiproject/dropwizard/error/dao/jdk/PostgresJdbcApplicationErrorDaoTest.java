@@ -2,9 +2,8 @@ package org.kiwiproject.dropwizard.error.dao.jdk;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
-
-import javax.sql.DataSource;
 
 @DisplayName("JdbcApplicationErrorDao (Postgres)")
 public class PostgresJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
@@ -14,7 +13,7 @@ public class PostgresJdbcApplicationErrorDaoTest extends AbstractJdbcApplication
             new PostgresLiquibaseTestExtension("dropwizard-app-errors-migrations.xml");
 
     @Override
-    protected DataSource getDataSource() {
+    protected SimpleSingleConnectionDataSource getDataSource() {
         return POSTGRES.getTestDataSource();
     }
 }
