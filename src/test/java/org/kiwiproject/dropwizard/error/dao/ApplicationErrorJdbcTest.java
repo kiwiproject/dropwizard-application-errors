@@ -1,8 +1,15 @@
 package org.kiwiproject.dropwizard.error.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.dropwizard.db.DataSourceFactory;
 import org.h2.Driver;
@@ -15,12 +22,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErrorJdbcException;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 import org.kiwiproject.test.jdbc.RuntimeSQLException;
 import org.kiwiproject.test.junit.jupiter.ClearBoxTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @DisplayName("ApplicationErrorJdbc")
@@ -65,7 +74,7 @@ class ApplicationErrorJdbcTest {
             try (var conn = DriverManager.getConnection(url, user, password);
                  var stmt = conn.createStatement();
                  var rs = stmt.executeQuery(COUNT_QUERY)) {
-                rs.next();
+                nextOrThrow(rs);
                 assertThat(rs.getInt(1)).isZero();
             } catch (SQLException e) {
                 throw new RuntimeSQLException(e);
@@ -166,7 +175,7 @@ class ApplicationErrorJdbcTest {
 
                 var stmt = conn.createStatement();
                 var rs = stmt.executeQuery("select * from databasechangelog");
-                rs.next();
+                nextOrThrow(rs);
 
                 var filename = rs.getString("filename");
                 assertThat(filename).isEqualTo("dropwizard-app-errors-migrations.xml");
@@ -179,7 +188,7 @@ class ApplicationErrorJdbcTest {
             var conn = mock(Connection.class);
 
             assertThatThrownBy(() -> ApplicationErrorJdbc.migrateDatabase(conn))
-                    .isExactlyInstanceOf(ApplicationErrorJdbc.ApplicationErrorJdbcException.class)
+                    .isExactlyInstanceOf(ApplicationErrorJdbcException.class)
                     .hasMessage("Error migrating [Unknown Error] database");
         }
     }
@@ -304,6 +313,53 @@ class ApplicationErrorJdbcTest {
             dataSourceFactory.setDriverClass(Driver.class.getName());
             dataSourceFactory.setUrl(url);
             assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isEqualTo(isEmbeddedUrl);
+        }
+    }
+
+    @Nested
+    class NextOrThrow {
+
+        private ResultSet resultSet;
+
+        @BeforeEach
+        void setUp() {
+            resultSet = mock(ResultSet.class);
+        }
+
+        @Test
+        void shouldAdvanceResultSet() throws SQLException {
+            when(resultSet.next()).thenReturn(true);
+
+            assertThatCode(() -> ApplicationErrorJdbc.nextOrThrow(resultSet))
+                    .doesNotThrowAnyException();
+
+            verify(resultSet, only()).next();
+        }
+
+        @Test
+        void shouldThrowIllegalState_WhenNextReturnsFalse() throws SQLException {
+            when(resultSet.next()).thenReturn(false);
+
+            assertThatIllegalStateException()
+                    .isThrownBy(() -> ApplicationErrorJdbc.nextOrThrow(resultSet))
+                    .withMessage("ResultSet.next() returned false");
+
+            verify(resultSet, only()).next();
+        }
+    }
+
+    @Nested
+    class ApplicationErrorJdbcExceptionClass {
+
+        @Test
+        void shouldAcceptThrowable() {
+            var sqlEx = new SQLException("bad SQL");
+            var ex = new ApplicationErrorJdbcException(sqlEx);
+
+            assertAll(
+                    () -> assertThat(ex.getMessage()).contains("bad SQL"),
+                    () -> assertThat(ex.getCause()).isSameAs(sqlEx)
+            );
         }
     }
 }

@@ -1,11 +1,13 @@
 package org.kiwiproject.dropwizard.error.dao;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.base.KiwiStrings.format;
+import static org.kiwiproject.jdbc.KiwiJdbc.utcZonedDateTimeFromTimestamp;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.db.DataSourceFactory;
@@ -20,10 +22,13 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.h2.jdbcx.JdbcDataSource;
+import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -192,10 +197,37 @@ public class ApplicationErrorJdbc {
         return !url.toUpperCase(Locale.US).contains(H2_AUTOMATIC_MIXED_MODE);
     }
 
+    public static ApplicationError mapFrom(ResultSet rs) throws SQLException {
+        return ApplicationError.builder()
+                .id(rs.getLong("id"))
+                .createdAt(utcZonedDateTimeFromTimestamp(rs, "created_at"))
+                .updatedAt(utcZonedDateTimeFromTimestamp(rs, "updated_at"))
+                .numTimesOccurred(rs.getInt("num_times_occurred"))
+                .description(rs.getString("description"))
+                .exceptionType(rs.getString("exception_type"))
+                .exceptionMessage(rs.getString("exception_message"))
+                .exceptionCauseType(rs.getString("exception_cause_type"))
+                .exceptionCauseMessage(rs.getString("exception_cause_message"))
+                .stackTrace(rs.getString("stack_trace"))
+                .resolved(rs.getBoolean("resolved"))
+                .hostName(rs.getString("host_name"))
+                .ipAddress(rs.getString("ip_address"))
+                .port(rs.getInt("port"))
+                .build();
+    }
+
+    public static void nextOrThrow(ResultSet rs) throws SQLException {
+        checkState(rs.next(), "ResultSet.next() returned false");
+    }
+
     /**
      * Runtime exception wrapper around JDBC-related exceptions, e.g. {@link SQLException}.
      */
     public static class ApplicationErrorJdbcException extends RuntimeException {
+        public ApplicationErrorJdbcException(Throwable cause) {
+            super(cause);
+        }
+
         ApplicationErrorJdbcException(String message, Throwable cause) {
             super(message, cause);
         }
