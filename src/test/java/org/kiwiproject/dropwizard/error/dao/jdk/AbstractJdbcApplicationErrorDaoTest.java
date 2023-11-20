@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrThrow;
 import static org.kiwiproject.jdbc.KiwiJdbc.timestampFromZonedDateTime;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +29,6 @@ import java.sql.Statement;
  */
 @SuppressWarnings({ "SqlDialectInspection", "SqlNoDataSourceInspection" })
 @ExtendWith(ApplicationErrorExtension.class)
-@Slf4j
 public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplicationErrorDaoTest<JdbcApplicationErrorDao> {
 
     protected abstract SimpleSingleConnectionDataSource getDataSource();
