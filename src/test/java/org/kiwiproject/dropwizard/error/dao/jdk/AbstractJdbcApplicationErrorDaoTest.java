@@ -30,7 +30,6 @@ import java.sql.Statement;
  */
 @SuppressWarnings({ "SqlDialectInspection", "SqlNoDataSourceInspection" })
 @ExtendWith(ApplicationErrorExtension.class)
-@Slf4j
 public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplicationErrorDaoTest<JdbcApplicationErrorDao> {
 
     protected abstract SimpleSingleConnectionDataSource getDataSource();
