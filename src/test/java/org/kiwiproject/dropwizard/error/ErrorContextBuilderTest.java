@@ -1,6 +1,7 @@
 package org.kiwiproject.dropwizard.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,6 +35,7 @@ import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.JdbcApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
@@ -120,7 +122,7 @@ class ErrorContextBuilderTest {
         }
 
         @ParameterizedTest
-        @ValueSource(longs = {-15, -1, 0})
+        @ValueSource(longs = { -15, -1, 0 })
         void whenTimeWindowValueIsNotPositive(long amount, SoftAssertions softly) {
             var builder = ErrorContextBuilder.newInstance()
                     .environment(environment)
@@ -480,7 +482,7 @@ class ErrorContextBuilderTest {
         }
 
         @Test
-        void shouldForce_NOT_SHARED_ForH2Databases() {
+        void shouldForce_NOT_SHARED_ForEmbeddedH2Databases() {
             var errorContext = ErrorContextBuilder.newInstance()
                     .environment(environment)
                     .serviceDetails(serviceDetails)
@@ -501,6 +503,86 @@ class ErrorContextBuilderTest {
 
             softly.assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.SHARED);
             softly.assertThat(errorContext.errorDao()).isNotNull();
+        }
+    }
+
+    @Nested
+    class BuildJdbcWithDataStoreFactory {
+
+        private DataSourceFactory dataSourceFactory;
+
+        @BeforeEach
+        void setUp() {
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+        }
+
+        @Test
+        void shouldBuildJdbcContext() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildJdbcWithDataSourceFactory(dataSourceFactory);
+
+            assertAll(
+                    () -> assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class),
+                    () -> assertThat(errorContext.errorDao()).isInstanceOf(JdbcApplicationErrorDao.class)
+            );
+        }
+
+        @Test
+        void shouldRegisterResources() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildJdbcWithDataSourceFactory(dataSourceFactory);
+
+            verifyRegistersJerseyResources();
+        }
+
+        @Test
+        void shouldRegisterHealthCheck() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildJdbcWithDataSourceFactory(dataSourceFactory);
+
+            verifyRegistersHealthChecks();
+        }
+
+        @Test
+        void shouldDetermineDataStoreTypeIfNotSet() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildJdbcWithDataSourceFactory(dataSourceFactory);
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+
+        @Test
+        void shouldForce_NOT_SHARED_ForEmbeddedH2Databases() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .buildJdbcWithDataSourceFactory(dataSourceFactory);
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+
+        @Test
+        void shouldWorkWithPostgres() {
+            var postgresDataSourceFactory = newPostgresDataSourceFactory();
+
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithDataStoreFactory(postgresDataSourceFactory);
+
+            assertAll(
+                    () -> assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.SHARED),
+                    () -> assertThat(errorContext.errorDao()).isNotNull()
+            );
         }
     }
 

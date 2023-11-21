@@ -3,7 +3,6 @@ package org.kiwiproject.dropwizard.error;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.kiwiproject.base.KiwiStrings.f;
-import static org.kiwiproject.dropwizard.error.ErrorContextUtilities.checkCommonArguments;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.createInMemoryH2Database;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.isH2EmbeddedDataStore;
 
@@ -16,6 +15,7 @@ import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.JdbcApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
@@ -279,9 +279,9 @@ public class ErrorContextBuilder {
             dataStoreType = DataStoreType.NOT_SHARED;
         }
 
-        // Check arguments before creating database and Jdbi instance
-        // (this avoids doing work if context creation will ultimately fail)
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit, cleanupConfig);
+        // Check arguments before creating the in-memory database and Jdbi instance
+        // (this avoids doing work if we're sure that context creation will ultimately fail)
+        checkCommonArguments();
 
         var dataSourceFactory = createInMemoryH2Database();
         var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory, DEFAULT_DATABASE_HEALTH_CHECK_NAME);
@@ -299,15 +299,11 @@ public class ErrorContextBuilder {
      * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
      */
     public ErrorContext buildWithDataStoreFactory(DataSourceFactory dataSourceFactory) {
-        if (dataStoreTypeAlreadySet && isH2EmbeddedDataStore(dataSourceFactory) && dataStoreType == DataStoreType.SHARED) {
-            forceH2EmbeddedDatabaseToBeNotSharedWithWarning(dataSourceFactory.getUrl());
-        } else if (!dataStoreTypeAlreadySet) {
-            dataStoreType = ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory);
-        }
+        ensureDataStoreTypeIsSetFor(dataSourceFactory);
 
         // Check arguments before creating Jdbi instance
-        // (this avoids doing work if context creation will ultimately fail)
-        checkCommonArguments(environment, serviceDetails, dataStoreType, timeWindowValue, timeWindowUnit, cleanupConfig);
+        // (this avoids doing work if we're sure that context creation will ultimately fail)
+        checkCommonArguments();
 
         LOG.info("Creating a {} JDBI (version 3) ErrorContext instance from the dataSourceFactory", dataStoreType);
         var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory, DEFAULT_DATABASE_HEALTH_CHECK_NAME);
@@ -315,11 +311,52 @@ public class ErrorContextBuilder {
         return newJdbi3ErrorContext(jdbi);
     }
 
+    /**
+     * Build an {@link ErrorContext} using given the {@code dataSourceFactory} that uses a JDBC DAO.
+     *
+     * @param dataSourceFactory the Dropwizard {@link DataSourceFactory}
+     * @return a new {@link ErrorContext} instance
+     * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
+     * will attempt to determine which {@link DataStoreType} it should use by calling
+     * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
+     */
+    public ErrorContext buildJdbcWithDataSourceFactory(DataSourceFactory dataSourceFactory) {
+        ensureDataStoreTypeIsSetFor(dataSourceFactory);
+
+        // Check arguments before creating DataSource and DAO
+        // (this avoids doing work if we're sure that context creation will ultimately fail)
+        checkCommonArguments();
+
+        LOG.info("Creating a {} JDBC ErrorContext instance from the dataSourceFactory", dataStoreType);
+
+        var managedDataSource = dataSourceFactory.build(environment.metrics(), DEFAULT_DATABASE_HEALTH_CHECK_NAME);
+        var errorDao = new JdbcApplicationErrorDao(managedDataSource);
+
+        return buildWithDao(errorDao);
+    }
+
+    private void ensureDataStoreTypeIsSetFor(DataSourceFactory dataSourceFactory) {
+        if (dataStoreTypeAlreadySet && isH2EmbeddedDataStore(dataSourceFactory) && dataStoreType == DataStoreType.SHARED) {
+            forceH2EmbeddedDatabaseToBeNotSharedWithWarning(dataSourceFactory.getUrl());
+        } else if (!dataStoreTypeAlreadySet) {
+            dataStoreType = ApplicationErrorJdbc.dataStoreTypeOf(dataSourceFactory);
+        }
+    }
+
     private void forceH2EmbeddedDatabaseToBeNotSharedWithWarning(@Nullable String url) {
         var urlMessage = isNull(url) ? "" : f(" (url: %s)", url);
         LOG.warn("An embedded H2 database was requested with a SHARED data store type." +
                 " This will be converted to a NOT_SHARED data store type.{}", urlMessage);
         this.dataStoreType = DataStoreType.NOT_SHARED;
+    }
+
+    private void checkCommonArguments() {
+        ErrorContextUtilities.checkCommonArguments(environment,
+                serviceDetails,
+                dataStoreType,
+                timeWindowValue,
+                timeWindowUnit,
+                cleanupConfig);
     }
 
     /**
