@@ -173,12 +173,13 @@ class ApplicationErrorJdbcTest {
 
                 ApplicationErrorJdbc.migrateDatabase(conn);
 
-                var stmt = conn.createStatement();
-                var rs = stmt.executeQuery("select * from databasechangelog");
-                nextOrThrow(rs);
+                try (var stmt = conn.createStatement()) {
+                    var rs = stmt.executeQuery("select * from databasechangelog");
+                    nextOrThrow(rs);
 
-                var filename = rs.getString("filename");
-                assertThat(filename).isEqualTo("dropwizard-app-errors-migrations.xml");
+                    var filename = rs.getString("filename");
+                    assertThat(filename).isEqualTo("dropwizard-app-errors-migrations.xml");
+                }
             }
         }
 
