@@ -1,7 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao.jdk;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrThrow;
+import static org.kiwiproject.jdbc.KiwiJdbc.nextOrThrow;
 import static org.kiwiproject.jdbc.KiwiJdbc.timestampFromZonedDateTime;
 
 import org.junit.jupiter.api.AfterEach;

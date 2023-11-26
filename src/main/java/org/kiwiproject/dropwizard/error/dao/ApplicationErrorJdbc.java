@@ -1,6 +1,5 @@
 package org.kiwiproject.dropwizard.error.dao;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -213,10 +212,6 @@ public class ApplicationErrorJdbc {
                 .ipAddress(rs.getString("ip_address"))
                 .port(rs.getInt("port"))
                 .build();
-    }
-
-    public static void nextOrThrow(ResultSet rs) throws SQLException {
-        checkState(rs.next(), "ResultSet.next() returned false");
     }
 
     /**

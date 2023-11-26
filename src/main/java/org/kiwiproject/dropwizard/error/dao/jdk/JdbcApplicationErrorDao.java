@@ -6,7 +6,7 @@ import static org.kiwiproject.base.KiwiPreconditions.checkArgumentIsNull;
 import static org.kiwiproject.base.KiwiStrings.f;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao.checkPagingArgumentsAndCalculateZeroBasedOffset;
-import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrThrow;
+import static org.kiwiproject.jdbc.KiwiJdbc.nextOrThrow;
 import static org.kiwiproject.jdbc.KiwiJdbc.timestampFromZonedDateTime;
 
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
