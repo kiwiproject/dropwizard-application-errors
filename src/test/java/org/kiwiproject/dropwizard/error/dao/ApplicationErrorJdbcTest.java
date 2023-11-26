@@ -1,15 +1,10 @@
 package org.kiwiproject.dropwizard.error.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.nextOrThrow;
+import static org.kiwiproject.jdbc.KiwiJdbc.nextOrThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import io.dropwizard.db.DataSourceFactory;
 import org.h2.Driver;
@@ -29,7 +24,6 @@ import org.kiwiproject.test.junit.jupiter.ClearBoxTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @DisplayName("ApplicationErrorJdbc")
@@ -314,38 +308,6 @@ class ApplicationErrorJdbcTest {
             dataSourceFactory.setDriverClass(Driver.class.getName());
             dataSourceFactory.setUrl(url);
             assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isEqualTo(isEmbeddedUrl);
-        }
-    }
-
-    @Nested
-    class NextOrThrow {
-
-        private ResultSet resultSet;
-
-        @BeforeEach
-        void setUp() {
-            resultSet = mock(ResultSet.class);
-        }
-
-        @Test
-        void shouldAdvanceResultSet() throws SQLException {
-            when(resultSet.next()).thenReturn(true);
-
-            assertThatCode(() -> ApplicationErrorJdbc.nextOrThrow(resultSet))
-                    .doesNotThrowAnyException();
-
-            verify(resultSet, only()).next();
-        }
-
-        @Test
-        void shouldThrowIllegalState_WhenNextReturnsFalse() throws SQLException {
-            when(resultSet.next()).thenReturn(false);
-
-            assertThatIllegalStateException()
-                    .isThrownBy(() -> ApplicationErrorJdbc.nextOrThrow(resultSet))
-                    .withMessage("ResultSet.next() returned false");
-
-            verify(resultSet, only()).next();
         }
     }
 
