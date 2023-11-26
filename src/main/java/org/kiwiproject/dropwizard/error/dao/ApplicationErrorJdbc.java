@@ -117,7 +117,7 @@ public class ApplicationErrorJdbc {
                 .addArgumentValue(DbUrlConnectionCommandStep.DATABASE_ARG, liquibaseDatabase)
                 .addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, MIGRATIONS_FILENAME);
         var updateResults = updateCommand.execute();
-        LOG.debug("Update results: {}", updateResults.getResults());
+        LOG.debug("Liquibase update results: {}", updateResults.getResults());
     }
 
     @VisibleForTesting

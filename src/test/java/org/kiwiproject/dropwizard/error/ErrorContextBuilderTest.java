@@ -1,6 +1,8 @@
 package org.kiwiproject.dropwizard.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,10 +32,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.kiwiproject.dropwizard.error.ErrorContextBuilder.DaoType;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.jdbi3.Jdbi3ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
+import org.kiwiproject.dropwizard.error.dao.jdk.JdbcApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;
 import org.kiwiproject.dropwizard.error.health.TimeWindow;
@@ -120,7 +124,7 @@ class ErrorContextBuilderTest {
         }
 
         @ParameterizedTest
-        @ValueSource(longs = {-15, -1, 0})
+        @ValueSource(longs = { -15, -1, 0 })
         void whenTimeWindowValueIsNotPositive(long amount, SoftAssertions softly) {
             var builder = ErrorContextBuilder.newInstance()
                     .environment(environment)
@@ -159,7 +163,7 @@ class ErrorContextBuilderTest {
                     .hasMessage(expectedMessage);
 
             softly.assertThatThrownBy(() ->
-                            builder.buildWithDataStoreFactory(mock(DataSourceFactory.class)))
+                            builder.buildWithJdbc(mock(DataSourceFactory.class)))
                     .isExactlyInstanceOf(IllegalArgumentException.class)
                     .hasMessage(expectedMessage);
 
@@ -187,7 +191,7 @@ class ErrorContextBuilderTest {
             builder.buildInMemoryH2();
 
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-            builder.buildWithDataStoreFactory(dataSourceFactory);
+            builder.buildWithJdbi3(dataSourceFactory);
 
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             builder.buildWithJdbi3(jdbi);
@@ -213,7 +217,7 @@ class ErrorContextBuilderTest {
             builder.buildInMemoryH2();
 
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-            builder.buildWithDataStoreFactory(dataSourceFactory);
+            builder.buildWithJdbc(dataSourceFactory);
 
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             builder.buildWithJdbi3(jdbi);
@@ -269,7 +273,7 @@ class ErrorContextBuilderTest {
             assertDefaultTimeWindow(softly, builder.buildInMemoryH2());
 
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-            assertDefaultTimeWindow(softly, builder.buildWithDataStoreFactory(dataSourceFactory));
+            assertDefaultTimeWindow(softly, builder.buildWithJdbi3(dataSourceFactory));
 
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             assertDefaultTimeWindow(softly, builder.buildWithJdbi3(jdbi));
@@ -297,7 +301,7 @@ class ErrorContextBuilderTest {
             assertNoHealthCheck(softly, builder.buildInMemoryH2());
 
             var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-            assertNoHealthCheck(softly, builder.buildWithDataStoreFactory(dataSourceFactory));
+            assertNoHealthCheck(softly, builder.buildWithJdbc(dataSourceFactory));
 
             var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
             assertNoHealthCheck(softly, builder.buildWithJdbi3(jdbi));
@@ -325,7 +329,7 @@ class ErrorContextBuilderTest {
                 assertDefaultTimeWindow(softly, builder.buildInMemoryH2());
 
                 var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-                assertDefaultTimeWindow(softly, builder.buildWithDataStoreFactory(dataSourceFactory));
+                assertDefaultTimeWindow(softly, builder.buildWithJdbi3(dataSourceFactory));
 
                 var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
                 assertDefaultTimeWindow(softly, builder.buildWithJdbi3(jdbi));
@@ -347,7 +351,7 @@ class ErrorContextBuilderTest {
                 assertTimeWindow(softly, builder.buildInMemoryH2(), expectedAmount, expectedUnit);
 
                 var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
-                assertTimeWindow(softly, builder.buildWithDataStoreFactory(dataSourceFactory), expectedAmount, expectedUnit);
+                assertTimeWindow(softly, builder.buildWithJdbc(dataSourceFactory), expectedAmount, expectedUnit);
 
                 var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
                 assertTimeWindow(softly, builder.buildWithJdbi3(jdbi), expectedAmount, expectedUnit);
@@ -428,8 +432,9 @@ class ErrorContextBuilderTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Nested
-    class BuildWithDataStoreFactory {
+    class BuildWithDataStoreFactory_Deprecated {
 
         private DataSourceFactory dataSourceFactory;
 
@@ -480,7 +485,7 @@ class ErrorContextBuilderTest {
         }
 
         @Test
-        void shouldForce_NOT_SHARED_ForH2Databases() {
+        void shouldForce_NOT_SHARED_ForEmbeddedH2Databases() {
             var errorContext = ErrorContextBuilder.newInstance()
                     .environment(environment)
                     .serviceDetails(serviceDetails)
@@ -505,7 +510,87 @@ class ErrorContextBuilderTest {
     }
 
     @Nested
-    class BuildWithJdbi3 {
+    class BuildWithJdbc_UsingDataStoreFactory {
+
+        private DataSourceFactory dataSourceFactory;
+
+        @BeforeEach
+        void setUp() {
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+        }
+
+        @Test
+        void shouldBuildJdbcContext() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithJdbc(dataSourceFactory);
+
+            assertAll(
+                    () -> assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class),
+                    () -> assertThat(errorContext.errorDao()).isInstanceOf(JdbcApplicationErrorDao.class)
+            );
+        }
+
+        @Test
+        void shouldRegisterResources() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithJdbc(dataSourceFactory);
+
+            verifyRegistersJerseyResources();
+        }
+
+        @Test
+        void shouldRegisterHealthCheck() {
+            ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithJdbc(dataSourceFactory);
+
+            verifyRegistersHealthChecks();
+        }
+
+        @Test
+        void shouldDetermineDataStoreTypeIfNotSet() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithJdbc(dataSourceFactory);
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+
+        @Test
+        void shouldForce_NOT_SHARED_ForEmbeddedH2Databases() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.SHARED)
+                    .buildWithJdbc(dataSourceFactory);
+
+            assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.NOT_SHARED);
+        }
+
+        @Test
+        void shouldWorkWithPostgres() {
+            var postgresDataSourceFactory = newPostgresDataSourceFactory();
+
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithJdbc(postgresDataSourceFactory);
+
+            assertAll(
+                    () -> assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.SHARED),
+                    () -> assertThat(errorContext.errorDao()).isNotNull()
+            );
+        }
+    }
+
+    @Nested
+    class BuildWithJdbi3_UsingJdbiObject {
 
         private Jdbi jdbi;
 
@@ -579,6 +664,52 @@ class ErrorContextBuilderTest {
 
             softly.assertThat(errorContext.dataStoreType()).isEqualTo(DataStoreType.SHARED);
             softly.assertThat(errorContext.errorDao()).isNotNull();
+        }
+    }
+
+    @Nested
+    class BuildWithDataStoreFactoryOfType {
+
+        private DataSourceFactory dataSourceFactory;
+
+        @BeforeEach
+        void setUp() {
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+        }
+
+        @Test
+        void shouldRequireDaoType() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> ErrorContextBuilder.newInstance()
+                            .environment(environment)
+                            .serviceDetails(serviceDetails)
+                            .buildWithDataStoreFactoryOfType(new DataSourceFactory(), null));
+        }
+
+        @Test
+        void shouldBuildWithJdbcDaoType() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithDataStoreFactoryOfType(dataSourceFactory, DaoType.JDBC);
+
+            assertAll(
+                    () -> assertThat(errorContext).isExactlyInstanceOf(SimpleErrorContext.class),
+                    () -> assertThat(errorContext.errorDao()).isInstanceOf(JdbcApplicationErrorDao.class)
+            );
+        }
+
+        @Test
+        void shouldBuildWithJdbi3DaoType() {
+            var errorContext = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .buildWithDataStoreFactoryOfType(dataSourceFactory, DaoType.JDBI3);
+
+            assertAll(
+                    () -> assertThat(errorContext).isExactlyInstanceOf(Jdbi3ErrorContext.class),
+                    () -> assertThat(errorContext.errorDao()).isInstanceOf(Jdbi3ApplicationErrorDao.class)
+            );
         }
     }
 
