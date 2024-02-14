@@ -206,7 +206,6 @@ public class ConcurrentMapApplicationErrorDao implements ApplicationErrorDao {
     private int deleteErrorsWithStatusAndBefore(ApplicationErrorStatus status, ZonedDateTime referenceDate) {
         checkArgument(isResolvedOrUnresolved(status));
 
-        // TODO Is there a better way to count than this? (removeIf returns a boolean, which isn't useful here)
         var removeCount = new AtomicInteger();
         errors.entrySet().removeIf(entry -> matchesStatusAndBeforeDate(entry, status, referenceDate, removeCount));
 
