@@ -89,16 +89,29 @@ public class ApplicationErrorJdbc {
 
     /**
      * Runs database migrations using Liquibase.
+     * <p>
+     * This uses {@code dropwizard-app-errors-migrations.xml} as the migrations file name.
      *
      * @param conn the database connection to use for the migrations; it is NOT closed by this method!
+     * @see #migrateDatabase(Connection, String)
      */
     public static void migrateDatabase(Connection conn) {
+        migrateDatabase(conn, MIGRATIONS_FILENAME);
+    }
+
+    /**
+     * Runs database migrations using Liquibase.
+     *
+     * @param conn the database connection to use for the migrations; it is NOT closed by this method!
+     * @param migrationsFilename the file name containing the database migrations
+     */
+    public static void migrateDatabase(Connection conn, String migrationsFilename) {
         checkArgumentNotNull(conn);
 
         try {
             boolean originalAutoCommit = conn.getAutoCommit();
             var liquibaseDatabase = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-            runLiquibaseUpdate(liquibaseDatabase);
+            runLiquibaseUpdate(liquibaseDatabase, migrationsFilename);
 
             if (originalAutoCommit != conn.getAutoCommit()) {
                 LOG.trace("Liquibase changed Connection's autoCommit to: {}. Restoring to original value: {}",
@@ -111,10 +124,12 @@ public class ApplicationErrorJdbc {
         }
     }
 
-    private static void runLiquibaseUpdate(Database liquibaseDatabase) throws CommandExecutionException {
+    private static void runLiquibaseUpdate(Database liquibaseDatabase, String migrationsFilename)
+            throws CommandExecutionException {
+
         var updateCommand = new CommandScope(UpdateCommandStep.COMMAND_NAME)
                 .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, liquibaseDatabase)
-                .addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, MIGRATIONS_FILENAME);
+                .addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, migrationsFilename);
         var updateResults = updateCommand.execute();
         LOG.debug("Liquibase update results: {}", updateResults.getResults());
     }
