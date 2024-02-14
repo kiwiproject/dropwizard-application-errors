@@ -7,6 +7,10 @@ so you will need to copy the migration directly into your own application's migr
 The default Dropwizard migrations does support specifying separate files, but our current deployment process does not.
 
 As alluded to above, this file is used when the in-memory H2 database option is used.
+
+This migration is known to work in Postgres and H2. It is known to NOT work in MySQL because of differences
+in the timestamp types and defaults, which require fractional seconds in MySQL, e.g., timestamp(6) as the type
+and current_timestamp(6) as the default value.
 -->
 
 <databaseChangeLog
