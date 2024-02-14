@@ -12,7 +12,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.db.DataSourceFactory;
 import liquibase.command.CommandScope;
 import liquibase.command.core.UpdateCommandStep;
-import liquibase.command.core.helpers.DbUrlConnectionCommandStep;
+import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -113,7 +113,7 @@ public class ApplicationErrorJdbc {
 
     private static void runLiquibaseUpdate(Database liquibaseDatabase) throws CommandExecutionException {
         var updateCommand = new CommandScope(UpdateCommandStep.COMMAND_NAME)
-                .addArgumentValue(DbUrlConnectionCommandStep.DATABASE_ARG, liquibaseDatabase)
+                .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, liquibaseDatabase)
                 .addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, MIGRATIONS_FILENAME);
         var updateResults = updateCommand.execute();
         LOG.debug("Liquibase update results: {}", updateResults.getResults());
