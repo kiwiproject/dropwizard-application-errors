@@ -6,7 +6,7 @@
             </pattern>
         </encoder>
     </appender>
-    <logger name="org.kiwiproject" level="TRACE"/>
+    <logger name="org.kiwiproject.dropwizard.error" level="TRACE"/>
     <logger name="liquibase" level="INFO"/>
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
