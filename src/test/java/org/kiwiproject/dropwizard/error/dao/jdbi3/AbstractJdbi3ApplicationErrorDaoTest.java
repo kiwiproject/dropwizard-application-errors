@@ -11,6 +11,8 @@ import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
+import java.util.Objects;
+
 /**
  * Base test class for testing {@link Jdbi3ApplicationErrorDao}. Used to test against different databases, currently
  * Postgres and an in-memory H2 database.
@@ -24,14 +26,19 @@ abstract class AbstractJdbi3ApplicationErrorDaoTest extends AbstractApplicationE
 
     @BeforeEach
     final void baseSetUpJdbi3() {
-        handle = getTestExtension().getHandle();
+        handle = getNonNullTestExtension().getHandle();
 
         countAndVerifyNoApplicationErrorsExist();
     }
 
     @Override
     protected Jdbi3ApplicationErrorDao getErrorDao() {
-        return getTestExtension().getDao();
+        return getNonNullTestExtension().getDao();
+    }
+
+    private Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> getNonNullTestExtension() {
+        return Objects.requireNonNull(getTestExtension(),
+                "getTestExtension() returned null but should always return a non-null instance!");
     }
 
     @Override
