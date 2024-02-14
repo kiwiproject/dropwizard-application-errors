@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Migrations file for integration tests using MySQL as the database.
+-->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="0001-add-application-errors-table" author="dropwizard-application-errors">
+        <createTable tableName="application_errors" remarks="Stores application errors">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <!--
+                The fractional seconds part "(6)"" MUST be specified here for both type and default value.
+                See https://dev.mysql.com/doc/refman/8.3/en/date-and-time-type-syntax.html
+            -->
+            <column name="created_at" type="timestamp(6)" defaultValueComputed="current_timestamp(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp(6)" defaultValueComputed="current_timestamp(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="num_times_occurred" type="integer" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_type" type="text"/>
+            <column name="exception_message" type="text"/>
+            <column name="exception_cause_type" type="text"/>
+            <column name="exception_cause_message" type="text"/>
+            <column name="stack_trace" type="text"/>
+            <!--
+                MySQL doesn't have booleans, so this actually becomes a tinyint(1).
+                See https://www.mysqltutorial.org/mysql-basics/mysql-boolean/ and also
+                https://dev.mysql.com/doc/refman/8.3/en/boolean-literals.html
+            -->
+            <column name="resolved" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="host_name" type="text"/>
+            <column name="ip_address" type="text"/>
+            <column name="port" type="integer"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
