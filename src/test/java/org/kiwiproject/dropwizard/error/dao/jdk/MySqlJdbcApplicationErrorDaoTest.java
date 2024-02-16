@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-@DisplayName("MySqlJdbcApplicationErrorDao (MySQL)")
+@DisplayName("JdbcApplicationErrorDao (MySQL)")
 class MySqlJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
     private static SimpleSingleConnectionDataSource DATA_SOURCE;
