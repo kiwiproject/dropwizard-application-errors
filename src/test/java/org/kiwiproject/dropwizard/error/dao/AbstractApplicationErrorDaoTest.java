@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.ApplicationError.Resolved;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension;
@@ -248,29 +249,47 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
     }
 
     @Test
-    void shouldDeleteAllResolvedErrors() {
-        insertApplicationError(randomResolvedApplicationError());
-        insertApplicationError(randomUnresolvedApplicationError());
+    void shouldDeleteResolvedErrors_BeforeReferenceDate() {
+        var resolvedId1 = insertApplicationError(randomResolvedApplicationError());
+        var unresolvedId1 = insertApplicationError(randomUnresolvedApplicationError());
+
+        // Ensure the next createdAt is AFTER previous ones as long as
+        // the database timestamp precision is at least milliseconds
+        sleep5ms();
 
         var timeInBetween = ZonedDateTime.now();
-        insertApplicationError(randomResolvedApplicationError());
+        var resolvedId2 = insertApplicationError(randomResolvedApplicationError());
 
         var count = errorDao.deleteResolvedErrorsBefore(timeInBetween);
 
         assertThat(count).isOne();
+        assertThat(errorDao.getById(resolvedId1)).isEmpty();
+        assertThat(errorDao.getById(unresolvedId1)).isPresent();
+        assertThat(errorDao.getById(resolvedId2)).isPresent();
     }
 
     @Test
-    void shouldDeleteUnresolvedErrors() {
-        insertApplicationError(randomResolvedApplicationError());
-        insertApplicationError(randomUnresolvedApplicationError());
+    void shouldDeleteUnresolvedErrors_BeforeReferenceDate() {
+        var resolvedId1 = insertApplicationError(randomResolvedApplicationError());
+        var unresolvedId1 = insertApplicationError(randomUnresolvedApplicationError());
+
+        // Ensure the createdAt is AFTER previous ones as long as
+        // the database timestamp precision is at least milliseconds
+        sleep5ms();
 
         var timeInBetween = ZonedDateTime.now();
-        insertApplicationError(randomResolvedApplicationError());
+        var unresolvedId2 = insertApplicationError(randomUnresolvedApplicationError());
 
         var count = errorDao.deleteUnresolvedErrorsBefore(timeInBetween);
 
         assertThat(count).isOne();
+        assertThat(errorDao.getById(resolvedId1)).isPresent();
+        assertThat(errorDao.getById(unresolvedId1)).isEmpty();
+        assertThat(errorDao.getById(unresolvedId2)).isPresent();
+    }
+
+    private static void sleep5ms() {
+        new DefaultEnvironment().sleepQuietly(5);
     }
 
     @Test
