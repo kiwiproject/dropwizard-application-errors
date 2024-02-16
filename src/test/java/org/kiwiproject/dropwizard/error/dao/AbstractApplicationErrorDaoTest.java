@@ -161,8 +161,9 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
             var retrievedError = getErrorOrThrow(id);
 
             softly.assertThat(retrievedError.getId()).isEqualTo(id);
-            assertTimeDifferenceWithinTolerance(softly, "createdAt", beforeInsert, retrievedError.getCreatedAt());
-            assertTimeDifferenceWithinTolerance(softly, "updatedAt", beforeInsert, retrievedError.getUpdatedAt());
+            var oneSecondInMillis = 1_000;
+            assertTimeDifferenceWithinTolerance(softly, "createdAt", beforeInsert, retrievedError.getCreatedAt(), oneSecondInMillis);
+            assertTimeDifferenceWithinTolerance(softly, "updatedAt", beforeInsert, retrievedError.getUpdatedAt(), oneSecondInMillis);
             softly.assertThat(retrievedError.getDescription()).isEqualTo(description);
             softly.assertThat(retrievedError.getExceptionType()).isEqualTo(throwable.getClass().getName());
             softly.assertThat(retrievedError.getExceptionMessage()).isEqualTo(throwable.getMessage());
@@ -269,7 +270,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
 
         var count = errorDao.deleteUnresolvedErrorsBefore(timeInBetween);
 
-        assertThat(count).isEqualTo(1);
+        assertThat(count).isOne();
     }
 
     @Test
@@ -334,7 +335,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
             insertApplicationError(resolvedError);
 
             long errorsSince = errorDao.countUnresolvedErrorsSince(now.minusMinutes(30));
-            assertThat(errorsSince).isEqualTo(1);
+            assertThat(errorsSince).isOne();
         }
 
         @Test
@@ -637,7 +638,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
             var id = errorDao.insertOrIncrementCount(error);
 
             var result = getErrorOrThrow(id);
-            softly.assertThat(result.getNumTimesOccurred()).isEqualTo(1);
+            softly.assertThat(result.getNumTimesOccurred()).isOne();
             softly.assertThat(result.getDescription()).isEqualTo(error.getDescription());
         }
 
