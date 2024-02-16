@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErrorJdbcException;
+import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -61,5 +62,29 @@ public class TestHelpers {
         }
 
         LOG.info("Completed migrating {} container database using file {}", dockerImageName, migrationsFilename);
+    }
+
+    /**
+     * Create an in-memory SQLite database and return a single-connection DataSource for testing.
+     *
+     * @return a new instance of {@link SimpleSingleConnectionDataSource}
+     */
+    public static SimpleSingleConnectionDataSource newInMemorySqliteDataSource() {
+        return new SimpleSingleConnectionDataSource("jdbc:sqlite::memory:", "");
+    }
+
+    /**
+     * Use the given single-connection DataSource to run Liquibase migrations.
+     *
+     * @param dataSource
+     */
+    public static void migrateDatabase(SimpleSingleConnectionDataSource dataSource, String migrationsFilename) {
+        LOG.info("Migrating database with JDBC URL {} using file {}", dataSource.getUrl(), migrationsFilename);
+        try {
+            ApplicationErrorJdbc.migrateDatabase(dataSource.getConnection(), migrationsFilename);
+        } catch (SQLException e) {
+            throw new ApplicationErrorJdbcException(e);
+        }
+        LOG.info("Completed migrating database using file {}", migrationsFilename);
     }
 }
