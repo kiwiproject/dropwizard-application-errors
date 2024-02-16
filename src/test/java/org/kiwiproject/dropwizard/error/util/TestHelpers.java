@@ -79,7 +79,7 @@ public class TestHelpers {
      * @param dataSource
      */
     public static void migrateDatabase(SimpleSingleConnectionDataSource dataSource, String migrationsFilename) {
-        LOG.info("Migrating database with JDBC URL using file {}", dataSource.getUrl(), migrationsFilename);
+        LOG.info("Migrating database with JDBC URL {} using file {}", dataSource.getUrl(), migrationsFilename);
         try {
             ApplicationErrorJdbc.migrateDatabase(dataSource.getConnection(), migrationsFilename);
         } catch (SQLException e) {
