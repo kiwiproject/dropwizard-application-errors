@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Migrations file for integration tests using SQLite as the database.
+-->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="0001-add-application-errors-table" author="dropwizard-application-errors">
+        <createTable tableName="application_errors" remarks="Stores application errors">
+
+            <!-- SQLite auto increment columns must be integer -->
+            <column name="id" type="integer" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <!--
+                SQLite doesn't have date/time/timestamp types. This migration uses the integer type,
+                which will result in numeric timestamps stored in the database.
+
+                See Datatypes In SQLite: https://www.sqlite.org/datatype3.html
+                You can also read this tutorial with examples: https://www.sqlitetutorial.net/sqlite-date/
+            -->
+            <column name="created_at" type="integer" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="integer" defaultValueComputed="current_timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="num_times_occurred" type="integer" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_type" type="text"/>
+            <column name="exception_message" type="text"/>
+            <column name="exception_cause_type" type="text"/>
+            <column name="exception_cause_message" type="text"/>
+            <column name="stack_trace" type="text"/>
+            <column name="resolved" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="host_name" type="text"/>
+            <column name="ip_address" type="text"/>
+            <column name="port" type="integer"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
