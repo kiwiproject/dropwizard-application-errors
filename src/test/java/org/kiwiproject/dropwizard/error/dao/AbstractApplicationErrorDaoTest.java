@@ -257,7 +257,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
         // the database timestamp precision is at least milliseconds
         sleep5ms();
 
-        var timeInBetween = ZonedDateTime.now();
+        var timeInBetween = ZonedDateTime.now(ZoneOffset.UTC);
         var resolvedId2 = insertApplicationError(randomResolvedApplicationError());
 
         var count = errorDao.deleteResolvedErrorsBefore(timeInBetween);
@@ -277,7 +277,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
         // the database timestamp precision is at least milliseconds
         sleep5ms();
 
-        var timeInBetween = ZonedDateTime.now();
+        var timeInBetween = ZonedDateTime.now(ZoneOffset.UTC);
         var unresolvedId2 = insertApplicationError(randomUnresolvedApplicationError());
 
         var count = errorDao.deleteUnresolvedErrorsBefore(timeInBetween);

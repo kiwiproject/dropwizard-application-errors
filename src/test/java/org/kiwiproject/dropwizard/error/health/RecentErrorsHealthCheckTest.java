@@ -32,6 +32,7 @@ import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExten
 import org.kiwiproject.metrics.health.HealthStatus;
 import org.mockito.ArgumentMatcher;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -141,7 +142,7 @@ class RecentErrorsHealthCheckTest {
             when(errorDao.countUnresolvedErrorsOnHostSince(any(ZonedDateTime.class), anyString(), anyString()))
                     .thenReturn(0L);
 
-            var now = ZonedDateTime.now();
+            var now = ZonedDateTime.now(ZoneOffset.UTC);
             assertThatHealthCheck(healthCheck)
                     .isHealthy()
                     .hasMessage("No error(s) created or updated in last 15 minutes on host {} ({}:{})",
@@ -163,7 +164,7 @@ class RecentErrorsHealthCheckTest {
             when(errorDao.countUnresolvedErrorsOnHostSince(any(ZonedDateTime.class), anyString(), anyString()))
                     .thenReturn(errorCount);
 
-            var now = ZonedDateTime.now();
+            var now = ZonedDateTime.now(ZoneOffset.UTC);
             assertThatHealthCheck(healthCheck)
                     .isUnhealthy()
                     .hasMessage("{} error(s) created or updated in last 15 minutes on host {} ({}:{})",
