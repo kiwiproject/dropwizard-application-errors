@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotBlank;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.base.KiwiThrowables.EMPTY_THROWABLE_INFO;
@@ -18,6 +17,7 @@ import lombok.Builder;
 import lombok.Synchronized;
 import lombok.Value;
 import lombok.With;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
