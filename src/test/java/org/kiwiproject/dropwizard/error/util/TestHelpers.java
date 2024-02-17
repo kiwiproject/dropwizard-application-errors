@@ -76,7 +76,8 @@ public class TestHelpers {
     /**
      * Use the given single-connection DataSource to run Liquibase migrations.
      *
-     * @param dataSource
+     * @param dataSource the data source from which to obtain a Connection
+     * @param migrationsFilename the Liquibase migrations file
      */
     public static void migrateDatabase(SimpleSingleConnectionDataSource dataSource, String migrationsFilename) {
         LOG.info("Migrating database with JDBC URL {} using file {}", dataSource.getUrl(), migrationsFilename);
