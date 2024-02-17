@@ -7,15 +7,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 
-import java.sql.SQLException;
-
 @DisplayName("JdbcApplicationErrorDao (SQLite)")
 class SqliteJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
     private static SimpleSingleConnectionDataSource DATA_SOURCE;
 
     @BeforeAll
-    static void beforeAll() throws SQLException {
+    static void beforeAll() {
         DATA_SOURCE = newInMemorySqliteDataSource();
         migrateDatabase(DATA_SOURCE, "dropwizard-app-errors-migrations-sqlite.xml");
     }

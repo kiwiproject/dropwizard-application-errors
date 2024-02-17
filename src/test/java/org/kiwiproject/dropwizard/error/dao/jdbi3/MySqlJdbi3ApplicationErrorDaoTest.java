@@ -34,7 +34,7 @@ class MySqlJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDao
     }
 
     @BeforeAll
-    static void beforeAll() throws SQLException {
+    static void beforeAll() {
         migrateDatabase(MYSQL, "dropwizard-app-errors-migrations-mysql.xml");
     }
 }

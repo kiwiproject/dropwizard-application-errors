@@ -9,15 +9,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 
-import java.sql.SQLException;
-
 @DisplayName("Jdbi3ApplicationErrorDao (SQLite)")
 class SqliteJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
     private static SimpleSingleConnectionDataSource DATA_SOURCE;
 
     @BeforeAll
-    static void beforeAll() throws SQLException {
+    static void beforeAll() {
         DATA_SOURCE = newInMemorySqliteDataSource();
         migrateDatabase(DATA_SOURCE, "dropwizard-app-errors-migrations-sqlite.xml");
     }
