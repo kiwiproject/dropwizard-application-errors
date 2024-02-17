@@ -478,11 +478,18 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
             insertErrorsWithResolvedAs(5, Resolved.YES);
             insertErrorsWithResolvedAs(3, Resolved.NO);
 
+            // Ensure the next createdAt is AFTER previous ones as long as
+            // the database timestamp precision is at least milliseconds
+            // (this ensures the most recently resolved error is after the others)
+            sleep5ms();
+
             var desc = description + random.nextInt(100_000);
             var resolvedError = newApplicationError(desc, Resolved.YES);
             var resolvedId = insertApplicationError(resolvedError);
 
             var errors = errorDao.getErrors(ApplicationErrorStatus.RESOLVED, 1, 10);
+            assertThat(errors).hasSize(6);
+
             var mostRecentError = first(errors);
             assertThat(mostRecentError.getId()).isEqualTo(resolvedId);
         }
