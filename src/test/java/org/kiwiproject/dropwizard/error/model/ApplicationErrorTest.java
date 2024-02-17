@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 @DisplayName("ApplicationError")
@@ -145,7 +146,7 @@ class ApplicationErrorTest {
 
         @Test
         void shouldReturnEpochMillis_WhenTimestampFields_AreNotNull(SoftAssertions softly) {
-            var now = ZonedDateTime.now();
+            var now = ZonedDateTime.now(ZoneOffset.UTC);
             error = ApplicationError.builder()
                     .createdAt(now.minusHours(1))
                     .updatedAt(now)

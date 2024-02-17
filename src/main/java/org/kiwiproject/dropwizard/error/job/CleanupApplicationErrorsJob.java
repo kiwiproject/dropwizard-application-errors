@@ -8,6 +8,7 @@ import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig.CleanupStrategy;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 /**
@@ -35,7 +36,7 @@ public class CleanupApplicationErrorsJob implements CatchingRunnable {
 
     @Override
     public void runSafely() {
-        var now = ZonedDateTime.now();
+        var now = ZonedDateTime.now(ZoneOffset.UTC);
 
         var resolvedErrorsExpiration = now.minusMinutes(resolvedErrorExpirationMinutes);
         var resolvedDeletedCount = errorDao.deleteResolvedErrorsBefore(resolvedErrorsExpiration);

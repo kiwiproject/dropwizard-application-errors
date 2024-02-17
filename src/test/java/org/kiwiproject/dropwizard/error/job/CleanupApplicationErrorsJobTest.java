@@ -15,6 +15,7 @@ import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig.CleanupStrategy;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 @DisplayName("CleanupApplicationErrorsJob")
@@ -56,7 +57,7 @@ class CleanupApplicationErrorsJobTest {
         var job = new CleanupApplicationErrorsJob(config, dao);
         job.run();
 
-        var now = ZonedDateTime.now();
+        var now = ZonedDateTime.now(ZoneOffset.UTC);
 
         var expectedResolvedThreshold = now.minusMinutes(config.getResolvedErrorExpiration().toMinutes());
         LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
@@ -75,7 +76,7 @@ class CleanupApplicationErrorsJobTest {
         var job = new CleanupApplicationErrorsJob(config, dao);
         job.run();
 
-        var expectedResolvedThreshold = ZonedDateTime.now().minusMinutes(config.getResolvedErrorExpiration().toMinutes());
+        var expectedResolvedThreshold = ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(config.getResolvedErrorExpiration().toMinutes());
         LOG.debug("Expecting resolved threshold: {}", expectedResolvedThreshold);
         verify(dao).deleteResolvedErrorsBefore(argThat(time -> time.isBefore(expectedResolvedThreshold)));
 
