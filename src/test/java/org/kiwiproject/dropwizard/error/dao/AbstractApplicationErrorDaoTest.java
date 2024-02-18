@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.test.util.DateTimeTestHelper.assertTimeDifferenceWithinTolerance;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.stream.IntStream;
  */
 @ExtendWith(ApplicationErrorExtension.class)
 @ExtendWith(SoftAssertionsExtension.class)
+@Slf4j
 public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationErrorDao> {
 
     private T errorDao;
@@ -165,6 +168,13 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
             var oneSecondInMillis = 1_000;
             assertTimeDifferenceWithinTolerance(softly, "createdAt", beforeInsert, retrievedError.getCreatedAt(), oneSecondInMillis);
             assertTimeDifferenceWithinTolerance(softly, "updatedAt", beforeInsert, retrievedError.getUpdatedAt(), oneSecondInMillis);
+            if (!softly.wasSuccess()) {
+                LOG.warn("When the time difference assertions fail, it is probably due to a time zone difference." +
+                                " This library currently requires UTC for the JVM and database." +
+                                " The JVM system default time zone is {}." +
+                                " The database time zone is most likely using the same default time zone.",
+                        ZoneId.systemDefault());
+            }
             softly.assertThat(retrievedError.getDescription()).isEqualTo(description);
             softly.assertThat(retrievedError.getExceptionType()).isEqualTo(throwable.getClass().getName());
             softly.assertThat(retrievedError.getExceptionMessage()).isEqualTo(throwable.getMessage());
