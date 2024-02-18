@@ -38,6 +38,9 @@
         <mysql-connector-j.version>8.3.0</mysql-connector-j.version>
         <sqlite-jdbc.version>3.45.1.0</sqlite-jdbc.version>
 
+        <!-- Custom build properties -->
+        <surefireArgLine>-Duser.timezone=UTC</surefireArgLine>
+
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
         <sonar.organization>kiwiproject</sonar.organization>
@@ -207,17 +210,38 @@
 
             For example, MySQL and SQLite handle them differently
             from Postgres and H2.
+
+            This custom argument also needs to be passed along to
+            Jacoco and *appended* to its arguments, otherwise they
+            overwrite the default argLine arguments which are
+            needed by Jacoco.
             -->
-            <!-- TEMPORARY: Investigating why this causes jacoco to have no coverage info. -->
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <goals>
+                    <goal>prepare-agent</goal>
+                    <configuration>
+                        <!-- Will append custom (Surefire) arguments to the Jacoco argLine -->
+                        <propertyName>argLine</propertyName>
+                        <append>true</append>
+                    </configuration>
+                </goals>
+            </plugin>
+
             <!--
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <configuration>
-                                <argLine>-Duser.timezone=UTC</argLine>
-                            </configuration>
-                        </plugin>
+            The @{...} syntax allows for late-property evaluation.
+            See https://maven.apache.org/surefire/maven-surefire-plugin/faq.html#late-property-evaluation
             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} ${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
