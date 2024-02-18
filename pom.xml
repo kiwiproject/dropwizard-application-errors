@@ -208,13 +208,16 @@
             For example, MySQL and SQLite handle them differently
             from Postgres and H2.
             -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>-Duser.timezone=UTC</argLine>
-                </configuration>
-            </plugin>
+            <!-- TEMPORARY: Investigating why this causes jacoco to have no coverage info. -->
+            <!--
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <argLine>-Duser.timezone=UTC</argLine>
+                            </configuration>
+                        </plugin>
+            -->
 
         </plugins>
     </build>
