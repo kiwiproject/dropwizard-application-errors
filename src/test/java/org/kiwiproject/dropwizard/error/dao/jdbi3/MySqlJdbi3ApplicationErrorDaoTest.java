@@ -10,7 +10,6 @@ import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import java.sql.SQLException;
 
 @DisplayName("Jdbi3ApplicationErrorDao (MySQL)")
 @Testcontainers
