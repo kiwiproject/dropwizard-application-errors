@@ -38,6 +38,14 @@
         <mysql-connector-j.version>8.3.0</mysql-connector-j.version>
         <sqlite-jdbc.version>3.45.1.0</sqlite-jdbc.version>
 
+        <!-- Custom build properties -->
+
+        <!-- Ensure tests are run with the default timezone as UTC -->
+        <surefireArgLine>-Duser.timezone=UTC</surefireArgLine>
+
+        <!--  This is required for correct replacement of argLine in Surefire plugin -->
+        <argLine />
+
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
         <sonar.organization>kiwiproject</sonar.organization>
@@ -208,16 +216,21 @@
             For example, MySQL and SQLite handle them differently
             from Postgres and H2.
             -->
-            <!-- TEMPORARY: Investigating why this causes jacoco to have no coverage info. -->
+
             <!--
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <configuration>
-                                <argLine>-Duser.timezone=UTC</argLine>
-                            </configuration>
-                        </plugin>
+            The @{argLine} syntax allows for late-property evaluation, so that
+            the arguments defined by Jacoco are included. Without doing this,
+            Jacoco won't generate the coverage.
+            
+            See: https://gist.github.com/sleberknight/7e35547564c559695739ae77efa0e840
             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} ${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
