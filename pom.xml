@@ -41,6 +41,9 @@
         <!-- Custom build properties -->
         <surefireArgLine>-Duser.timezone=UTC</surefireArgLine>
 
+        <!--  This is required for later correct replacement of argLine in Surefire plugin -->
+        <argLine />
+
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_dropwizard-application-errors</sonar.projectKey>
         <sonar.organization>kiwiproject</sonar.organization>
