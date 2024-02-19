@@ -39,9 +39,11 @@
         <sqlite-jdbc.version>3.45.1.0</sqlite-jdbc.version>
 
         <!-- Custom build properties -->
+
+        <!-- Ensure tests are run with the default timezone as UTC -->
         <surefireArgLine>-Duser.timezone=UTC</surefireArgLine>
 
-        <!--  This is required for later correct replacement of argLine in Surefire plugin -->
+        <!--  This is required for correct replacement of argLine in Surefire plugin -->
         <argLine />
 
         <!-- Sonar properties -->
@@ -213,33 +215,14 @@
 
             For example, MySQL and SQLite handle them differently
             from Postgres and H2.
-
-            This custom argument also needs to be passed along to
-            Jacoco and *appended* to its arguments, otherwise they
-            overwrite the default argLine arguments which are
-            needed by Jacoco.
-            -->
-
-            <!-- Will append custom (Surefire) arguments to the Jacoco argLine -->
-            <!--
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <goals>
-                    <goal>prepare-agent</goal>
-                    <configuration>
-                        
-                        <propertyName>argLine</propertyName>
-                        <append>true</append>
-                    </configuration>
-                </goals>
-            </plugin>
             -->
 
             <!--
-            The @{...} syntax allows for late-property evaluation.
-            See https://maven.apache.org/surefire/maven-surefire-plugin/faq.html#late-property-evaluation
+            The @{argLine} syntax allows for late-property evaluation, so that
+            the arguments defined by Jacoco are included. Without doing this,
+            Jacoco won't generate the coverage.
+            
+            See: https://gist.github.com/sleberknight/7e35547564c559695739ae77efa0e840
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
