@@ -220,6 +220,8 @@
             needed by Jacoco.
             -->
 
+            <!-- Will append custom (Surefire) arguments to the Jacoco argLine -->
+            <!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -227,12 +229,13 @@
                 <goals>
                     <goal>prepare-agent</goal>
                     <configuration>
-                        <!-- Will append custom (Surefire) arguments to the Jacoco argLine -->
+                        
                         <propertyName>argLine</propertyName>
                         <append>true</append>
                     </configuration>
                 </goals>
             </plugin>
+            -->
 
             <!--
             The @{...} syntax allows for late-property evaluation.
