@@ -76,7 +76,7 @@ class RecentErrorsHealthCheckTest {
                 "72, HOURS, 3 days",
         })
         void fromAmountAndChronoUnit(long windowAmount, ChronoUnit windowUnit, String expectedReadableWindow) {
-            var healthCheck = newHealthCheck(windowAmount, windowUnit);
+            healthCheck = newHealthCheck(windowAmount, windowUnit);
 
             assertThat(healthCheck.getTimeWindowAmount()).isEqualTo(windowAmount);
             assertThat(healthCheck.getTimeWindowUnit()).isEqualTo(windowUnit);
@@ -99,7 +99,7 @@ class RecentErrorsHealthCheckTest {
         })
         void fromTimeWindowObject(String durationString, String expectedReadableWindow) {
             var duration = Duration.parse(durationString);
-            var healthCheck = newHealthCheck(new TimeWindow(duration));
+            healthCheck = newHealthCheck(new TimeWindow(duration));
 
             var javaTimeDuration = duration.toJavaDuration();
             assertThat(healthCheck.getTimeWindowAmount()).isEqualTo(javaTimeDuration.toMillis());
@@ -123,7 +123,7 @@ class RecentErrorsHealthCheckTest {
         })
         void fromDropwizardDuration(String durationString, String expectedReadableWindow) {
             var duration = Duration.parse(durationString);
-            var healthCheck = newHealthCheck(duration);
+            healthCheck = newHealthCheck(duration);
 
             assertThat(healthCheck.getTimeWindow()).isEqualTo(duration.toJavaDuration());
             assertThat(healthCheck.getHumanReadableTimeWindow()).isEqualTo(expectedReadableWindow);

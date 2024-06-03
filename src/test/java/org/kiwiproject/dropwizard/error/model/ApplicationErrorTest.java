@@ -178,11 +178,11 @@ class ApplicationErrorTest {
 
         @Test
         void shouldCreateWithOnlyDescription_AndPresetPersistentHostInformation(SoftAssertions softly) {
-            error = ApplicationError.newUnresolvedError(description, throwable);
+            error = ApplicationError.newUnresolvedError(description);
 
             softly.assertThat(error.isResolved()).isFalse();
             assertCommonProperties(softly);
-            assertExceptionProperties(softly);
+            assertNoExceptionProperties(softly);
         }
 
         @Test
@@ -246,7 +246,7 @@ class ApplicationErrorTest {
                                      String ipAddress,
                                      int port,
                                      String expectedErrorMessage) {
-            
+
             assertThatThrownBy(() ->
                     ApplicationError.newError(description, resolved, hostName, ipAddress, port, null))
                     .isExactlyInstanceOf(IllegalArgumentException.class)

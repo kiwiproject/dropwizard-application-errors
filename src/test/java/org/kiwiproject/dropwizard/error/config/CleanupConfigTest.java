@@ -27,8 +27,6 @@ class CleanupConfigTest {
 
     @Test
     void shouldHaveDefaults() {
-        var config = new CleanupConfig();
-
         assertAll(
             () -> assertThat(config.getCleanupStrategy()).isEqualTo(CleanupConfig.CleanupStrategy.ALL_ERRORS),
             () -> assertThat(config.getResolvedErrorExpiration()).isEqualTo(Duration.days(14)),
