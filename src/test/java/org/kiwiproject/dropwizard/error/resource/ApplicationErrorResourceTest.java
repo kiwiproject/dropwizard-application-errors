@@ -1,6 +1,5 @@
 package org.kiwiproject.dropwizard.error.resource;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertInternalServerErrorResponse;
 import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertNotFoundResponse;
@@ -99,7 +98,7 @@ class ApplicationErrorResourceTest {
                         var randomBoolean = ThreadLocalRandom.current().nextBoolean();
                         return newApplicationError("error " + value, Resolved.of(randomBoolean));
                     })
-                    .collect(toList());
+                    .toList();
 
             when(ERROR_DAO.getErrors(ApplicationErrorStatus.ALL, pageNumber, pageSize)).thenReturn(errors);
             when(ERROR_DAO.count(ApplicationErrorStatus.ALL)).thenReturn(totalCount);
@@ -121,7 +120,7 @@ class ApplicationErrorResourceTest {
             var totalCount = 42L;
             var errors = IntStream.rangeClosed(1, pageSize)
                     .mapToObj(value -> newApplicationError("error " + value, Resolved.NO))
-                    .collect(toList());
+                    .toList();
 
             when(ERROR_DAO.getErrors(ApplicationErrorStatus.UNRESOLVED, pageNumber, pageSize)).thenReturn(errors);
             when(ERROR_DAO.count(ApplicationErrorStatus.UNRESOLVED)).thenReturn(totalCount);
@@ -143,7 +142,7 @@ class ApplicationErrorResourceTest {
             var totalCount = 42L;
             var errors = IntStream.rangeClosed(1, pageSize)
                     .mapToObj(value -> newApplicationError("error " + value, Resolved.YES))
-                    .collect(toList());
+                    .toList();
 
             when(ERROR_DAO.getErrors(ApplicationErrorStatus.RESOLVED, pageNumber, pageSize)).thenReturn(errors);
             when(ERROR_DAO.count(ApplicationErrorStatus.RESOLVED)).thenReturn(totalCount);
@@ -231,7 +230,7 @@ class ApplicationErrorResourceTest {
         assertThat(applicationErrors.getPageSize()).isEqualTo(expectedPageSize);
         assertThat(applicationErrors.getTotalCount()).isEqualTo(expectedTotalCount);
 
-        List<String> errorDescriptions = expectedErrors.stream().map(ApplicationError::getDescription).collect(toList());
+        List<String> errorDescriptions = expectedErrors.stream().map(ApplicationError::getDescription).toList();
 
         assertThat(applicationErrors.getItems())
                 .describedAs("should have %d errors with matching descriptions", expectedPageSize)

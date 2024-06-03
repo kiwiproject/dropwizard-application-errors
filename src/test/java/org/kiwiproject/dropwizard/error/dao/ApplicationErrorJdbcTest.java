@@ -44,7 +44,7 @@ class ApplicationErrorJdbcTest {
 
         @Test
         void shouldCreateInMemoryDatabase() {
-            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
             var url = dataSourceFactory.getUrl();
             var user = dataSourceFactory.getUser();
@@ -81,7 +81,7 @@ class ApplicationErrorJdbcTest {
 
         @ClearBoxTest
         void shouldGetDatabaseProductName() throws SQLException {
-            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
             var url = dataSourceFactory.getUrl();
             var user = dataSourceFactory.getUser();
@@ -95,7 +95,7 @@ class ApplicationErrorJdbcTest {
 
         @ClearBoxTest
         void shouldReturnUnknownIfExceptionThrown() throws SQLException {
-            var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
+            dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
             var url = dataSourceFactory.getUrl();
             var user = dataSourceFactory.getUser();
@@ -204,7 +204,6 @@ class ApplicationErrorJdbcTest {
                 "jdbc:sqlite:sample.db"
         })
         void shouldReturnFalse_WhenDriverIsH2_ButUrlIsNotH2(String jdbcUrl) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(Driver.class.getName());
             dataSourceFactory.setUrl(jdbcUrl);
             assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isFalse();
@@ -217,7 +216,6 @@ class ApplicationErrorJdbcTest {
                 "org.acme.db.Driver"
         })
         void shouldReturnFalse_WhenGivenNonH2DataSourceFactory(String value) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(value);
             assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isFalse();
         }
@@ -229,7 +227,6 @@ class ApplicationErrorJdbcTest {
                 "jdbc:h2:tcp://localhost/~/test"
         })
         void shouldReturnTrue_WhenGivenH2DataSourceFactory(String jdbcUrl) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(Driver.class.getName());
             dataSourceFactory.setUrl(jdbcUrl);
             assertThat(ApplicationErrorJdbc.isH2DataStore(dataSourceFactory)).isTrue();
@@ -254,7 +251,6 @@ class ApplicationErrorJdbcTest {
                 org.h2.Driver, null
                 """, nullValues = "null")
         void shouldReturnFalse_WhenGivenNonH2_DataSourceFactory(String driverClass, String jdbcUrl) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(driverClass);
             dataSourceFactory.setUrl(jdbcUrl);
             assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isFalse();
@@ -267,7 +263,6 @@ class ApplicationErrorJdbcTest {
                 "org.acme.db.Driver"
         })
         void shouldReturnFalse_WhenGivenNonH2DataSourceFactory(String value) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(value);
             assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isFalse();
         }
@@ -304,7 +299,6 @@ class ApplicationErrorJdbcTest {
                 jdbc:h2:/data/test;auto_server=true, false
                 """)
         void shouldReturnTrue_WhenGivenEmbeddedH2DataSourceFactory(String url, boolean isEmbeddedUrl) {
-            var dataSourceFactory = new DataSourceFactory();
             dataSourceFactory.setDriverClass(Driver.class.getName());
             dataSourceFactory.setUrl(url);
             assertThat(ApplicationErrorJdbc.isH2EmbeddedDataStore(dataSourceFactory)).isEqualTo(isEmbeddedUrl);

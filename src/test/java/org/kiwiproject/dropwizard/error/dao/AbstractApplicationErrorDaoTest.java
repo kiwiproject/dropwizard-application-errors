@@ -1,7 +1,6 @@
 package org.kiwiproject.dropwizard.error.dao;
 
 import static com.google.common.base.Verify.verify;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -695,8 +694,8 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
 
         @Test
         void shouldNotChangeOtherFields_OnExistingError(SoftAssertions softly) {
-            var description = "uh oh uh oh";
-            var id = insertApplicationError(ApplicationError.newUnresolvedError(description));
+            var desc = "uh oh uh oh";
+            var id = insertApplicationError(ApplicationError.newUnresolvedError(desc));
             softlyAssertNumTimesOccurred(softly, id, 1);
 
             var originalError = getErrorOrThrow(id);
@@ -727,7 +726,7 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
     private List<Long> insertErrorsWithResolvedAs(int count, Resolved resolved, String host) {
         return IntStream.rangeClosed(1, count).mapToObj(value ->
                         insertApplicationError(randomApplicationErrorWithResolvedAndHost(resolved, host)))
-                .collect(toList());
+                .toList();
     }
 
     private ApplicationError defaultApplicationError() {
@@ -752,8 +751,8 @@ public abstract class AbstractApplicationErrorDaoTest<T extends ApplicationError
 
     private ApplicationError randomApplicationErrorWithResolvedAndHost(Resolved resolved, String hostName) {
         var number = random.nextInt(100_000);
-        var throwable = newThrowable("message " + number, "cause message " + number);
-        return ApplicationError.newError(description + " " + number, resolved, hostName, ipAddress, port, throwable);
+        var error = newThrowable("message " + number, "cause message " + number);
+        return ApplicationError.newError(description + " " + number, resolved, hostName, ipAddress, port, error);
     }
 
     private ApplicationError newApplicationError(String description, Resolved resolved) {
