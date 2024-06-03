@@ -12,6 +12,8 @@ import io.dropwizard.db.DataSourceFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jdbi.v3.core.Jdbi;
+import org.kiwiproject.base.KiwiDeprecated;
+import org.kiwiproject.base.KiwiDeprecated.Severity;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
@@ -305,9 +307,13 @@ public class ErrorContextBuilder {
      * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
      * will attempt to determine which {@link DataStoreType} it should use by calling
      * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
-     * @deprecated use {@link #buildWithJdbi3(DataSourceFactory)}
+     * @deprecated use {@link #buildWithJdbi3(DataSourceFactory)}. This will be removed in version 3.0.0.
      */
-    @Deprecated(since = "2.1.0")
+    @Deprecated(since = "2.1.0", forRemoval = true)
+    @KiwiDeprecated(removeAt = "3.0.0",
+                    reference = "https://github.com/kiwiproject/dropwizard-application-errors/issues/375",
+                    usageSeverity = Severity.SEVERE,
+                    replacedBy = "#buildWithJdbi3(DataSourceFactory)")
     public ErrorContext buildWithDataStoreFactory(DataSourceFactory dataSourceFactory) {
         return buildWithJdbi3(dataSourceFactory);
     }
