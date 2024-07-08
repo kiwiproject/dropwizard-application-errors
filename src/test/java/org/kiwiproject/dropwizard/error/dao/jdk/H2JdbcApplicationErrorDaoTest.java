@@ -13,13 +13,13 @@ import java.sql.SQLException;
 @DisplayName("JdbcApplicationErrorDao (H2)")
 public class H2JdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
-    private static SimpleSingleConnectionDataSource DATA_SOURCE;
+    private static SimpleSingleConnectionDataSource dataSource;
 
     @BeforeAll
     static void beforeAll() {
         var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
-        DATA_SOURCE = new SimpleSingleConnectionDataSource(
+        dataSource = new SimpleSingleConnectionDataSource(
                 dataSourceFactory.getUrl(),
                 dataSourceFactory.getUser(),
                 dataSourceFactory.getPassword());
@@ -27,13 +27,13 @@ public class H2JdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorD
 
     @AfterAll
     static void afterAll() throws SQLException {
-        shutdownH2Database(DATA_SOURCE);
+        shutdownH2Database(dataSource);
 
-        DATA_SOURCE = null;
+        dataSource = null;
     }
 
     @Override
     protected SimpleSingleConnectionDataSource getDataSource() {
-        return DATA_SOURCE;
+        return dataSource;
     }
 }

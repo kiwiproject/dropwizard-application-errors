@@ -10,16 +10,16 @@ import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 @DisplayName("JdbcApplicationErrorDao (SQLite)")
 class SqliteJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
-    private static SimpleSingleConnectionDataSource DATA_SOURCE;
+    private static SimpleSingleConnectionDataSource dataSource;
 
     @BeforeAll
     static void beforeAll() {
-        DATA_SOURCE = newInMemorySqliteDataSource();
-        migrateDatabase(DATA_SOURCE, "dropwizard-app-errors-migrations-sqlite.xml");
+        dataSource = newInMemorySqliteDataSource();
+        migrateDatabase(dataSource, "dropwizard-app-errors-migrations-sqlite.xml");
     }
 
     @Override
     protected SimpleSingleConnectionDataSource getDataSource() {
-        return DATA_SOURCE;
+        return dataSource;
     }
 }
