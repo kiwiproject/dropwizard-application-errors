@@ -16,29 +16,29 @@ import java.sql.SQLException;
 @DisplayName("Jdbi3ApplicationErrorDao (H2)")
 class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
-    private static JdbcDataSource DATA_SOURCE;
+    private static JdbcDataSource dataSource;
 
     @BeforeAll
     static void beforeAll() {
         var dataSourceFactory = ApplicationErrorJdbc.createInMemoryH2Database();
 
-        DATA_SOURCE = new JdbcDataSource();
-        DATA_SOURCE.setUrl(dataSourceFactory.getUrl());
-        DATA_SOURCE.setUser(dataSourceFactory.getUser());
-        DATA_SOURCE.setPassword(dataSourceFactory.getPassword());
+        dataSource = new JdbcDataSource();
+        dataSource.setUrl(dataSourceFactory.getUrl());
+        dataSource.setUser(dataSourceFactory.getUser());
+        dataSource.setPassword(dataSourceFactory.getPassword());
     }
 
     @AfterAll
     static void afterAll() throws SQLException {
-       shutdownH2Database(DATA_SOURCE);
+       shutdownH2Database(dataSource);
 
-        DATA_SOURCE = null;
+        dataSource = null;
     }
 
     @RegisterExtension final Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> jdbi3DaoExtension =
             Jdbi3DaoExtension.<Jdbi3ApplicationErrorDao>builder()
                     .daoType(Jdbi3ApplicationErrorDao.class)
-                    .dataSource(DATA_SOURCE)
+                    .dataSource(dataSource)
                     .plugin(new H2DatabasePlugin())
                     .build();
 

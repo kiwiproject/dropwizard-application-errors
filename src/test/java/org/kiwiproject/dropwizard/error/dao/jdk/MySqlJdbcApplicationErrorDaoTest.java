@@ -14,7 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DisplayName("JdbcApplicationErrorDao (MySQL)")
 class MySqlJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTest {
 
-    private static SimpleSingleConnectionDataSource DATA_SOURCE;
+    private static SimpleSingleConnectionDataSource dataSource;
 
     @Container
     private static final MySQLContainer<?> MYSQL = newLatestMySQLContainer();
@@ -23,12 +23,12 @@ class MySqlJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTe
     static void beforeAll() {
         migrateDatabase(MYSQL, "dropwizard-app-errors-migrations-mysql.xml");
 
-        DATA_SOURCE = new SimpleSingleConnectionDataSource(
+        dataSource = new SimpleSingleConnectionDataSource(
             MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
     }
 
     @Override
     protected SimpleSingleConnectionDataSource getDataSource() {
-        return DATA_SOURCE;
+        return dataSource;
     }
 }
