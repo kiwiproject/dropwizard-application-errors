@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.kiwiproject.base.KiwiDeprecated;
+import org.kiwiproject.base.KiwiDeprecated.Severity;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
 
@@ -231,7 +233,16 @@ public class ApplicationErrorJdbc {
 
     /**
      * Runtime exception wrapper around JDBC-related exceptions, e.g. {@link SQLException}.
+     *
+     * @deprecated replaced by UncheckedSQLException in kiwi 4.2.0
      */
+    @Deprecated(since = "2.2.0", forRemoval = true)
+    @KiwiDeprecated(
+        removeAt = "4.0.0",
+        replacedBy = "org.kiwiproject.jdbc.UncheckedSQLException",
+        reference = "https://github.com/kiwiproject/kiwi-test/issues/508",
+        usageSeverity = Severity.SEVERE
+    )
     public static class ApplicationErrorJdbcException extends RuntimeException {
         public ApplicationErrorJdbcException(Throwable cause) {
             super(cause);
