@@ -23,6 +23,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
+import org.kiwiproject.jdbc.UncheckedSQLException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -69,8 +70,8 @@ public class ApplicationErrorJdbc {
         try (var conn = getInMemoryH2Connection()) {
             migrateDatabase(conn);
             return newInMemoryH2DataSourceFactory();
-        } catch (Exception e) {
-            throw new ApplicationErrorJdbcException("Error getting connection to in-memory H2 database", e);
+        } catch (SQLException e) {
+            throw new UncheckedSQLException("Error getting connection to in-memory H2 database", e);
         }
     }
 
@@ -118,6 +119,9 @@ public class ApplicationErrorJdbc {
                         conn.getAutoCommit(), originalAutoCommit);
                 conn.setAutoCommit(originalAutoCommit);
             }
+        } catch (SQLException e) {
+            var message = format("JDBC/SQL error while migrating {} database", getDatabaseProductNameOrUnknown(conn));
+            throw new UncheckedSQLException(message, e);
         } catch (Exception e) {
             var message = format("Error migrating {} database", getDatabaseProductNameOrUnknown(conn));
             throw new ApplicationErrorJdbcException(message, e);

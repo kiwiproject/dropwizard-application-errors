@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.kiwiproject.jdbc.KiwiJdbc.nextOrThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import io.dropwizard.db.DataSourceFactory;
 import org.h2.Driver;
@@ -175,6 +176,17 @@ class ApplicationErrorJdbcTest {
                     assertThat(filename).isEqualTo("dropwizard-app-errors-migrations.xml");
                 }
             }
+        }
+
+        @Test
+        void shouldThrow_WhenSQLErrorOccurs() throws SQLException {
+            //noinspection resource
+            var conn = mock(Connection.class);
+            when(conn.getAutoCommit()).thenThrow(new SQLException("Unable to get autocommit status"));
+
+            assertThatThrownBy(() -> ApplicationErrorJdbc.migrateDatabase(conn))
+                    .isExactlyInstanceOf(UncheckedSQLException.class)
+                    .hasMessage("JDBC/SQL error while migrating [Unknown Error] database");
         }
 
         @Test
