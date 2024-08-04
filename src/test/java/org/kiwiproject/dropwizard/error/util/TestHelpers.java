@@ -6,15 +6,17 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErrorJdbcException;
+import org.kiwiproject.jdbc.UncheckedSQLException;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import javax.sql.DataSource;
 
 @UtilityClass
 @Slf4j
@@ -58,7 +60,7 @@ public class TestHelpers {
         try (var conn = DriverManager.getConnection(jdbcUrl, container.getUsername(), container.getPassword())) {
             ApplicationErrorJdbc.migrateDatabase(conn, migrationsFilename);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
 
         LOG.info("Completed migrating {} container database using file {}", dockerImageName, migrationsFilename);
@@ -84,7 +86,7 @@ public class TestHelpers {
         try {
             ApplicationErrorJdbc.migrateDatabase(dataSource.getConnection(), migrationsFilename);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
         LOG.info("Completed migrating database using file {}", migrationsFilename);
     }
