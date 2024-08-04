@@ -11,7 +11,7 @@ import org.kiwiproject.dropwizard.error.dao.AbstractApplicationErrorDaoTest;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.test.junit.jupiter.ApplicationErrorExtension;
-import org.kiwiproject.test.jdbc.RuntimeSQLException;
+import org.kiwiproject.jdbc.UncheckedSQLException;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 
 import java.sql.Connection;
@@ -83,7 +83,7 @@ public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplic
                 return generatedKeys.getLong(1);
             }
         } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -97,7 +97,7 @@ public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplic
             return rs.getLong(1);
 
         } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -113,7 +113,7 @@ public abstract class AbstractJdbcApplicationErrorDaoTest extends AbstractApplic
                 return ApplicationErrorJdbc.mapFrom(rs);
             }
         } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 

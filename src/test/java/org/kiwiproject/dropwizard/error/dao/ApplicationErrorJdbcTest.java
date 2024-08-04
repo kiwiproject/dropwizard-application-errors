@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErrorJdbcException;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
-import org.kiwiproject.test.jdbc.RuntimeSQLException;
+import org.kiwiproject.jdbc.UncheckedSQLException;
 import org.kiwiproject.test.junit.jupiter.ClearBoxTest;
 
 import java.sql.Connection;
@@ -71,7 +71,7 @@ class ApplicationErrorJdbcTest {
                 nextOrThrow(rs);
                 assertThat(rs.getInt(1)).isZero();
             } catch (SQLException e) {
-                throw new RuntimeSQLException(e);
+                throw new UncheckedSQLException(e);
             }
         }
     }
