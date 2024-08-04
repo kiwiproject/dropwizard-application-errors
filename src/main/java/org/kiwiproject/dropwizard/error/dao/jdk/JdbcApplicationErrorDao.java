@@ -11,11 +11,10 @@ import static org.kiwiproject.jdbc.KiwiJdbc.timestampFromZonedDateTime;
 
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
-import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErrorJdbcException;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorStatus;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
+import org.kiwiproject.jdbc.UncheckedSQLException;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import javax.sql.DataSource;
 
 /**
  * Implementation of {@link ApplicationErrorDao} that uses plain JDBC, and therefore does not require
@@ -58,7 +59,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -82,7 +83,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             nextOrThrow(rs);
             return rs.getLong(1);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -98,7 +99,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
                 return rs.getLong(1);
             }
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -117,7 +118,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
                 return rs.getLong(1);
             }
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -130,7 +131,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
         try (var conn = connection(); var stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
             return collectErrors(rs, pageSize);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -154,7 +155,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             ps.setBoolean(1, resolved);
             return collectErrors(ps, pageSize);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -171,7 +172,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             ps.setString(1, description);
             return collectErrors(ps, DEFAULT_PAGE_SIZE);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -185,7 +186,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             ps.setString(2, hostName);
             return collectErrors(ps, DEFAULT_PAGE_SIZE);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -232,7 +233,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
                 return generatedKeys.getLong(1);
             }
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -248,7 +249,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             var count = ps.executeUpdate();
             checkState(count == 1, "Unable to increment count. No ApplicationError found with id %s", id);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -277,7 +278,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             var count = ps.executeUpdate();
             checkState(count == 1, "Unable to resolve. No ApplicationError found with id %s", id);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
 
         return getById(id).orElseThrow();
@@ -290,7 +291,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
         try (var conn = connection(); var stmt = conn.createStatement()) {
             return stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
@@ -311,7 +312,7 @@ public class JdbcApplicationErrorDao implements ApplicationErrorDao {
             ps.setTimestamp(1, timestampFromZonedDateTime(expirationDate));
             return ps.executeUpdate();
         } catch (SQLException e) {
-            throw new ApplicationErrorJdbcException(e);
+            throw new UncheckedSQLException(e);
         }
     }
 
