@@ -12,8 +12,6 @@ import io.dropwizard.db.DataSourceFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jdbi.v3.core.Jdbi;
-import org.kiwiproject.base.KiwiDeprecated;
-import org.kiwiproject.base.KiwiDeprecated.Severity;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
@@ -145,7 +143,6 @@ public class ErrorContextBuilder {
      * @return this builder
      * @implNote The builder implementations have default values; using this will override those defaults.
      * @see #buildInMemoryH2()
-     * @see #buildWithDataStoreFactory(DataSourceFactory)
      * @see #buildWithJdbi3(Jdbi)
      */
     public ErrorContextBuilder dataStoreType(DataStoreType dataStoreType) {
@@ -297,25 +294,6 @@ public class ErrorContextBuilder {
         var jdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory, DEFAULT_DATABASE_HEALTH_CHECK_NAME);
 
         return newJdbi3ErrorContext(jdbi);
-    }
-
-    /**
-     * Build an {@link ErrorContext} using given the {@code dataSourceFactory} that uses JDBI version 3.
-     *
-     * @param dataSourceFactory the Dropwizard {@link DataSourceFactory}
-     * @return a new {@link ErrorContext} instance
-     * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
-     * will attempt to determine which {@link DataStoreType} it should use by calling
-     * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
-     * @deprecated use {@link #buildWithJdbi3(DataSourceFactory)}. This will be removed in version 3.0.0.
-     */
-    @Deprecated(since = "2.1.0", forRemoval = true)
-    @KiwiDeprecated(removeAt = "3.0.0",
-                    reference = "https://github.com/kiwiproject/dropwizard-application-errors/issues/375",
-                    usageSeverity = Severity.SEVERE,
-                    replacedBy = "#buildWithJdbi3(DataSourceFactory)")
-    public ErrorContext buildWithDataStoreFactory(DataSourceFactory dataSourceFactory) {
-        return buildWithJdbi3(dataSourceFactory);
     }
 
     /**
