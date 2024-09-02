@@ -10,7 +10,6 @@ import static org.kiwiproject.base.KiwiThrowables.EMPTY_THROWABLE_INFO;
 import static org.kiwiproject.base.KiwiThrowables.nextCauseOfNullable;
 import static org.kiwiproject.base.KiwiThrowables.throwableInfoOfNullable;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -132,7 +131,7 @@ public class ApplicationError {
      * {@link #checkPersistentHostState()} for the error message to be correct.
      */
     @Synchronized
-    public static synchronized void setPersistentHostInformation(PersistentHostInformation hostInfo) {
+    public static void setPersistentHostInformation(PersistentHostInformation hostInfo) {
         checkArgumentNotNull(hostInfo);
         setPersistentHostInformation(hostInfo.getHostName(), hostInfo.getIpAddress(), hostInfo.getPort());
     }
@@ -146,8 +145,7 @@ public class ApplicationError {
      * persistent host information at the same time.
      */
     @Synchronized
-    @VisibleForTesting
-    public static synchronized void clearPersistentHostInformation() {
+    public static void clearPersistentHostInformation() {
         persistentHostInformation = null;
     }
 
