@@ -44,7 +44,7 @@ public class ApplicationErrorJdbc {
     private static final String H2_DRIVER = "org.h2.Driver";
     private static final String H2_IN_MEMORY_DB_URL = "jdbc:h2:mem:dw-app-errors;DB_CLOSE_DELAY=-1";
     private static final String H2_IN_MEMORY_DB_USERNAME = "appErrorUser";
-    private static final String H2_IN_MEMORY_DB_PASSWORD = RandomStringUtils.randomAlphanumeric(20);
+    private static final String H2_IN_MEMORY_DB_PASSWORD = RandomStringUtils.secure().nextAlphanumeric(20);
 
     private static final String H2_EMBEDDED_IN_MEMORY_URL_PREFIX = "jdbc:h2:mem:";
     private static final String H2_EMBEDDED_FILE_EXPLICIT_URL_PREFIX = "jdbc:h2:file:";
