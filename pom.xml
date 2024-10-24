@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>dropwizard-application-errors</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -23,7 +23,7 @@
         <connection>scm:git:https://github.com/kiwiproject/dropwizard-application-errors.git</connection>
         <developerConnection>scm:git:git@github.com:kiwiproject/dropwizard-application-errors.git</developerConnection>
         <url>https://github.com/kiwiproject/dropwizard-application-errors</url>
-        <tag>HEAD</tag>
+        <tag>v3.0.1</tag>
     </scm>
 
     <properties>
