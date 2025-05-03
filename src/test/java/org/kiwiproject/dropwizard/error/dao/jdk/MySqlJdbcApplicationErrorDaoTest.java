@@ -1,7 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao.jdk;
 
 import static org.kiwiproject.dropwizard.error.util.TestHelpers.migrateDatabase;
-import static org.kiwiproject.dropwizard.error.util.TestHelpers.newLatestMySQLContainer;
+import static org.kiwiproject.dropwizard.error.util.TestHelpers.newLtsMySQLContainer;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,7 @@ class MySqlJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTe
     private static SimpleSingleConnectionDataSource dataSource;
 
     @Container
-    private static final MySQLContainer<?> MYSQL = newLatestMySQLContainer();
+    private static final MySQLContainer<?> MYSQL = newLtsMySQLContainer();
 
     @BeforeAll
     static void beforeAll() {
