@@ -12,11 +12,10 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 @UtilityClass
 @Slf4j
@@ -41,8 +40,8 @@ public class TestHelpers {
                 "Connection is not to an H2 database. Database product name: %s", databaseProductName);
     }
 
-    public static MySQLContainer<?> newLatestMySQLContainer() {
-        return new MySQLContainer<>(DockerImageName.parse("mysql:latest"));
+    public static MySQLContainer<?> newLtsMySQLContainer() {
+        return new MySQLContainer<>(DockerImageName.parse("mysql:lts"));
     }
 
     /**

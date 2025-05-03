@@ -1,7 +1,7 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
 import static org.kiwiproject.dropwizard.error.util.TestHelpers.migrateDatabase;
-import static org.kiwiproject.dropwizard.error.util.TestHelpers.newLatestMySQLContainer;
+import static org.kiwiproject.dropwizard.error.util.TestHelpers.newLtsMySQLContainer;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MySqlJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTest {
 
     @Container
-    private static final MySQLContainer<?> MYSQL = newLatestMySQLContainer();
+    private static final MySQLContainer<?> MYSQL = newLtsMySQLContainer();
 
     @RegisterExtension
     final Jdbi3DaoExtension<Jdbi3ApplicationErrorDao> jdbi3DaoExtension =
