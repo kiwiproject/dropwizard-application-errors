@@ -1,6 +1,6 @@
 ### Dropwizard Application Errors
 
-[![Build](https://github.com/kiwiproject/dropwizard-application-errors/workflows/build/badge.svg)](https://github.com/kiwiproject/dropwizard-application-errors/actions?query=workflow%3Abuild)
+[![Build](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/build.yml?query=branch%3Amain)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_dropwizard-application-errors&metric=alert_status)](https://sonarcloud.io/dashboard?id=kiwiproject_dropwizard-application-errors)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_dropwizard-application-errors&metric=coverage)](https://sonarcloud.io/dashboard?id=kiwiproject_dropwizard-application-errors)
 [![CodeQL](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/codeql.yml/badge.svg)](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/codeql.yml)
