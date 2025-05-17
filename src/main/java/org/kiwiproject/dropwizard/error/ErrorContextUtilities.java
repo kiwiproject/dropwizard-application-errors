@@ -8,7 +8,7 @@ import static org.kiwiproject.validation.KiwiValidations.checkArgumentValid;
 
 import io.dropwizard.core.setup.Environment;
 import lombok.experimental.UtilityClass;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.health.RecentErrorsHealthCheck;

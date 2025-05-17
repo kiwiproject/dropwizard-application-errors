@@ -3,7 +3,7 @@ package org.kiwiproject.dropwizard.error;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.kiwiproject.base.KiwiStrings;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
