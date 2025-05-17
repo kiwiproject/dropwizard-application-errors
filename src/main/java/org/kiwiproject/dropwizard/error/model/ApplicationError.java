@@ -16,7 +16,7 @@ import lombok.Builder;
 import lombok.Synchronized;
 import lombok.Value;
 import lombok.With;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
