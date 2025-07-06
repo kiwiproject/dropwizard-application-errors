@@ -1,4 +1,4 @@
-### Dropwizard Application Errors
+# Dropwizard Application Errors
 
 [![Build](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/kiwiproject/dropwizard-application-errors/actions/workflows/build.yml?query=branch%3Amain)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_dropwizard-application-errors&metric=alert_status)](https://sonarcloud.io/dashboard?id=kiwiproject_dropwizard-application-errors)
@@ -8,11 +8,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/dropwizard-application-errors)](https://central.sonatype.com/artifact/org.kiwiproject/dropwizard-application-errors/)
 
-
 Dropwizard Application Errors is a library that provides Dropwizard applications with a simple
 way to record and search on application-level errors.
 
-### Installation
+## Installation
 
 Maven:
 
@@ -30,7 +29,7 @@ Gradle:
 implementation group: 'org.kiwiproject', name: 'dropwizard-application-errors', version: '[version]'
 ```
 
-### Basic Usage
+## Basic Usage
 
 In the `run` method of your Dropwizard `Application` class, set up the `ApplicationErrorDao`.
 
@@ -50,7 +49,7 @@ objects (JakartaEE Resources, service classes, etc.):
 ```java
 var weatherResource = new WeatherResource(weatherService, errorDao);
 environment.jersey().register(weatherResource);
-```        
+```
 
 In classes that want to record application errors, you can use the
 `ApplicationErrorDao` to save errors:
@@ -88,23 +87,23 @@ errorThrower.logAndSaveApplicationError(exception,
         "An error occurred updating getting weather from service {}", weatherService.getName());
 ```
 
-### HTTP Endpoints       
+## HTTP Endpoints
 
 By default, the `ApplicationErrorResource` is registered with Jersey.
 It provides HTTP endpoints to find and resolve errors.
 
-### Health Check
+## Health Check
 
 A health check is registered by default, which checks that there aren't
 any application errors in the last 15 minutes. You can change the time period as necessary.
-                
-### Testing
+
+## Testing
 
 This library also provides a JUnit Jupiter extension, `ApplicationErrorExtension` which ensures
 the persistent host information is setup correctly for tests. It also provides Mockito test helpers
 to provide argument matchers and verifications.
 
-### UTC Time Zone Requirement
+## UTC Time Zone Requirement
 
 This library currently _requires_ the JVM and database to use UTC as their time zone.
 Otherwise the timestamp fields `createdAt` and `updatedAt` in `ApplicationError` may not
