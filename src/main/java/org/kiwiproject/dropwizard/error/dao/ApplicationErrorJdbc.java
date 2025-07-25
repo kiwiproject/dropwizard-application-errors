@@ -3,7 +3,6 @@ package org.kiwiproject.dropwizard.error.dao;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
 import static org.kiwiproject.base.KiwiPreconditions.checkArgumentNotNull;
 import static org.kiwiproject.base.KiwiStrings.format;
 import static org.kiwiproject.jdbc.KiwiJdbc.utcZonedDateTimeFromTimestamp;
@@ -20,6 +19,7 @@ import liquibase.exception.CommandExecutionException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jspecify.annotations.Nullable;
 import org.kiwiproject.dropwizard.error.model.ApplicationError;
 import org.kiwiproject.dropwizard.error.model.DataStoreType;
@@ -203,7 +203,7 @@ public class ApplicationErrorJdbc {
 
         var url = requireNonNull(dataSourceFactory).getUrl();
 
-        return startsWithAny(url, H2_EMBEDDED_URL_PREFIXES) && isNotH2AutomaticMixedMode(url);
+        return Strings.CS.startsWithAny(url, H2_EMBEDDED_URL_PREFIXES) && isNotH2AutomaticMixedMode(url);
     }
 
     private static boolean isNotH2DataStore(@Nullable DataSourceFactory dataSourceFactory) {
