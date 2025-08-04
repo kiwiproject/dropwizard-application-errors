@@ -35,7 +35,7 @@
 
         <!-- Versions for test dependencies -->
         <kiwi-test.version>3.11.1</kiwi-test.version>
-        <mysql-connector-j.version>9.3.0</mysql-connector-j.version>
+        <mysql-connector-j.version>9.4.0</mysql-connector-j.version>
         <sqlite-jdbc.version>3.50.3.0</sqlite-jdbc.version>
 
         <!-- Custom build properties -->
