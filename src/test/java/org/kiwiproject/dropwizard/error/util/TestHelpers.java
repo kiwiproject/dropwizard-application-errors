@@ -9,7 +9,7 @@ import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc.ApplicationErro
 import org.kiwiproject.jdbc.UncheckedSQLException;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
@@ -40,8 +40,8 @@ public class TestHelpers {
                 "Connection is not to an H2 database. Database product name: %s", databaseProductName);
     }
 
-    public static MySQLContainer<?> newLtsMySQLContainer() {
-        return new MySQLContainer<>(DockerImageName.parse("mysql:lts"));
+    public static MySQLContainer newLtsMySQLContainer() {
+        return new MySQLContainer(DockerImageName.parse("mysql:lts"));
     }
 
     /**

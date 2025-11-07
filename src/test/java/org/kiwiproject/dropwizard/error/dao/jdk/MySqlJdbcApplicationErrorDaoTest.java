@@ -6,9 +6,9 @@ import static org.kiwiproject.dropwizard.error.util.TestHelpers.newLtsMySQLConta
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.kiwiproject.test.jdbc.SimpleSingleConnectionDataSource;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mysql.MySQLContainer;
 
 @Testcontainers
 @DisplayName("JdbcApplicationErrorDao (MySQL)")
@@ -17,7 +17,7 @@ class MySqlJdbcApplicationErrorDaoTest extends AbstractJdbcApplicationErrorDaoTe
     private static SimpleSingleConnectionDataSource dataSource;
 
     @Container
-    private static final MySQLContainer<?> MYSQL = newLtsMySQLContainer();
+    private static final MySQLContainer MYSQL = newLtsMySQLContainer();
 
     @BeforeAll
     static void beforeAll() {
