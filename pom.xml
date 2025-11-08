@@ -34,9 +34,9 @@
         <metrics-healthchecks-severity.version>2.1.4</metrics-healthchecks-severity.version>
 
         <!-- Versions for test dependencies -->
-        <kiwi-test.version>3.12.1</kiwi-test.version>
+        <kiwi-test.version>3.12.2</kiwi-test.version>
         <mysql-connector-j.version>9.5.0</mysql-connector-j.version>
-        <sqlite-jdbc.version>3.50.3.0</sqlite-jdbc.version>
+        <sqlite-jdbc.version>3.51.0.0</sqlite-jdbc.version>
 
         <!-- Custom build properties -->
 
