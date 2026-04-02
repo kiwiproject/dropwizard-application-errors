@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.kiwiproject.dropwizard.error.config.CleanupConfig;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.ApplicationErrorJdbc;
+import org.kiwiproject.dropwizard.error.dao.jdbi3.UtcZonedDateTimeArgumentFactory;
 import org.kiwiproject.dropwizard.error.dao.jdk.ConcurrentMapApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.JdbcApplicationErrorDao;
 import org.kiwiproject.dropwizard.error.dao.jdk.NoOpApplicationErrorDao;
@@ -278,6 +279,11 @@ public class ErrorContextBuilder {
      * @return a new {@link ErrorContext} instance
      * @implNote Always sets dataStoreType to {@link DataStoreType#NOT_SHARED}, since this builds an
      * in-memory database that can only be accessed from within the service in which it resides.
+     * <p>
+     * A {@link UtcZonedDateTimeArgumentFactory} is automatically registered on the {@link Jdbi}
+     * instance created by this method, as required since JDBI 3.52.0. Because this method
+     * creates its own internal {@link Jdbi} instance, this registration does not affect any
+     * other {@link Jdbi} instances in your application.
      */
     public ErrorContext buildInMemoryH2() {
         if (dataStoreTypeAlreadySet && dataStoreType == DataStoreType.SHARED) {
@@ -304,6 +310,11 @@ public class ErrorContextBuilder {
      * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
      * will attempt to determine which {@link DataStoreType} it should use by calling
      * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
+     * <p>
+     * A {@link UtcZonedDateTimeArgumentFactory} is automatically registered on the {@link Jdbi}
+     * instance created by this method, as required since JDBI 3.52.0. Because this method
+     * creates its own internal {@link Jdbi} instance, this registration does not affect any
+     * other {@link Jdbi} instances in your application.
      */
     public ErrorContext buildWithJdbi3(DataSourceFactory dataSourceFactory) {
         ensureDataStoreTypeIsSetFor(dataSourceFactory);
@@ -405,12 +416,30 @@ public class ErrorContextBuilder {
     /**
      * Build an {@link ErrorContext} that uses JDBI version 3.
      *
-     * @param jdbi the {@link Jdbi} instance to use; it must be configured with {@code SqlObjectPlugin}
+     * @param jdbi the {@link Jdbi} instance to use; it must be configured with
+     *             {@link org.jdbi.v3.sqlobject.SqlObjectPlugin}
      * @return a new {@link ErrorContext} instance
-     * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} prior to calling this method, this method
-     * will default to using a value of {@link DataStoreType#SHARED}. Otherwise, we would need to open a database
-     * connection, inspect the database metadata, etc. to figure out the database, and we don't want to do all this.
-     * If you are using an in-memory database, then be sure to configure the data store type before calling.
+     * @implNote If you do not invoke {@link #dataStoreType(DataStoreType)} before calling
+     * this method, the data store type will default to {@link DataStoreType#SHARED}.
+     * Otherwise, we would need to open a database connection, inspect the database metadata,
+     * etc. to figure out the database, and we don't want to do all this. If you are using an
+     * in-memory database, then be sure to configure the data store type before calling.
+     * <p>
+     * A {@link UtcZonedDateTimeArgumentFactory} is registered on the provided {@link Jdbi}
+     * instance. This is required since JDBI 3.52.0 changed how {@link java.time.ZonedDateTime}
+     * values are bound, which is incompatible with the plain {@code TIMESTAMP} columns this
+     * library uses. The registration applies to all uses of the provided {@link Jdbi} instance.
+     * <p>
+     * For most applications this is safe and transparent. However, if your application
+     * shares this {@link Jdbi} instance with other DAOs that use
+     * {@code TIMESTAMP WITH TIME ZONE} columns, consider either:
+     * <ul>
+     *   <li>Passing a dedicated {@link Jdbi} instance to isolate this registration. Both
+     *       instances can share the same underlying {@link javax.sql.DataSource} or
+     *       connection pool with no meaningful overhead — see the README for an example.</li>
+     *   <li>Using {@link #buildWithJdbi3(DataSourceFactory)} instead, which creates its
+     *       own internal {@link Jdbi} instance, leaving your shared instance unaffected.</li>
+     * </ul>
      */
     public ErrorContext buildWithJdbi3(Jdbi jdbi) {
         if (!dataStoreTypeAlreadySet) {
@@ -421,6 +450,14 @@ public class ErrorContextBuilder {
     }
 
     private Jdbi3ErrorContext newJdbi3ErrorContext(Jdbi jdbi) {
+        // Register our UtcZonedDateTimeArgumentFactory to ensure ZonedDateTime values are
+        // bound via setTimestamp() rather than setObject(). JDBI 3.52.0 switched to the
+        // JDBC 4.2 setObject() API for java.time types, which causes plain TIMESTAMP
+        // columns in H2 and SQLite to store ISO-8601 strings that their drivers cannot
+        // subsequently parse via ResultSet#getTimestamp(). See UtcZonedDateTimeArgumentFactory
+        // for details.
+        jdbi.registerArgument(new UtcZonedDateTimeArgumentFactory());
+
         return new Jdbi3ErrorContext(environment, serviceDetails, jdbi, buildOptions());
     }
 
