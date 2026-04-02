@@ -452,10 +452,10 @@ public class ErrorContextBuilder {
     private Jdbi3ErrorContext newJdbi3ErrorContext(Jdbi jdbi) {
         // Register our UtcZonedDateTimeArgumentFactory to ensure ZonedDateTime values are
         // bound via setTimestamp() rather than setObject(). JDBI 3.52.0 switched to the
-        // JDBC 4.2 setObject() API for java.time types, which causes plain TIMESTAMP
-        // columns in H2 and SQLite to store ISO-8601 strings that their drivers cannot
-        // subsequently parse via ResultSet#getTimestamp(). See UtcZonedDateTimeArgumentFactory
-        // for details.
+        // JDBC 4.2 setObject() API for java.time types, which causes compatibility
+        // issues with plain TIMESTAMP columns in some databases - their drivers cannot
+        // subsequently read the stored values back via ResultSet#getTimestamp().
+        // See UtcZonedDateTimeArgumentFactory for details.
         jdbi.registerArgument(new UtcZonedDateTimeArgumentFactory());
 
         return new Jdbi3ErrorContext(environment, serviceDetails, jdbi, buildOptions());

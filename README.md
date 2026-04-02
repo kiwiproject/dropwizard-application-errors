@@ -134,9 +134,9 @@ property to the VM arguments in `.vscode/settings.json`
 ### JDBI 3.52.0 Compatibility
 
 As of JDBI 3.52.0, `ZonedDateTime` values are bound using the JDBC 4.2 `setObject` API
-rather than `setTimestamp`. This causes databases with plain `TIMESTAMP` columns (H2,
-SQLite) to store values in an ISO-8601 format that their JDBC drivers cannot subsequently
-read back via `ResultSet#getTimestamp`, producing errors like:
+rather than `setTimestamp`. This causes compatibility issues with plain `TIMESTAMP`
+columns in some databases - their JDBC drivers cannot subsequently read the stored values back via
+`ResultSet#getTimestamp`, producing errors like::
 
 ```java
 java.sql.SQLException: Error parsing time stamp

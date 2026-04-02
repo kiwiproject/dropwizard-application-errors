@@ -15,8 +15,8 @@ import java.time.ZonedDateTime;
  * {@link java.sql.PreparedStatement#setTimestamp(int, Timestamp)}, converting to a
  * UTC-based {@link Timestamp} before binding. This is necessary because JDBI 3.52.0
  * changed {@link ZonedDateTime} binding to use the JDBC 4.2 {@code setObject} API,
- * which causes databases with plain {@code TIMESTAMP} columns (such as H2 and SQLite)
- * to store values in ISO-8601 format that their JDBC drivers cannot subsequently parse
+ * which causes compatibility issues with plain {@code TIMESTAMP} columns in some
+ * databases - their JDBC drivers cannot subsequently read the stored values back
  * via {@link java.sql.ResultSet#getTimestamp}.
  * <p>
  * This library requires UTC and plain {@code TIMESTAMP} columns, so the pre-3.52.0
