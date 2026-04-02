@@ -1,6 +1,5 @@
 package org.kiwiproject.dropwizard.error.dao.jdbi3;
 
-import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
@@ -17,7 +16,7 @@ class PostgresJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationError
             Jdbi3DaoExtension.<Jdbi3ApplicationErrorDao>builder()
                     .daoType(Jdbi3ApplicationErrorDao.class)
                     .dataSource(POSTGRES.getTestDataSource())
-                    .plugin(new H2DatabasePlugin())
+                    .plugin(new UtcZonedDateTimeJdbiPlugin())
                     .build();
 
     @Override
