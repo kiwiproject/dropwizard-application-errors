@@ -40,6 +40,7 @@ class H2Jdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDaoTes
                     .daoType(Jdbi3ApplicationErrorDao.class)
                     .dataSource(dataSource)
                     .plugin(new H2DatabasePlugin())
+                    .plugin(new UtcZonedDateTimeJdbiPlugin())
                     .build();
 
     @Override
