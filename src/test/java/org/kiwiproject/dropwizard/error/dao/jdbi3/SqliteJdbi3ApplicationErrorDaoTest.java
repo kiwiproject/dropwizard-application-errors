@@ -25,6 +25,7 @@ class SqliteJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDa
             Jdbi3DaoExtension.<Jdbi3ApplicationErrorDao>builder()
                     .daoType(Jdbi3ApplicationErrorDao.class)
                     .dataSource(dataSource)
+                    .plugin(new UtcZonedDateTimeJdbiPlugin())
                     .build();
 
     @Override

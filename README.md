@@ -130,3 +130,58 @@ property to the VM arguments in `.vscode/settings.json`
   }
 }
 ```
+
+### JDBI 3.52.0 Compatibility
+
+As of JDBI 3.52.0, `ZonedDateTime` values are bound using the JDBC 4.2 `setObject` API
+rather than `setTimestamp`. This causes compatibility issues with plain `TIMESTAMP`
+columns in some databases - their JDBC drivers cannot subsequently read the stored values back via
+`ResultSet#getTimestamp`, producing errors like:
+
+```java
+java.sql.SQLException: Error parsing time stamp
+Caused by: java.text.ParseException: Unparseable date: "2026-04-02T06:38:30.557432681Z"
+    does not match (\p{Nd}++)\Q-\E(\p{Nd}++)\Q-\E(\p{Nd}++)\Q \E...
+```
+
+This library handles this automatically. All JDBI 3 build paths in `ErrorContextBuilder`
+register a `UtcZonedDateTimeArgumentFactory` on the `Jdbi` instance, which restores the
+pre-3.52.0 `setTimestamp` behavior. No changes are required in your application code in
+most cases.
+
+For more details on the upstream change, see the
+[JDBI 3.52.0 release notes](https://github.com/jdbi/jdbi/releases/tag/v3.52.0).
+
+### Shared `Jdbi` instances
+
+The `UtcZonedDateTimeArgumentFactory` registration applies to all uses of the provided
+`Jdbi` instance. For most applications using plain `TIMESTAMP` columns in UTC — which
+is this library's existing requirement — this is safe and transparent.
+
+However, if your application uses `TIMESTAMP WITH TIME ZONE` columns in other tables,
+the registered factory will also affect those queries. In that case, consider either:
+
+- Passing a **dedicated `Jdbi` instance** to `buildWithJdbi3(Jdbi)`, backed by the
+  same connection pool as your primary instance:
+
+```java
+// Your application's primary Jdbi instance — unaffected
+var primaryJdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
+
+// Dedicated instance for dropwizard-application-errors — shares the same pool
+var errorJdbi = Jdbi3Builders.buildManagedJdbi(environment, dataSourceFactory);
+var errorContext = ErrorContextBuilder.newInstance()
+        .environment(environment)
+        .serviceDetails(serviceDetails)
+        .buildWithJdbi3(errorJdbi);
+```
+
+- Using `buildWithJdbi3(DataSourceFactory)` instead, which creates its own internal
+  `Jdbi` instance and leaves your shared instance entirely unaffected:
+
+```java
+var errorContext = ErrorContextBuilder.newInstance()
+        .environment(environment)
+        .serviceDetails(serviceDetails)
+        .buildWithJdbi3(dataSourceFactory);
+```

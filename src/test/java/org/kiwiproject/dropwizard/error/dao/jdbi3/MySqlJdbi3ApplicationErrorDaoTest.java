@@ -25,6 +25,7 @@ class MySqlJdbi3ApplicationErrorDaoTest extends AbstractJdbi3ApplicationErrorDao
                     .url(MYSQL.getJdbcUrl())
                     .username(MYSQL.getUsername())
                     .password(MYSQL.getPassword())
+                    .plugin(new UtcZonedDateTimeJdbiPlugin())
                     .build();
 
     @Override
