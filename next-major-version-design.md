@@ -357,7 +357,49 @@ existing `0001` MySQL changeset).
 
 ---
 
-## 6. Out of Scope / Deferred
+## 6. New REST Endpoints
+
+### Existing endpoints (for reference)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/kiwi/application-errors` | Paginated list (status/pageNumber/pageSize query params) |
+| `GET` | `/kiwi/application-errors/{id}` | Get by ID |
+| `PUT` | `/kiwi/application-errors/resolve/{id}` | Resolve one error |
+| `PUT` | `/kiwi/application-errors/resolve` | Resolve all unresolved errors |
+
+### New endpoints in `ApplicationErrorResource`
+
+Following the existing `resolve/{id}` action style:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `PUT` | `/kiwi/application-errors/pin/{id}` | Pin an error (exclude from auto-deletion) |
+| `PUT` | `/kiwi/application-errors/unpin/{id}` | Unpin an error (re-eligible for auto-deletion) |
+
+### New `ApplicationErrorNoteResource`
+
+Notes are a child resource of an error, so they get a separate resource class registered
+at a nested path. This keeps `ApplicationErrorResource` from growing unwieldy and mirrors
+the separate `ApplicationErrorNoteDao`.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/kiwi/application-errors/{id}/notes` | Add a note to an error |
+| `GET` | `/kiwi/application-errors/{id}/notes` | Get all notes for an error |
+| `DELETE` | `/kiwi/application-errors/{id}/notes/{noteId}` | Delete a specific note |
+
+The `POST` body would be a simple JSON object with `authorIdentity` (optional) and
+`content` (required). The resource takes `ApplicationErrorNoteDao` as a constructor
+argument, consistent with how `ApplicationErrorResource` takes `ApplicationErrorDao`.
+
+`ErrorContextBuilder` registers `ApplicationErrorNoteResource` alongside the existing
+resources when the notes DAO is available (i.e., always in 5.0.0 since the migration
+is required).
+
+---
+
+## 7. Out of Scope / Deferred
 
 - `LIMIT/OFFSET` → `OFFSET FETCH` SQL standard syntax: blocked by SQLite compatibility.
   Revisit if/when SQLite support is dropped.
