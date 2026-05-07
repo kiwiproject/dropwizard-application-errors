@@ -33,6 +33,13 @@ public enum ApplicationErrorSeverity {
 }
 ```
 
+> **Naming TBD:** Three options to decide before implementation:
+> - `ApplicationErrorSeverity` — unambiguous but verbose
+> - `Severity` — concise but a common name that may conflict in library consumers' codebases
+> - `ApplicationError.Severity` — nested inside `ApplicationError`, consistent with the existing
+>   `ApplicationError.Resolved` nested enum; scoped without being a mouthful, and the two
+>   enums sit naturally together. Likely the best option.
+
 ### Schema change
 
 New column on `application_errors` with a default of `NORMAL` (see section 5 for
