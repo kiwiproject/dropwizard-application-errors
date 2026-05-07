@@ -235,7 +235,9 @@ mirroring the pattern used by `ApplicationErrorDao`):
 ```java
 public interface ApplicationErrorNoteDao {
     ApplicationErrorNote addNote(long errorId, String authorIdentity, String content);
+    Optional<ApplicationErrorNote> getNote(long noteId);
     List<ApplicationErrorNote> getNotesForError(long errorId);
+    ApplicationErrorNote updateNote(long noteId, String authorIdentity, String content);
     int deleteNote(long noteId);
     int deleteAllNotesForError(long errorId);  // supplemental; cascade handles cleanup job
 }
@@ -387,6 +389,8 @@ the separate `ApplicationErrorNoteDao`.
 |--------|------|-------------|
 | `POST` | `/kiwi/application-errors/{id}/notes` | Add a note to an error |
 | `GET` | `/kiwi/application-errors/{id}/notes` | Get all notes for an error |
+| `GET` | `/kiwi/application-errors/{id}/notes/{noteId}` | Get a specific note |
+| `PUT` | `/kiwi/application-errors/{id}/notes/{noteId}` | Update a note (e.g. fix a typo) |
 | `DELETE` | `/kiwi/application-errors/{id}/notes/{noteId}` | Delete a specific note |
 
 The `POST` body would be a simple JSON object with `authorIdentity` (optional) and
