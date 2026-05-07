@@ -1,4 +1,4 @@
-# Next Major Version Design Plan
+# 5.0.0 Design Plan
 
 Captures design decisions from discussion. Relates to GitHub discussions
 [#147](https://github.com/kiwiproject/dropwizard-application-errors/discussions/147),
