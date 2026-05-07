@@ -265,11 +265,42 @@ methods continue to work and produce errors with sensible defaults.
 
 ## 5. Migration File Structure
 
-Changesets go in `dropwizard-app-errors-migrations.xml` (and the MySQL variant),
-following the existing Liquibase conventions. The raw SQL shown elsewhere in this
-document is illustrative — the actual changesets use Liquibase XML.
+### File locations
 
-Suggested changesets:
+The repository has three migration files:
+
+| File | Location | Shipped in JAR? |
+|------|----------|-----------------|
+| `dropwizard-app-errors-migrations.xml` | `src/main/resources` | Yes |
+| `dropwizard-app-errors-migrations-mysql.xml` | `src/test/resources` | No (test only) |
+| `dropwizard-app-errors-migrations-sqlite.xml` | `src/test/resources` | No (test only) |
+
+The new changesets are appended directly to these existing files — no new files needed.
+Liquibase's changelog table ensures already-run changesets are never re-executed, so
+existing users are unaffected by the additions.
+
+### How users run the migration
+
+Because `dropwizard-app-errors-migrations.xml` is in the JAR, users can reference it
+directly from their own Liquibase changelog via `<include>` — **no copy-paste and no
+JAR extraction required**. Liquibase resolves `classpath:/` references from JARs on
+the classpath automatically:
+
+```xml
+<!-- In the consuming application's own migrations changelog -->
+<include file="classpath:/dropwizard-app-errors-migrations.xml"/>
+```
+
+Users upgrading from a prior version who were previously copy-pasting changesets should
+switch to this `<include>` approach and remove the copied changesets from their own
+changelog (after verifying their Liquibase changelog table already records `0001` as
+executed, so it won't be re-run).
+
+This should be called out clearly in the release notes.
+
+### New changesets (Postgres / H2)
+
+Append to `src/main/resources/dropwizard-app-errors-migrations.xml`:
 
 ```xml
 <changeSet id="0002-add-severity-column" author="dropwizard-application-errors">
@@ -310,8 +341,12 @@ Suggested changesets:
 </changeSet>
 ```
 
-A separate MySQL variant file will be needed (as with `0001`) to handle timestamp
-type and default differences.
+### New changesets (MySQL test variant)
+
+Equivalent changesets are appended to
+`src/test/resources/dropwizard-app-errors-migrations-mysql.xml`, using
+`timestamp(6)` and `current_timestamp(6)` where applicable (consistent with the
+existing `0001` MySQL changeset).
 
 ---
 
