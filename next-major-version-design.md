@@ -39,7 +39,7 @@ New nullable column on `application_errors` with a default of `NORMAL`:
 
 ```sql
 ALTER TABLE application_errors
-    ADD COLUMN severity VARCHAR(10) NOT NULL DEFAULT 'NORMAL';
+    ADD COLUMN severity TEXT NOT NULL DEFAULT 'NORMAL';
 ```
 
 ### Behavioral meaning
@@ -174,7 +174,7 @@ CREATE TABLE application_error_notes (
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     application_error_id BIGINT NOT NULL
         REFERENCES application_errors(id) ON DELETE CASCADE,
-    author_identity VARCHAR(255),
+    author_identity TEXT,
     content         TEXT NOT NULL
 );
 ```
