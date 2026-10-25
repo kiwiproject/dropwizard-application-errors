@@ -155,6 +155,31 @@ class ErrorContextBuilderTest {
             assertIllegalArgumentExceptionThrownBuilding(softly, builder, expectedMessage);
         }
 
+        @Test
+        void whenDataSourceFactoryIsNull_AndDataStoreTypeWasExplicitlySet() {
+            var builder = ErrorContextBuilder.newInstance()
+                    .environment(environment)
+                    .serviceDetails(serviceDetails)
+                    .dataStoreType(DataStoreType.NOT_SHARED);
+
+            var expectedMessage = "dataSourceFactory must not be null";
+
+            assertAll(
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> builder.buildWithJdbc(null))
+                            .withMessage(expectedMessage),
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> builder.buildWithJdbi3((DataSourceFactory) null))
+                            .withMessage(expectedMessage),
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> builder.buildWithDataStoreFactoryOfType(null, DaoType.JDBC))
+                            .withMessage(expectedMessage),
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> builder.buildWithDataStoreFactoryOfType(null, DaoType.JDBI3))
+                            .withMessage(expectedMessage)
+            );
+        }
+
         private void assertIllegalArgumentExceptionThrownBuilding(SoftAssertions softly,
                                                                   ErrorContextBuilder builder,
                                                                   String expectedMessage) {
