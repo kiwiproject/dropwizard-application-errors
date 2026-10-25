@@ -317,6 +317,7 @@ public class ErrorContextBuilder {
      * other {@link Jdbi} instances in your application.
      */
     public ErrorContext buildWithJdbi3(DataSourceFactory dataSourceFactory) {
+        checkArgumentNotNull(dataSourceFactory, "dataSourceFactory must not be null");
         ensureDataStoreTypeIsSetFor(dataSourceFactory);
 
         // Check arguments before creating Jdbi instance
@@ -339,6 +340,7 @@ public class ErrorContextBuilder {
      * {@link ApplicationErrorJdbc#dataStoreTypeOf(DataSourceFactory)}.
      */
     public ErrorContext buildWithJdbc(DataSourceFactory dataSourceFactory) {
+        checkArgumentNotNull(dataSourceFactory, "dataSourceFactory must not be null");
         ensureDataStoreTypeIsSetFor(dataSourceFactory);
 
         // Check arguments before creating DataSource and DAO
